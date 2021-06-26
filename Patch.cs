@@ -702,7 +702,95 @@ namespace Stats_Tracker
                 return total;
             }
         }
+        static HashSet<string> biomesFoundTotal
+        {
+            get
+            {
+                HashSet<string> biomes = new HashSet<string>();
+                foreach (var kv in Main.config.biomesFound)
+                {
+                    foreach (string biome in kv.Value)
+                         biomes.Add(biome);
+                }
+                return biomes;
+            }
+        }
+        private readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>()
+        {
+            { "BloodKelp", "Blood Kelp Zone"},
+            { "CragField", "Crag Field" },
+            { "crashZone", "Crash Zone" },
+            { "deepGrandReef", "Deep Grand Reef" },
+            { "dunes", "Sand Dunes"},
+            { "GrassyPlateaus", "Grassy Plateaus"},
+            { "LavaLakes", "Lava Lakes" },
+            { "LavaFalls", "Lava Lakes" },
+            { "ALZChamber", "Lava Lakes" },
+            { "grandReef", "Grand Reef" },
+            { "LostRiver_Junction", "Lost River" },
+            { "LostRiver_BonesField", "Lost River" },
+            { "LostRiver_TreeCove", "Lost River" },
+            { "FloatingIsland", "Floating Island" },
+            { "JellyshroomCaves", "Jellyshroom Caves" },
+            { "kelpForest", "Kelp Forest"},
+            { "kooshZone", "Bulb Zone"},
+            { "mountains", "Mountains" },
+            { "mushroomForest", "Mushroom Forest" },
+            { "safeShallows", "Safe Shallows"},
+            { "seaTreaderPath", "Sea Treader's Path" },
+            { "SparseReef", "Sparse Reef" },
+            { "underwaterIslands", "Underwater Islands"},
+            { "void", "Ecological Dead Zone" },
+            { "ILZChamber", "Inactive Lava Zone" },
+            { "ilz", "Inactive Lava Zone" },
+        };
 
+        public static string GetBiomeName(string name)
+        {
+            name = name.ToLower();
+            if (name.Contains("bloodkelp"))
+                return "Blood Kelp Zone";
+            else if (name.Contains("cragfield"))
+                return "Crag Field";
+            else if (name.Contains("crashzone"))
+                return "Crash Zone";
+            else if (name.Contains("grandreef"))
+                return "Grand Reef";
+            else if (name.Contains("dunes"))
+                return "Sand Dunes";
+            else if (name.Contains("grassyplateaus"))
+                return "Grassy Plateaus";
+            else if (name.Contains("lostriver"))
+                return "Lost River";
+            else if (name.Contains("floatingisland"))
+                return "Floating Island";
+            else if (name.Contains("jellyshroomcaves"))
+                return "Jellyshroom Caves";
+            else if (name.Contains("kelpforest"))
+                return "Kelp Forest";
+            else if (name.Contains("kooshzone"))
+                return "Bulb Zone";
+            else if (name.Contains("mountains"))
+                return "Mountains";
+            else if (name.Contains("mushroomforest"))
+                return "Mushroom Forest";
+            else if (name.Contains("safeshallows"))
+                return "Safe Shallows";
+            else if (name.Contains("seatreaderpath"))
+                return "Sea Treader's Path";
+            else if (name.Contains("sparsereef"))
+                return "Sparse Reef";
+            else if (name.Contains("underwaterislands"))
+                return "Underwater Islands";
+            else if (name.Contains("void"))
+                return "Ecological Dead Zone";
+            else if (name.Contains("ilz"))
+                return "Inactive Lava Zone";
+            else if (name.Contains("lava") || name.Contains("alz") || name.Contains("prison"))
+                return "Lava Lakes";
+
+            return "unknown";
+        }
 
         public static void AddPDAentry(string key, string name, string desc, string path)
         {
@@ -828,10 +916,11 @@ namespace Stats_Tracker
                     result += "\nBase corridor segments built: " + baseCorridorsBuiltTotal;
                     result += "\nTotal power generated for your bases: " + basePowerTotal;
 
-                    result += "\n\nThings scanned: " + objectsScannedTotal;
+                    result += "\n\nObjects scanned: " + objectsScannedTotal;
                     result += "\nBlueprints unlocked by scanning: " + blueprintsUnlockedTotal;
                     result += "\nBlueprints found in databoxes: " + blueprintsFromDataboxesTotal;
-                    result += "\nFauna species discovered: " + faunaFoundTotal;
+
+                    result += "\n\nFauna species discovered: " + faunaFoundTotal;
                     result += "\nFlora species discovered: " + floraFoundTotal;
                     result += "\nCoral species discovered: " + coralFoundTotal;
                     result += "\nLeviathan species discovered: " + leviathanFoundTotal;
@@ -857,11 +946,17 @@ namespace Stats_Tracker
                     result += "\nEggs hatched in AC: " + eggsHatchedTotal;
                     result += "\nDifferent species hatched in AC: " + diffEggsHatchedTotal;
 
+                    result += "\n\nBiomes discovered:";
+                    foreach (string biome in biomesFoundTotal)
+                        result += "\n    " + biome;
                 }
                 else if (key == "EncyDesc_StatsThisGame")
                 {
-                     result = timePlayed;
-                    if (GameModeUtils.IsPermadeath() || GameModeUtils.SpawnsInitialItems())
+                    //string biomeName = Player.main.GetBiomeString();
+                    string biomeName = GetBiomeName(LargeWorld.main.GetBiome(Player.main.transform.position));
+                    result = "Current biome: " + biomeName;
+                    result += "\n" + timePlayed;
+                    if (!GameModeUtils.IsPermadeath() && GameModeUtils.RequiresOxygen())
                     {
                         if (Main.config.playerDeaths[saveSlot] > 0)
                             result += "\nDeaths: " + Main.config.playerDeaths[saveSlot];
@@ -915,7 +1010,8 @@ namespace Stats_Tracker
                     result += "\nDifferent item types crafted: " + Main.config.diffItemsCrafted[saveSlot].Count;
                     result += "\nResources used for crafting and constructing: " + Main.config.craftingResourcesUsed[saveSlot].ToString("0.0") + " kg";
 
-                    result += "\n";
+                    if (Main.config.baseRoomsBuilt[saveSlot] > 0 || Main.config.baseCorridorsBuilt[saveSlot] > 0)
+                        result += "\n";
                     if (Main.config.baseRoomsBuilt[saveSlot] > 0)
                         result += "\nBase rooms built: " + Main.config.baseRoomsBuilt[saveSlot];
                     if (Main.config.baseCorridorsBuilt[saveSlot] > 0)
@@ -923,15 +1019,17 @@ namespace Stats_Tracker
                     if (Main.config.baseRoomsBuilt[saveSlot] > 0 || Main.config.baseCorridorsBuilt[saveSlot] > 0)
                         result += "\nTotal power generated for your bases: " + basePower;
 
-                    result += "\n";
+                    if (Main.config.objectsScanned[saveSlot] > 0 || Main.config.blueprintsFromDatabox[saveSlot] > 0)
+                        result += "\n";
                     if (Main.config.objectsScanned[saveSlot] > 0)
-                        result += "\nThings scanned: " + Main.config.objectsScanned[saveSlot];
+                        result += "\nObjects scanned: " + Main.config.objectsScanned[saveSlot];
                     if (Main.config.blueprintsUnlocked[saveSlot] > 0)
                         result += "\nBlueprints unlocked by scanning: " + Main.config.blueprintsUnlocked[saveSlot];
                     if (Main.config.blueprintsFromDatabox[saveSlot] > 0)
                         result += "\nBlueprints found in databoxes: " + Main.config.blueprintsFromDatabox[saveSlot];
+
                     if (Main.config.faunaFound[saveSlot] > 0)
-                        result += "\nFauna species discovered: " + Main.config.faunaFound[saveSlot];
+                        result += "\n\nFauna species discovered: " + Main.config.faunaFound[saveSlot];
                     if (Main.config.floraFound[saveSlot] > 0)
                         result += "\nFlora species discovered: " + Main.config.floraFound[saveSlot];
                     if (Main.config.coralFound[saveSlot] > 0)
@@ -939,7 +1037,8 @@ namespace Stats_Tracker
                     if (Main.config.leviathanFound[saveSlot] > 0)
                         result += "\nLeviathan species discovered: " + Main.config.leviathanFound[saveSlot];
 
-                    result += "\n";
+                    if (Main.config.plantsKilled[saveSlot] > 0 || Main.config.animalsKilled[saveSlot] > 0 || Main.config.coralKilled[saveSlot] > 0 || Main.config.leviathansKilled[saveSlot] > 0)
+                        result += "\n";
                     if (Main.config.plantsKilled[saveSlot] > 0)
                         result += "\nPlants killed: " + Main.config.plantsKilled[saveSlot];
                     if (Main.config.animalsKilled[saveSlot] > 0)
@@ -962,7 +1061,8 @@ namespace Stats_Tracker
                         if (Main.config.seaTreadersKilled[saveSlot] > 0)
                             result += "\nSea treader leviathans killed: " + Main.config.seaTreadersKilled[saveSlot];
                     }
-                    result += "\n";
+                    if (Main.config.plantsRaised[saveSlot] > 0 || Main.config.eggsHatched[saveSlot] > 0)
+                        result += "\n";
                     if (Main.config.plantsRaised[saveSlot] > 0)
                         result += "\nPlants raised: " + Main.config.plantsRaised[saveSlot];
                     if (Main.config.eggsHatched[saveSlot] > 0)
@@ -970,6 +1070,9 @@ namespace Stats_Tracker
                         result += "\nEggs hatched in AC: " + Main.config.eggsHatched[saveSlot];
                         result += "\nDifferent species hatched in AC: " + Main.config.diffEggsHatched[saveSlot].Count;
                     }
+                    result += "\n\nBiomes discovered:";
+                    foreach (string biome in Main.config.biomesFound[saveSlot])
+                        result += "\n    " + biome;
                 }
             }
         }
@@ -1037,6 +1140,11 @@ namespace Stats_Tracker
 
                 __instance.maxDepth = Mathf.Max(__instance.maxDepth, -position.y);
                 Main.config.maxDepth[saveSlot] = (int)__instance.maxDepth;
+                string biomeName = GetBiomeName(LargeWorld.main.GetBiome(Player.main.transform.position));
+                if (biomeName == "unknown")
+                { }
+                else
+                    Main.config.biomesFound[saveSlot].Add(biomeName);
 
                 __instance.distanceTraveled += Vector3.Distance(position, __instance.lastPosition);
                 int distanceTraveled = Mathf.RoundToInt((__instance.lastPosition - position).magnitude);
@@ -1086,7 +1194,6 @@ namespace Stats_Tracker
                 else if (Player.main.IsInBase())
                     Main.config.timeBase[saveSlot] += GetTimePlayed() - timeLastUpdate;
 
-
                 //AddDebug("timeSwam " + Main.config.timeSwam[saveSlot]);
                 timeLastUpdate = GetTimePlayed();
                 return false;
@@ -1124,12 +1231,17 @@ namespace Stats_Tracker
             }
             public static void Postfix(LiveMixin __instance, float originalDamage, Vector3 position, DamageType type , GameObject dealer)
             {
-                if (wasAlive && __instance.health <= 0f)
+                if (dealer && wasAlive && __instance.health <= 0f)
                 {
                     if (dealer == Player.main.gameObject || dealer == Player.main.currentMountedVehicle?.gameObject)
                     {
                         TechType tt = CraftData.GetTechType(__instance.gameObject);
                         //AddDebug(tt + " killed by player");
+                        //if (dealer == Player.main.gameObject)
+                        //    AddDebug(tt + " killed by player");
+                        //if (dealer == Player.main.currentMountedVehicle?.gameObject)
+                        //    AddDebug(tt + " killed by vehicle");
+
                         if (fauna.Contains(tt))
                             //AddDebug(tt + " animal killed by player");
                             Main.config.animalsKilled[saveSlot]++;
@@ -1155,7 +1267,7 @@ namespace Stats_Tracker
                                 Main.config.seaEmperorsKilled[saveSlot]++;
                             else if (tt == TechType.SeaTreader)
                                 Main.config.seaTreadersKilled[saveSlot]++;
-                            else if(tt == gulperTT)
+                            else if(gulperTT != TechType.None && tt == gulperTT)
                                 Main.config.gulpersKilled[saveSlot]++;
                         }
                     }
@@ -1304,14 +1416,14 @@ namespace Stats_Tracker
         {
             public static void Prefix(PDAScanner.EntryData entryData, bool unlockBlueprint, bool unlockEncyclopedia)
             {
-                if (entryData == null)
+                if (entryData == null || saveSlot == null)
                     return;
 
                 //AddDebug("unlock  " + entryData.key);
                 if (unlockBlueprint && entryData.blueprint != TechType.None)
                 {
                     //AddDebug("unlock Blueprint ");
-                    Main.config.blueprintsUnlocked[saveSlot] ++;
+                    Main.config.blueprintsUnlocked[saveSlot]++;
                 }
                 //if (!PDAEncyclopedia.ContainsEntry(entryData.encyclopedia))
                 //{

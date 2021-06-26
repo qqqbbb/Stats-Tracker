@@ -148,11 +148,35 @@ namespace Stats_Tracker
                 config.diffEggsHatched[saveSlot] = new HashSet<TechType>();
             if (!config.craftingResourcesUsed.ContainsKey(saveSlot))
                 config.craftingResourcesUsed[saveSlot] = 0;
+            if (!config.biomesFound.ContainsKey(saveSlot))
+                config.biomesFound[saveSlot] = new HashSet<string>();
 
             config.Save();
             Stats_Patch.ModCompat();
             foreach (var s in Stats_Patch.myStrings)
                 PDAEncyclopedia.Add(s.Key, false);
+        }
+
+
+        public static void GetBiomeNames()
+        {
+            if (LargeWorld.main == null)
+            {
+                AddDebug("LargeWorld.main = null");
+                return;
+            }
+            if (LargeWorld.main.biomeMapLegend == null)
+            {
+                AddDebug("LargeWorldStreamer.main.world.biomeMapLegend = null");
+                return;
+            }
+            Log("biomeMapLegend");
+            foreach (KeyValuePair<Int3, BiomeProperties> keyValuePair in LargeWorld.main.biomeMapLegend)
+            {
+                string name = keyValuePair.Value.name;
+                if (!string.IsNullOrEmpty(name))
+                    Log(name);
+            }
         }
 
         [HarmonyPatch(typeof(uGUI_SceneLoading), "End")]
@@ -212,7 +236,6 @@ namespace Stats_Tracker
             new Harmony($"qqqbbb_{assembly.GetName().Name}").PatchAll(assembly);
             IngameMenuHandler.RegisterOnSaveEvent(SaveData);
             IngameMenuHandler.RegisterOnQuitEvent(CleanUp);
-  
         }
 
         [HarmonyPatch(typeof(Player), "Awake")]
@@ -221,6 +244,7 @@ namespace Stats_Tracker
             public static void Prefix()
             {
                 Stats_Patch.AddEntries();
+
             }
         }
 

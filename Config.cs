@@ -66,6 +66,6 @@ namespace Stats_Tracker
         public Dictionary<string, int> eggsHatched = new Dictionary<string, int>();
         public Dictionary<string, HashSet<TechType>> diffEggsHatched = new Dictionary<string, HashSet<TechType>>();
         public Dictionary<string, float> craftingResourcesUsed = new Dictionary<string, float>();
-
+        public Dictionary<string, HashSet<string>> biomesFound = new Dictionary<string, HashSet<string>>();
     }
 }
