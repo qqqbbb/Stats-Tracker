@@ -5,6 +5,7 @@ using SMLHelper.V2.Handlers;
 using System.Reflection;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using static ErrorMessage;
 
 namespace Stats_Tracker
@@ -13,7 +14,7 @@ namespace Stats_Tracker
     public class Main
     {
         public static Config config = new Config();
-
+        public static bool gameLoaded = false;
         //internal static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
 
         public static void Log(string str, QModManager.Utility.Logger.Level lvl = QModManager.Utility.Logger.Level.Debug)
@@ -41,115 +42,8 @@ namespace Stats_Tracker
             string saveSlot = SaveLoadManager.main.currentSlot;
             Stats_Patch.saveSlot = saveSlot;
 
-            if (!config.playerDeaths.ContainsKey(saveSlot))
-                config.playerDeaths[saveSlot] = 0;
-
-            if (!config.healthLost.ContainsKey(saveSlot))
-                config.healthLost[saveSlot] = 0;
-            if (!config.foodEaten.ContainsKey(saveSlot))
-                config.foodEaten[saveSlot] = 0;
-            if (!config.waterDrunk.ContainsKey(saveSlot))
-                config.waterDrunk[saveSlot] = 0;
             if (!config.distanceTraveled.ContainsKey(saveSlot))
-                config.distanceTraveled[saveSlot] = 0;
-            if (!config.maxDepth.ContainsKey(saveSlot))
-                config.maxDepth[saveSlot] = 0;
-            if (!config.distanceTraveledSwim.ContainsKey(saveSlot))
-                config.distanceTraveledSwim[saveSlot] = 0;
-            if (!config.distanceTraveledWalk.ContainsKey(saveSlot))
-                config.distanceTraveledWalk[saveSlot] = 0;
-            if (!config.distanceTraveledSeaglide.ContainsKey(saveSlot))
-                config.distanceTraveledSeaglide[saveSlot] = 0;
-            if (!config.distanceTraveledSeamoth.ContainsKey(saveSlot))
-                config.distanceTraveledSeamoth[saveSlot] = 0;
-            if (!config.distanceTraveledExosuit.ContainsKey(saveSlot))
-                config.distanceTraveledExosuit[saveSlot] = 0;
-            if (!config.distanceTraveledSub.ContainsKey(saveSlot))
-                config.distanceTraveledSub[saveSlot] = 0;
-            if (!config.seamothsBuilt.ContainsKey(saveSlot))
-                config.seamothsBuilt[saveSlot] = 0;
-            if (!config.exosuitsBuilt.ContainsKey(saveSlot))
-                config.exosuitsBuilt[saveSlot] = 0;
-            if (!config.cyclopsBuilt.ContainsKey(saveSlot))
-                config.cyclopsBuilt[saveSlot] = 0;
-            if (!config.seamothsLost.ContainsKey(saveSlot))
-                config.seamothsLost[saveSlot] = 0;
-            if (!config.exosuitsLost.ContainsKey(saveSlot))
-                config.exosuitsLost[saveSlot] = 0;
-            if (!config.cyclopsLost.ContainsKey(saveSlot))
-                config.cyclopsLost[saveSlot] = 0;
-            if (!config.itemsCrafted.ContainsKey(saveSlot))
-                config.itemsCrafted[saveSlot] = 0;
-            if (!config.timeSlept.ContainsKey(saveSlot))
-                config.timeSlept[saveSlot] = TimeSpan.Zero;
-            if (!config.timeSwam.ContainsKey(saveSlot))
-                config.timeSwam[saveSlot] = TimeSpan.Zero;
-            if (!config.timeWalked.ContainsKey(saveSlot))
-                config.timeWalked[saveSlot] = TimeSpan.Zero;
-            if (!config.timeSeamoth.ContainsKey(saveSlot))
-                config.timeSeamoth[saveSlot] = TimeSpan.Zero;
-            if (!config.timeExosuit.ContainsKey(saveSlot))
-                config.timeExosuit[saveSlot] = TimeSpan.Zero;
-            if (!config.timeCyclops.ContainsKey(saveSlot))
-                config.timeCyclops[saveSlot] = TimeSpan.Zero;
-            if (!config.timeBase.ContainsKey(saveSlot))
-                config.timeBase[saveSlot] = TimeSpan.Zero;
-            if (!config.timeEscapePod.ContainsKey(saveSlot))
-                config.timeEscapePod[saveSlot] = TimeSpan.Zero;
-            if (!config.baseRoomsBuilt.ContainsKey(saveSlot))
-                config.baseRoomsBuilt[saveSlot] = 0;
-            if (!config.baseCorridorsBuilt.ContainsKey(saveSlot))
-                config.baseCorridorsBuilt[saveSlot] = 0;
-            if (!config.basePower.ContainsKey(saveSlot))
-                config.basePower[saveSlot] = 0;
-            if (!config.objectsScanned.ContainsKey(saveSlot))
-                config.objectsScanned[saveSlot] = 0;
-            if (!config.blueprintsUnlocked.ContainsKey(saveSlot))
-                config.blueprintsUnlocked[saveSlot] = 0;
-            if (!config.blueprintsFromDatabox.ContainsKey(saveSlot))
-                config.blueprintsFromDatabox[saveSlot] = 0;
-            if (!config.floraFound.ContainsKey(saveSlot))
-                config.floraFound[saveSlot] = 0;
-            if (!config.faunaFound.ContainsKey(saveSlot))
-                config.faunaFound[saveSlot] = 0;
-            if (!config.leviathanFound.ContainsKey(saveSlot))
-                config.leviathanFound[saveSlot] = 0;
-            if (!config.coralFound.ContainsKey(saveSlot))
-                config.coralFound[saveSlot] = 0;
-            if (!config.animalsKilled.ContainsKey(saveSlot))
-                config.animalsKilled[saveSlot] = 0;
-            if (!config.plantsKilled.ContainsKey(saveSlot))
-                config.plantsKilled[saveSlot] = 0;
-            if (!config.coralKilled.ContainsKey(saveSlot))
-                config.coralKilled[saveSlot] = 0;
-            if (!config.leviathansKilled.ContainsKey(saveSlot))
-                config.leviathansKilled[saveSlot] = 0;
-            if (!config.ghostsKilled.ContainsKey(saveSlot))
-                config.ghostsKilled[saveSlot] = 0;
-            if (!config.repersKilled.ContainsKey(saveSlot))
-                config.repersKilled[saveSlot] = 0;
-            if (!config.reefbacksKilled.ContainsKey(saveSlot))
-                config.reefbacksKilled[saveSlot] = 0;
-            if (!config.seaDragonsKilled.ContainsKey(saveSlot))
-                config.seaDragonsKilled[saveSlot] = 0;
-            if (!config.seaEmperorsKilled.ContainsKey(saveSlot))
-                config.seaEmperorsKilled[saveSlot] = 0;
-            if (!config.seaTreadersKilled.ContainsKey(saveSlot))
-                config.seaTreadersKilled[saveSlot] = 0;
-            if (!config.gulpersKilled.ContainsKey(saveSlot))
-                config.gulpersKilled[saveSlot] = 0;
-            if (!config.plantsRaised.ContainsKey(saveSlot))
-                config.plantsRaised[saveSlot] = 0;
-            if (!config.eggsHatched.ContainsKey(saveSlot))
-                config.eggsHatched[saveSlot] = 0;
-            if (!config.diffItemsCrafted.ContainsKey(saveSlot))
-                config.diffItemsCrafted[saveSlot] = new HashSet<TechType>();
-            if (!config.diffEggsHatched.ContainsKey(saveSlot))
-                config.diffEggsHatched[saveSlot] = new HashSet<TechType>();
-            if (!config.craftingResourcesUsed.ContainsKey(saveSlot))
-                config.craftingResourcesUsed[saveSlot] = 0;
-            if (!config.biomesFound.ContainsKey(saveSlot))
-                config.biomesFound[saveSlot] = new HashSet<string>();
+                PrepareSaveSlot(saveSlot);
 
             config.Save();
             Stats_Patch.ModCompat();
@@ -157,26 +51,84 @@ namespace Stats_Tracker
                 PDAEncyclopedia.Add(s.Key, false);
         }
 
+        private static void PrepareSaveSlot(string saveSlot)
+        {
+            //AddDebug("PrepareSaveSlot  ");
+            config.playerDeaths[saveSlot] = 0;
+            config.timePlayed[saveSlot] = TimeSpan.Zero;
+            config.healthLost[saveSlot] = 0;
+            config.foodEaten[saveSlot] = new Dictionary<TechType, float>();
+            config.waterDrunk[saveSlot] = 0;
+            config.distanceTraveled[saveSlot] = 0;
+            config.maxDepth[saveSlot] = 0;
+            config.distanceTraveledSwim[saveSlot] = 0;
+            config.distanceTraveledWalk[saveSlot] = 0;
+            config.distanceTraveledSeaglide[saveSlot] = 0;
+            config.distanceTraveledSeamoth[saveSlot] = 0;
+            config.distanceTraveledExosuit[saveSlot] = 0;
+            config.distanceTraveledSub[saveSlot] = 0;
+            config.seamothsBuilt[saveSlot] = 0;
+            config.exosuitsBuilt[saveSlot] = 0;
+            config.cyclopsBuilt[saveSlot] = 0;
+            config.seamothsLost[saveSlot] = 0;
+            config.exosuitsLost[saveSlot] = 0;
+            config.cyclopsLost[saveSlot] = 0;
+            config.timeSlept[saveSlot] = TimeSpan.Zero;
+            config.timeSwam[saveSlot] = TimeSpan.Zero;
+            config.timeWalked[saveSlot] = TimeSpan.Zero;
+            config.timeSeamoth[saveSlot] = TimeSpan.Zero;
+            config.timeExosuit[saveSlot] = TimeSpan.Zero;
+            config.timeCyclops[saveSlot] = TimeSpan.Zero;
+            config.timeBase[saveSlot] = TimeSpan.Zero;
+            config.timeEscapePod[saveSlot] = TimeSpan.Zero;
+            config.baseRoomsBuilt[saveSlot] = new Dictionary<TechType, int>();
+            config.baseCorridorsBuilt[saveSlot] = 0;
+            config.basePower[saveSlot] = 0;
+            config.objectsScanned[saveSlot] = 0;
+            config.blueprintsUnlocked[saveSlot] = 0;
+            config.blueprintsFromDatabox[saveSlot] = 0;
+            config.floraFound[saveSlot] = new HashSet<TechType>();
+            config.faunaFound[saveSlot] = new HashSet<TechType>();
+            config.leviathanFound[saveSlot] = new HashSet<TechType>();
+            config.coralFound[saveSlot] = new HashSet<TechType>();
+            config.animalsKilled[saveSlot] = new Dictionary<TechType, int>();
+            config.plantsKilled[saveSlot] = new Dictionary<TechType, int>();
+            config.coralKilled[saveSlot] = new Dictionary<TechType, int>();
+            config.leviathansKilled[saveSlot] = new Dictionary<TechType, int>();
+            config.plantsRaised[saveSlot] = new Dictionary<TechType, int>();
+            config.eggsHatched[saveSlot] = new Dictionary<TechType, int>();
+            config.itemsCrafted[saveSlot] = new Dictionary<TechType, int>();
+            config.craftingResourcesUsed[saveSlot] = new Dictionary<TechType, float>();
+            config.craftingResourcesUsed_[saveSlot] = new Dictionary<TechType, int>();
+            config.biomesFound[saveSlot] = new HashSet<string>();
+            config.kooshFound[saveSlot] = false;
+            config.jeweledDiskFound[saveSlot] = false;
+            config.ghostLevFound[saveSlot] = false;
+            config.storedBase[saveSlot] = new Dictionary<TechType, int>();
+            config.storedOutside[saveSlot] = new Dictionary<TechType, int>();
+            config.medkitsUsed[saveSlot] = 0;
+
+        }
 
         public static void GetBiomeNames()
         {
-            if (LargeWorld.main == null)
+            if (LargeWorld.main == null || LargeWorld.main.biomeMapLegend == null)
             {
-                AddDebug("LargeWorld.main = null");
+                //AddDebug("LargeWorld.main = null");
                 return;
             }
-            if (LargeWorld.main.biomeMapLegend == null)
-            {
-                AddDebug("LargeWorldStreamer.main.world.biomeMapLegend = null");
-                return;
-            }
-            Log("biomeMapLegend");
             foreach (KeyValuePair<Int3, BiomeProperties> keyValuePair in LargeWorld.main.biomeMapLegend)
             {
                 string name = keyValuePair.Value.name;
                 if (!string.IsNullOrEmpty(name))
                     Log(name);
             }
+        }
+
+        public static string GetFriendlyName(GameObject go)
+        {
+            TechType tt = CraftData.GetTechType(go);
+            return Language.main.Get(tt.AsString(false));
         }
 
         [HarmonyPatch(typeof(uGUI_SceneLoading), "End")]
@@ -190,6 +142,7 @@ namespace Stats_Tracker
                     return;
                 }
                 Setup();
+                gameLoaded = true;
             }
         }
 
@@ -200,31 +153,31 @@ namespace Stats_Tracker
             config.Save();
         }
 
-        //[HarmonyPatch(typeof(SaveLoadManager), "ClearSlotAsync")]
+        [HarmonyPatch(typeof(EscapePod), "TriggerIntroCinematic")]
+        internal class EscapePod_TriggerIntroCinematic_Patch
+        { // in case player starts new game, quits and starts again
+            public static void Postfix(EscapePod __instance )
+            {
+                //AddDebug("Trigger Intro Cinematic " + SaveLoadManager.main.currentSlot);
+                PrepareSaveSlot(SaveLoadManager.main.currentSlot);
+                config.Save();
+            }
+        }
+
+        [HarmonyPatch(typeof(SaveLoadManager), "ClearSlotAsync")]
         internal class SaveLoadManager_ClearSlotAsync_Patch
         {
             public static void Postfix(SaveLoadManager __instance, string slotName)
             {
                 //AddDebug("ClearSlotAsync " + slotName);
-                config.playerDeaths.Remove(slotName);
-                config.healthLost.Remove(slotName);
-                config.foodEaten.Remove(slotName);
-                config.waterDrunk.Remove(slotName);
-                config.distanceTraveled.Remove(slotName);
-                config.maxDepth.Remove(slotName);
-                config.distanceTraveledSwim.Remove(slotName);
-                config.distanceTraveledWalk.Remove(slotName);
-                config.distanceTraveledSeaglide.Remove(slotName);
-                config.distanceTraveledSeamoth.Remove(slotName);
-                config.distanceTraveledExosuit.Remove(slotName);
-                config.distanceTraveledSub.Remove(slotName);
-
+                PrepareSaveSlot(slotName);
                 config.Save();
             }
         }
 
         public static void CleanUp()
         {
+            gameLoaded = false;
             config.Load();
         }
 

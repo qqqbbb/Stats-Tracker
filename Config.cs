@@ -1,5 +1,5 @@
 ﻿using SMLHelper.V2.Json;
-using SMLHelper.V2.Options.Attributes;
+//using SMLHelper.V2.Options.Attributes;
 using System.Collections.Generic;
 using System;
 
@@ -8,9 +8,6 @@ namespace Stats_Tracker
     //[Menu("Custom Spawner Settings")]
     public class Config : ConfigFile
     {
-        // public Config(string fileName = "config", string subfolder = null) : base(fileName, subfolder)
-        // {
-        // }
         public Dictionary<string, TimeSpan> timePlayed = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeEscapePod = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeSwam = new Dictionary<string, TimeSpan>();
@@ -23,7 +20,8 @@ namespace Stats_Tracker
         public Dictionary<string, int> playerDeaths = new Dictionary<string, int>();
         public int gamesWon = 0;
         public Dictionary<string, int> healthLost = new Dictionary<string, int>();
-        public Dictionary<string, float> foodEaten = new Dictionary<string, float>();
+        public Dictionary<string, int> medkitsUsed = new Dictionary<string, int>();
+        public Dictionary<string, Dictionary<TechType, float>> foodEaten = new Dictionary<string, Dictionary<TechType, float>>();
         public Dictionary<string, float> waterDrunk = new Dictionary<string, float>();
         public Dictionary<string, int> distanceTraveled = new Dictionary<string, int>();
         public Dictionary<string, int> maxDepth = new Dictionary<string, int>();
@@ -39,33 +37,84 @@ namespace Stats_Tracker
         public Dictionary<string, int> seamothsLost = new Dictionary<string, int>();
         public Dictionary<string, int> exosuitsLost = new Dictionary<string, int>();
         public Dictionary<string, int> cyclopsLost = new Dictionary<string, int>();
-        public Dictionary<string, int> itemsCrafted = new Dictionary<string, int>();
-        public Dictionary<string, HashSet<TechType>> diffItemsCrafted = new Dictionary<string, HashSet<TechType>>();
-        public Dictionary<string, int> baseRoomsBuilt = new Dictionary<string, int>();
+        //public Dictionary<string, int> itemsCrafted = new Dictionary<string, int>();
+        public Dictionary<string, Dictionary<TechType, int>> itemsCrafted = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<string, Dictionary<TechType, int>> baseRoomsBuilt = new Dictionary<string, Dictionary<TechType, int>>();
         public Dictionary<string, int> baseCorridorsBuilt = new Dictionary<string, int>();
         public Dictionary<string, int> basePower = new Dictionary<string, int>();
         public Dictionary<string, int> objectsScanned = new Dictionary<string, int>();
-        public Dictionary<string, int> blueprintsUnlocked = new Dictionary<string, int>();
         public Dictionary<string, int> blueprintsFromDatabox = new Dictionary<string, int>();
-        public Dictionary<string, int> floraFound = new Dictionary<string, int>();
-        public Dictionary<string, int> faunaFound = new Dictionary<string, int>();
-        public Dictionary<string, int> coralFound = new Dictionary<string, int>();
-        public Dictionary<string, int> leviathanFound = new Dictionary<string, int>();
-        public Dictionary<string, int> animalsKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> plantsKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> coralKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> leviathansKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> ghostsKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> repersKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> reefbacksKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> seaDragonsKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> seaEmperorsKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> seaTreadersKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> gulpersKilled = new Dictionary<string, int>();
-        public Dictionary<string, int> plantsRaised = new Dictionary<string, int>();
-        public Dictionary<string, int> eggsHatched = new Dictionary<string, int>();
-        public Dictionary<string, HashSet<TechType>> diffEggsHatched = new Dictionary<string, HashSet<TechType>>();
-        public Dictionary<string, float> craftingResourcesUsed = new Dictionary<string, float>();
+        public Dictionary<string, int> blueprintsUnlocked = new Dictionary<string, int>();
+        public Dictionary<string, HashSet<TechType>> floraFound = new Dictionary<string, HashSet<TechType>> ();
+        public Dictionary<string, HashSet<TechType>> faunaFound = new Dictionary<string, HashSet<TechType>>();
+        public Dictionary<string, HashSet<TechType>> coralFound = new Dictionary<string, HashSet<TechType>>();
+        public Dictionary<string, HashSet<TechType>> leviathanFound = new Dictionary<string, HashSet<TechType>>();
+        public Dictionary<string, Dictionary<TechType, int>> animalsKilled = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<string, Dictionary<TechType, int>> plantsKilled = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<string, Dictionary<TechType, int>> coralKilled = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<string, Dictionary<TechType, int>> leviathansKilled = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<string, Dictionary<TechType, int>> plantsRaised = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<string, Dictionary<TechType, int>> eggsHatched = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<TechType, int> eggsHatchedTotal = new Dictionary<TechType, int>();
+
         public Dictionary<string, HashSet<string>> biomesFound = new Dictionary<string, HashSet<string>>();
+
+        public int playerDeathsTotal = 0;
+        public int healthLostTotal = 0;
+        public int medkitsUsedTotal = 0;
+        public Dictionary<TechType, float> foodEatenTotal = new Dictionary<TechType, float>();
+        public float waterDrunkTotal = 0;
+        public int maxDepthGlobal = 0;
+        public HashSet<string> biomesFoundGlobal = new HashSet<string>();
+        public int distanceTraveledTotal = 0;
+        public int distanceTraveledSwimTotal = 0;
+        public int distanceTraveledSeaglideTotal = 0;
+        public int distanceTraveledSeamothTotal = 0;
+        public int distanceTraveledExosuitTotal = 0;
+        public int distanceTraveledSubTotal = 0;
+        public int distanceTraveledWalkTotal = 0;
+        public TimeSpan timeWalkedTotal = TimeSpan.Zero;
+        public TimeSpan timeSwamTotal = TimeSpan.Zero;
+        public TimeSpan timeEscapePodTotal = TimeSpan.Zero;
+        public TimeSpan timeCyclopsTotal = TimeSpan.Zero;
+        public TimeSpan timeSeamothTotal = TimeSpan.Zero;
+        public TimeSpan timeExosuitTotal = TimeSpan.Zero;
+        public TimeSpan timeBaseTotal = TimeSpan.Zero;
+       
+        //public HashSet<TechType> diffEggsHatchedGlobal = new HashSet<TechType>();
+        public Dictionary<TechType, int> plantsRaisedTotal = new Dictionary<TechType, int>();
+        public Dictionary<TechType, int> animalsKilledTotal = new Dictionary<TechType, int>();
+        public Dictionary<TechType, int> plantsKilledTotal = new Dictionary<TechType, int>();
+        public Dictionary<TechType, int> coralKilledTotal = new Dictionary<TechType, int>();
+        public Dictionary<TechType, int> leviathansKilledTotal = new Dictionary<TechType, int>();
+        public Dictionary<string, Dictionary<TechType, float>> craftingResourcesUsed = new Dictionary<string, Dictionary<TechType, float>>();
+        public Dictionary<string, Dictionary<TechType, int>> craftingResourcesUsed_ = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<TechType, float> craftingResourcesUsedTotal = new Dictionary<TechType, float>();
+        public Dictionary<TechType, int> craftingResourcesUsedTotal_ = new Dictionary<TechType, int>();
+        public int blueprintsFromDataboxTotal = 0;
+        public int blueprintsUnlockedTotal = 0;
+        public Dictionary<string, bool> kooshFound = new Dictionary<string, bool>();
+        public HashSet<TechType> faunaFoundTotal = new HashSet<TechType>();
+        public HashSet<TechType> floraFoundTotal = new HashSet<TechType>();
+        public HashSet<TechType> coralFoundTotal = new HashSet<TechType>();
+        public HashSet<TechType> leviathanFoundTotal = new HashSet<TechType>();
+        public Dictionary<string, bool> jeweledDiskFound = new Dictionary<string, bool>();
+        public Dictionary<string, bool> ghostLevFound = new Dictionary<string, bool>();
+        public Dictionary<TechType, int> baseRoomsBuiltTotal = new Dictionary<TechType, int>();
+        public int baseCorridorsBuiltTotal = 0;
+        public int seamothsLostTotal = 0;
+        public int exosuitsLostTotal = 0;
+        public int cyclopsLostTotal = 0;
+        public int seamothsBuiltTotal = 0;
+        public int exosuitsBuiltTotal = 0;
+        public int cyclopsBuiltTotal = 0;
+        //public int itemsCraftedTotal = 0;
+        public Dictionary<TechType, int> itemsCraftedTotal = new Dictionary<TechType, int>();
+        public TimeSpan timeSleptTotal = TimeSpan.Zero;
+        public int objectsScannedTotal = 0;
+        public Dictionary<string, Dictionary<TechType, int>> storedBase = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<string, Dictionary<TechType, int>> storedOutside = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<TechType, int> storedBaseTotal = new Dictionary<TechType, int>();
+        public Dictionary<TechType, int> storedOutsideTotal = new Dictionary<TechType, int>();
     }
 }

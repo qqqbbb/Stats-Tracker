@@ -17,7 +17,7 @@ namespace Stats_Tracker
 {
     class Testing
     {
-        [HarmonyPatch(typeof(Player), "Update")]
+        //[HarmonyPatch(typeof(Player), "Update")]
         class Player_Update_Patch
         {
             static void Postfix(Player __instance)
@@ -68,14 +68,12 @@ namespace Stats_Tracker
 
                 if (Input.GetKey(KeyCode.Z))
                 {
-                    AddDebug(" " + LargeWorld.main.GetBiome(Player.main.transform.position));
-
+                    //AddDebug(" " + LargeWorld.main.GetBiome(Player.main.transform.position));
+                    //AddDebug(GameModeUtils.currentGameMode.ToString());
                     Targeting.GetTarget(Player.main.gameObject, 5f, out GameObject target, out float targetDist);
-                    if (target)
-                    {
-  
+                    //if (GameModeUtils.currentGameMode == GameModeOption.Creative)
+                    //    AddDebug("CREATIVE !!!");
 
-                    }
                     //if (Main.guiHand.activeTarget)
                     //{
                     //    VFXSurface[] vFXSurfaces = __instance.GetAllComponentsInChildren<VFXSurface>();
