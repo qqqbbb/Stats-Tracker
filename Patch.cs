@@ -1263,7 +1263,7 @@ namespace Stats_Tracker
                 {
                     if (Player.main.currentSub.isCyclops)
                     {
-                        //AddDebug("NotifyRemoveItem isCyclops " + tt);
+                        //AddDebug("NotifyRemoveItem isCyclops " + tt); 
                         if (Main.config.storedSub[saveSlot].ContainsKey(tt) && Main.config.storedSub[saveSlot][tt] > 0)
                             Main.config.storedSub[saveSlot][tt]--;
 
