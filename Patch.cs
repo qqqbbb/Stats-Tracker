@@ -8,7 +8,7 @@ using System.Collections.Generic;
 //using System.Reflection;
 using UnityEngine;
 using SMLHelper.V2.Handlers;
-//using static ErrorMessage;
+using static ErrorMessage;
 // gulper lev spawn 1169, 903; 1400, 1281; -72, 867; -174, 1070; -49, 1184; -265, 1118; -717, -1088; -573, 1311; -970, -509
 namespace Stats_Tracker
 {
@@ -586,6 +586,13 @@ namespace Stats_Tracker
                             result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
                     }
 
+                    result += "\n\nThings stored in cyclops: ";
+                    foreach (var kv in Main.config.storedSubTotal)
+                    {
+                        if (kv.Value > 0)
+                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                    }
+
                     result += "\n\nThings stored outside your bases: ";
                     foreach (var kv in Main.config.storedOutsideTotal)
                     {
@@ -743,6 +750,16 @@ namespace Stats_Tracker
                             result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
                     }
 
+                    if (Main.config.cyclopsBuilt[saveSlot] > 0)
+                    {
+                        result += "\n\nThings stored in cyclops: ";
+                        foreach (var kv in Main.config.storedSub[saveSlot])
+                        {
+                            if (kv.Value > 0)
+                                result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        }
+                    }
+
                     result += "\n\nThings stored outside your bases: ";
                     foreach (var kv in Main.config.storedOutside[saveSlot])
                     {
@@ -777,19 +794,23 @@ namespace Stats_Tracker
             }
         }
 
+
+
         [HarmonyPatch(typeof(SpawnEscapePodSupplies), "OnNewBorn")]
         class SpawnEscapePodSupplies_OnNewBorn_Patch
         {
             public static void Postfix(SpawnEscapePodSupplies __instance)
             {
+                if (string.IsNullOrEmpty(saveSlot))
+                    return;
                 //AddDebug("LootSpawner Start  ");
                 foreach (TechType tt in LootSpawner.main.escapePodTechTypes)
                 {
                     //AddDebug("Start Loot " + tt);
-                    if (Main.config.storedOutside[SaveLoadManager.main.currentSlot].ContainsKey(tt))
-                        Main.config.storedOutside[SaveLoadManager.main.currentSlot][tt]++;
+                    if (Main.config.storedOutside[saveSlot].ContainsKey(tt))
+                        Main.config.storedOutside[saveSlot][tt]++;
                     else
-                        Main.config.storedOutside[SaveLoadManager.main.currentSlot][tt] = 1;
+                        Main.config.storedOutside[saveSlot][tt] = 1;
 
                     if (Main.config.storedOutsideTotal.ContainsKey(tt))
                         Main.config.storedOutsideTotal[tt]++;
@@ -881,7 +902,7 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(LaunchRocket), "StartEndCinematic")]
         internal class LaunchRocket_StartEndCinematic_Patch
         {
-            public static void Prefix(LaunchRocket __instance)
+            public static void Postfix(LaunchRocket __instance)
             {
                 Main.config.gamesWon++;
                 Main.config.Save();
@@ -894,6 +915,8 @@ namespace Stats_Tracker
             public static bool Prefix(Player __instance)
             { 
                 Vector3 position = __instance.transform.position;
+                if (string.IsNullOrEmpty(saveSlot))
+                    return false;
 
                 __instance.maxDepth = Mathf.Max(__instance.maxDepth, -position.y);
                 Main.config.maxDepth[saveSlot] = (int)__instance.maxDepth;
@@ -964,6 +987,7 @@ namespace Stats_Tracker
                     travelMode = TravelMode.Walk;
 
                 TimeSpan ts = GetTimePlayed() - timeLastUpdate;
+
                 if (__instance.motorMode == Player.MotorMode.Walk)
                 {
                     Main.config.timeWalked[saveSlot] += ts;
@@ -979,11 +1003,6 @@ namespace Stats_Tracker
                     Main.config.timeEscapePod[saveSlot] += ts;
                     Main.config.timeEscapePodTotal += ts;
                 }
-                else if (Player.main.IsInSubmarine())
-                {
-                    Main.config.timeCyclops[saveSlot] += ts;
-                    Main.config.timeCyclopsTotal += ts;
-                }
                 else if (__instance.inSeamoth)
                 {
                     Main.config.timeSeamoth[saveSlot] += ts;
@@ -994,10 +1013,18 @@ namespace Stats_Tracker
                     Main.config.timeExosuit[saveSlot] += ts;
                     Main.config.timeExosuitTotal += ts;
                 }
-                else if (Player.main.IsInBase())
+                else if (Player.main.currentSub)
                 {
-                    Main.config.timeBase[saveSlot] += ts;
-                    Main.config.timeBaseTotal += ts;
+                    if (Player.main.currentSub.isCyclops)
+                    {
+                        Main.config.timeCyclops[saveSlot] += ts;
+                        Main.config.timeCyclopsTotal += ts;
+                    }
+                    else
+                    {
+                        Main.config.timeBase[saveSlot] += ts;
+                        Main.config.timeBaseTotal += ts;
+                    }
                 }
                 //AddDebug("timeSwam " + Main.config.timeSwam[saveSlot]);
                 timeLastUpdate = GetTimePlayed();
@@ -1009,16 +1036,16 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(CreatureEgg), "Hatch")]
         internal class CreatureEgg_Hatch_Patch
         {
-            public static void Prefix(CreatureEgg __instance)
+            public static void Postfix(CreatureEgg __instance)
             {
                 //AddDebug("Hatch  " + __instance.hatchingCreature);
                 if (__instance.hatchingCreature == TechType.None)
                     return;
 
                 if (Main.config.eggsHatchedTotal.ContainsKey(__instance.hatchingCreature))
-                    Main.config.plantsRaisedTotal[__instance.hatchingCreature]++;
+                    Main.config.eggsHatchedTotal[__instance.hatchingCreature]++;
                 else
-                    Main.config.plantsRaisedTotal[__instance.hatchingCreature] = 1;
+                    Main.config.eggsHatchedTotal[__instance.hatchingCreature] = 1;
 
                 if (Main.config.eggsHatched[saveSlot].ContainsKey(__instance.hatchingCreature))
                     Main.config.eggsHatched[saveSlot][__instance.hatchingCreature]++;
@@ -1027,13 +1054,16 @@ namespace Stats_Tracker
             }
         }
 
-        [HarmonyPatch(typeof(GrowingPlant), "SpawnGrownModel")]
-        internal class Plantable_SpawnGrownModel_Patch
+        [HarmonyPatch(typeof(GrownPlant), "Awake")]
+        internal class GrownPlant_Awake_Patch
         {
-            public static void Prefix(GrowingPlant __instance)
+            public static void Postfix(GrownPlant __instance)
             {
-                //AddDebug("SpawnGrownModel  " + __instance.name);
+                if (string.IsNullOrEmpty(saveSlot))
+                    return;
+
                 TechType tt = CraftData.GetTechType(__instance.gameObject);
+                //AddDebug("GrownPlant Awake " + tt);
                 if (tt == TechType.None)
                     return;
 
@@ -1163,7 +1193,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(ItemsContainer __instance, InventoryItem item)
             {
-                if (!Main.gameLoaded || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
+                if (string.IsNullOrEmpty(saveSlot) || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
                     return;
 
                 //AddDebug("NotifyAddItem " + __instance.tr.name);
@@ -1172,18 +1202,33 @@ namespace Stats_Tracker
                 if (tt == TechType.None || rb == null)
                     return;
 
-                if (Player.main.IsInBase())
+                if (Player.main.currentSub)
                 {
-                    //AddDebug("NotifyAddItem IsInBase " + tt);
-                    if (Main.config.storedBase[saveSlot].ContainsKey(tt))
-                        Main.config.storedBase[saveSlot][tt] ++;
-                    else
-                        Main.config.storedBase[saveSlot][tt] = 1;
+                    if (Player.main.currentSub.isCyclops)
+                    {
+                        //AddDebug("NotifyAddItem IsInBase " + tt);
+                        if (Main.config.storedSub[saveSlot].ContainsKey(tt))
+                            Main.config.storedSub[saveSlot][tt]++;
+                        else
+                            Main.config.storedSub[saveSlot][tt] = 1;
 
-                    if (Main.config.storedBaseTotal.ContainsKey(tt))
-                        Main.config.storedBaseTotal[tt] ++;
+                        if (Main.config.storedSubTotal.ContainsKey(tt))
+                            Main.config.storedSubTotal[tt]++;
+                        else
+                            Main.config.storedSubTotal[tt] = 1;
+                    }
                     else
-                        Main.config.storedBaseTotal[tt] = 1;
+                    {
+                        if (Main.config.storedBase[saveSlot].ContainsKey(tt))
+                            Main.config.storedBase[saveSlot][tt]++;
+                        else
+                            Main.config.storedBase[saveSlot][tt] = 1;
+
+                        if (Main.config.storedBaseTotal.ContainsKey(tt))
+                            Main.config.storedBaseTotal[tt]++;
+                        else
+                            Main.config.storedBaseTotal[tt] = 1;
+                    }
                 }
                 else
                 {
@@ -1206,7 +1251,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(ItemsContainer __instance, InventoryItem item)
             {
-                if (!Main.gameLoaded || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
+                if (string.IsNullOrEmpty(saveSlot) || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
                     return;
 
                 //AddDebug("NotifyRemoveItem " + __instance.tr.name);
@@ -1214,15 +1259,26 @@ namespace Stats_Tracker
                 Rigidbody rb = item.item.GetComponent<Rigidbody>();
                 if (tt == TechType.None || rb == null)
                     return;
-
-                if (Player.main.IsInBase())
+                if (Player.main.currentSub)
                 {
-                    //AddDebug("NotifyRemoveItem IsInBase " + tt);
-                    if (Main.config.storedBase[saveSlot].ContainsKey(tt) && Main.config.storedBase[saveSlot][tt] > 0)
-                        Main.config.storedBase[saveSlot][tt]--;
+                    if (Player.main.currentSub.isCyclops)
+                    {
+                        //AddDebug("NotifyRemoveItem isCyclops " + tt);
+                        if (Main.config.storedSub[saveSlot].ContainsKey(tt) && Main.config.storedSub[saveSlot][tt] > 0)
+                            Main.config.storedSub[saveSlot][tt]--;
 
-                    if (Main.config.storedBaseTotal.ContainsKey(tt) && Main.config.storedBaseTotal[tt] > 0)
-                        Main.config.storedBaseTotal[tt]--;
+                        if (Main.config.storedSubTotal.ContainsKey(tt) && Main.config.storedSubTotal[tt] > 0)
+                            Main.config.storedSubTotal[tt]--;
+                    }
+                    else
+                    {
+                        //AddDebug("NotifyRemoveItem IsInBase " + tt);
+                        if (Main.config.storedBase[saveSlot].ContainsKey(tt) && Main.config.storedBase[saveSlot][tt] > 0)
+                            Main.config.storedBase[saveSlot][tt]--;
+
+                        if (Main.config.storedBaseTotal.ContainsKey(tt) && Main.config.storedBaseTotal[tt] > 0)
+                            Main.config.storedBaseTotal[tt]--;
+                    }
                 }
                 else
                 {
@@ -1239,10 +1295,9 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(Inventory), "OnRemoveItem")]
         internal class Inventory_OnRemoveItem_Patch
         { 
-            public static void Prefix(InventoryItem item)
+            public static void Postfix(InventoryItem item)
             {
-
-                if (!removingItemsForRecipe)
+                if (string.IsNullOrEmpty(saveSlot) || !removingItemsForRecipe)
                     return;
 
                 TechType tt = item.item.GetTechType();
@@ -1317,7 +1372,7 @@ namespace Stats_Tracker
         {
             public static void Prefix(BlueprintHandTarget __instance)
             {
-                if (__instance.used)
+                if (string.IsNullOrEmpty(saveSlot) || __instance.used)
                     return;
 
                 if (!KnownTech.Contains(__instance.unlockTechType))
@@ -1342,49 +1397,49 @@ namespace Stats_Tracker
                     //AddDebug("result " + __result + " IsFragment " + fragment);
                     Main.config.objectsScanned[saveSlot] ++;
                     Main.config.objectsScannedTotal++;
-                    TechType scanTargetTT = PDAScanner.scanTarget.techType;
+                    TechType tt = PDAScanner.scanTarget.techType;
 
-                    if (fauna.Contains(scanTargetTT))
+                    if (fauna.Contains(tt))
                     {
                         //AddDebug("scanned creature");
-                        Main.config.faunaFound[saveSlot].Add(scanTargetTT);
-                        Main.config.faunaFoundTotal.Add(scanTargetTT);
+                        Main.config.faunaFound[saveSlot].Add(tt);
+                        Main.config.faunaFoundTotal.Add(tt);
                     }
-                    else if (flora.Contains(scanTargetTT))
+                    else if (flora.Contains(tt))
                     {
-                        //AddDebug("scanned flora");
-                        if (scanTargetTT == TechType.SmallKoosh || scanTargetTT == TechType.MediumKoosh || scanTargetTT == TechType.LargeKoosh || scanTargetTT == TechType.HugeKoosh)
+                        //AddDebug("scanned flora"); 
+                        if (tt == TechType.SmallKoosh || tt == TechType.MediumKoosh || tt == TechType.LargeKoosh || tt == TechType.HugeKoosh)
                         {
                             if (Main.config.kooshFound[saveSlot])
                                 return;
                             Main.config.kooshFound[saveSlot] = true;
                         }
-                        Main.config.floraFound[saveSlot].Add(scanTargetTT);
-                        Main.config.floraFoundTotal.Add(scanTargetTT);
+                        Main.config.floraFound[saveSlot].Add(tt);
+                        Main.config.floraFoundTotal.Add(tt);
                     }
-                    else if (coral.Contains(scanTargetTT))
+                    else if (coral.Contains(tt))
                     {
                         //AddDebug("scanned coral");
-                        if (scanTargetTT == TechType.BlueJeweledDisk || scanTargetTT == TechType.GreenJeweledDisk || scanTargetTT == TechType.PurpleJeweledDisk || scanTargetTT == TechType.RedJeweledDisk || scanTargetTT == TechType.GenericJeweledDisk)
+                        if (tt == TechType.BlueJeweledDisk || tt == TechType.GreenJeweledDisk || tt == TechType.PurpleJeweledDisk || tt == TechType.RedJeweledDisk || tt == TechType.GenericJeweledDisk)
                         {
                             if (Main.config.jeweledDiskFound[saveSlot])
                                 return;
                             Main.config.jeweledDiskFound[saveSlot] = true;
                         }
-                        Main.config.coralFound[saveSlot].Add(scanTargetTT);
-                        Main.config.coralFoundTotal.Add(scanTargetTT);
+                        Main.config.coralFound[saveSlot].Add(tt);
+                        Main.config.coralFoundTotal.Add(tt);
                     }
-                    else if (leviathans.Contains(scanTargetTT))
+                    else if (leviathans.Contains(tt))
                     {
                         //AddDebug("scanned leviathan");
-                        if (scanTargetTT == TechType.GhostLeviathan || scanTargetTT == TechType.GhostLeviathanJuvenile)
+                        if (tt == TechType.GhostLeviathan || tt == TechType.GhostLeviathanJuvenile)
                         {
                             if (Main.config.ghostLevFound[saveSlot])
                                 return;
                             Main.config.ghostLevFound[saveSlot] = true;
                         }
-                        Main.config.leviathanFound[saveSlot].Add(scanTargetTT);
-                        Main.config.leviathanFoundTotal.Add(scanTargetTT);
+                        Main.config.leviathanFound[saveSlot].Add(tt);
+                        Main.config.leviathanFoundTotal.Add(tt);
                     }
 
                 }
@@ -1395,9 +1450,9 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(PDAScanner), "Unlock")]
         internal class PDAScanner_Unlock_Patch
         {
-            public static void Prefix(PDAScanner.EntryData entryData, bool unlockBlueprint, bool unlockEncyclopedia)
+            public static void Postfix(PDAScanner.EntryData entryData, bool unlockBlueprint, bool unlockEncyclopedia)
             {
-                if (entryData == null || saveSlot == null)
+                if (entryData == null || string.IsNullOrEmpty(saveSlot))
                     return;
 
                 //AddDebug("unlock  " + entryData.key);
@@ -1543,7 +1598,7 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(uGUI_EncyclopediaTab), "Open")]
         internal class uGUI_EncyclopediaTab_Close_Patch
         {
-            public static void Prefix(uGUI_EncyclopediaTab __instance)
+            public static void Postfix(uGUI_EncyclopediaTab __instance)
             {
                 if (lastEncNode != null && myStrings.ContainsKey(lastEncNode.id))
                 { // update stats 
@@ -1578,19 +1633,36 @@ namespace Stats_Tracker
         internal class SubRoot_OnKill_Patch
         {
             public static void Postfix(SubRoot __instance)
-            {
+            { // assuming player uses 1 sub
                     //AddDebug("Sub lost");
                 Main.config.cyclopsLost[saveSlot]++;
                 Main.config.cyclopsLostTotal++;
+
+                foreach (var kv in Main.config.storedSub[saveSlot])
+                {
+                    if (Main.config.storedSubTotal.ContainsKey(kv.Key))
+                        Main.config.storedSubTotal[kv.Key] -= kv.Value;
+
+                    if (Main.config.storedOutside[saveSlot].ContainsKey(kv.Key))
+                        Main.config.storedOutside[saveSlot][kv.Key] += kv.Value;
+                    else
+                        Main.config.storedOutside[saveSlot][kv.Key] = 1;
+
+                    if (Main.config.storedOutsideTotal.ContainsKey(kv.Key))
+                        Main.config.storedOutsideTotal[kv.Key] += kv.Value;
+                    else
+                        Main.config.storedOutsideTotal[kv.Key] = 1;
+                }
+                Main.config.storedSub[saveSlot] = new Dictionary<TechType, int>();
             }
         }
 
         [HarmonyPatch(typeof(Constructor), "OnConstructionDone")]
         internal class Constructor_OnConstructionDone_Patch
         {
-            public static void Prefix(Constructor __instance, GameObject constructedObject)
+            public static void Postfix(Constructor __instance, GameObject constructedObject)
             {
-                TechType tt = CraftData.GetTechType(constructedObject);
+                //TechType tt = CraftData.GetTechType(constructedObject);
                 //AddDebug("built tt " + tt);
                 //AddDebug("built " + constructedObject.name);
                 //if (tt == TechType.Seamoth)

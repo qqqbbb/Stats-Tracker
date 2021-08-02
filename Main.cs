@@ -105,6 +105,7 @@ namespace Stats_Tracker
             config.jeweledDiskFound[saveSlot] = false;
             config.ghostLevFound[saveSlot] = false;
             config.storedBase[saveSlot] = new Dictionary<TechType, int>();
+            config.storedSub[saveSlot] = new Dictionary<TechType, int>();
             config.storedOutside[saveSlot] = new Dictionary<TechType, int>();
             config.medkitsUsed[saveSlot] = 0;
 

@@ -114,7 +114,9 @@ namespace Stats_Tracker
         public int objectsScannedTotal = 0;
         public Dictionary<string, Dictionary<TechType, int>> storedBase = new Dictionary<string, Dictionary<TechType, int>>();
         public Dictionary<string, Dictionary<TechType, int>> storedOutside = new Dictionary<string, Dictionary<TechType, int>>();
+        public Dictionary<string, Dictionary<TechType, int>> storedSub = new Dictionary<string, Dictionary<TechType, int>>();
         public Dictionary<TechType, int> storedBaseTotal = new Dictionary<TechType, int>();
+        public Dictionary<TechType, int> storedSubTotal = new Dictionary<TechType, int>();
         public Dictionary<TechType, int> storedOutsideTotal = new Dictionary<TechType, int>();
     }
 }
