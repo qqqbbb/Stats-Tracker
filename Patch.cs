@@ -1191,11 +1191,10 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(ItemsContainer), "NotifyAddItem")]
         internal class ItemsContainer_NotifyAddItem_Patch
         {
-            public static void Postfix(ItemsContainer __instance, InventoryItem item)
+            public static void Prefix(ItemsContainer __instance, InventoryItem item)
             {
                 if (string.IsNullOrEmpty(saveSlot) || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
                     return;
-
                 //AddDebug("NotifyAddItem " + __instance.tr.name);
                 TechType tt = item.item.GetTechType();
                 Rigidbody rb = item.item.GetComponent<Rigidbody>();
@@ -1206,6 +1205,8 @@ namespace Stats_Tracker
                 {
                     if (Player.main.currentSub.isCyclops)
                     {
+                        if (!Main.config.storedSub.ContainsKey(saveSlot))
+                            Main.PrepareSaveSlot(saveSlot);
                         //AddDebug("NotifyAddItem IsInBase " + tt);
                         if (Main.config.storedSub[saveSlot].ContainsKey(tt))
                             Main.config.storedSub[saveSlot][tt]++;
@@ -1219,6 +1220,9 @@ namespace Stats_Tracker
                     }
                     else
                     {
+                        if (!Main.config.storedBase.ContainsKey(saveSlot))
+                            Main.PrepareSaveSlot(saveSlot);
+
                         if (Main.config.storedBase[saveSlot].ContainsKey(tt))
                             Main.config.storedBase[saveSlot][tt]++;
                         else
@@ -1232,7 +1236,9 @@ namespace Stats_Tracker
                 }
                 else
                 {
-                    //AddDebug("NotifyAddItem " + tt);
+                    if (!Main.config.storedOutside.ContainsKey(saveSlot))
+                        Main.PrepareSaveSlot(saveSlot);
+
                     if (Main.config.storedOutside[saveSlot].ContainsKey(tt))
                         Main.config.storedOutside[saveSlot][tt]++;
                     else
@@ -1249,7 +1255,7 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(ItemsContainer), "NotifyRemoveItem")]
         internal class ItemsContainer_NotifyRemoveItem_Patch
         {
-            public static void Postfix(ItemsContainer __instance, InventoryItem item)
+            public static void Prefix(ItemsContainer __instance, InventoryItem item)
             {
                 if (string.IsNullOrEmpty(saveSlot) || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
                     return;
@@ -1263,6 +1269,8 @@ namespace Stats_Tracker
                 {
                     if (Player.main.currentSub.isCyclops)
                     {
+                        if (!Main.config.storedSub.ContainsKey(saveSlot))
+                            Main.PrepareSaveSlot(saveSlot);
                         //AddDebug("NotifyRemoveItem isCyclops " + tt); 
                         if (Main.config.storedSub[saveSlot].ContainsKey(tt) && Main.config.storedSub[saveSlot][tt] > 0)
                             Main.config.storedSub[saveSlot][tt]--;
@@ -1272,6 +1280,8 @@ namespace Stats_Tracker
                     }
                     else
                     {
+                        if (!Main.config.storedBase.ContainsKey(saveSlot))
+                            Main.PrepareSaveSlot(saveSlot);
                         //AddDebug("NotifyRemoveItem IsInBase " + tt);
                         if (Main.config.storedBase[saveSlot].ContainsKey(tt) && Main.config.storedBase[saveSlot][tt] > 0)
                             Main.config.storedBase[saveSlot][tt]--;
@@ -1282,6 +1292,8 @@ namespace Stats_Tracker
                 }
                 else
                 {
+                    if (!Main.config.storedOutside.ContainsKey(saveSlot))
+                        Main.PrepareSaveSlot(saveSlot);
                     //AddDebug("NotifyRemoveItem " + tt);
                     if (Main.config.storedOutside[saveSlot].ContainsKey(tt) && Main.config.storedOutside[saveSlot][tt] > 0)
                         Main.config.storedOutside[saveSlot][tt]--;

@@ -51,9 +51,10 @@ namespace Stats_Tracker
                 PDAEncyclopedia.Add(s.Key, false);
         }
 
-        private static void PrepareSaveSlot(string saveSlot)
+        public static void PrepareSaveSlot(string saveSlot)
         {
-            //AddDebug("PrepareSaveSlot  ");
+            //AddDebug("PrepareSaveSlot  " + saveSlot);
+            //Log("PrepareSaveSlot  " + saveSlot);
             config.playerDeaths[saveSlot] = 0;
             config.timePlayed[saveSlot] = TimeSpan.Zero;
             config.healthLost[saveSlot] = 0;
