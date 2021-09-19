@@ -14,7 +14,7 @@ namespace Stats_Tracker
     public class Main
     {
         public static Config config = new Config();
-        public static bool gameLoaded = false;
+        public static bool setupDone = false;
         //internal static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
 
         public static void Log(string str, QModManager.Utility.Logger.Level lvl = QModManager.Utility.Logger.Level.Debug)
@@ -58,7 +58,7 @@ namespace Stats_Tracker
             config.playerDeaths[saveSlot] = 0;
             config.timePlayed[saveSlot] = TimeSpan.Zero;
             config.healthLost[saveSlot] = 0;
-            config.foodEaten[saveSlot] = new Dictionary<TechType, float>();
+            config.foodEaten[saveSlot] = new Dictionary<string, float>();
             config.waterDrunk[saveSlot] = 0;
             config.distanceTraveled[saveSlot] = 0;
             config.maxDepth[saveSlot] = 0;
@@ -82,32 +82,33 @@ namespace Stats_Tracker
             config.timeCyclops[saveSlot] = TimeSpan.Zero;
             config.timeBase[saveSlot] = TimeSpan.Zero;
             config.timeEscapePod[saveSlot] = TimeSpan.Zero;
-            config.baseRoomsBuilt[saveSlot] = new Dictionary<TechType, int>();
+            config.baseRoomsBuilt[saveSlot] = new Dictionary<string, int>();
             config.baseCorridorsBuilt[saveSlot] = 0;
             config.basePower[saveSlot] = 0;
             config.objectsScanned[saveSlot] = 0;
             config.blueprintsUnlocked[saveSlot] = 0;
             config.blueprintsFromDatabox[saveSlot] = 0;
-            config.floraFound[saveSlot] = new HashSet<TechType>();
-            config.faunaFound[saveSlot] = new HashSet<TechType>();
-            config.leviathanFound[saveSlot] = new HashSet<TechType>();
-            config.coralFound[saveSlot] = new HashSet<TechType>();
-            config.animalsKilled[saveSlot] = new Dictionary<TechType, int>();
-            config.plantsKilled[saveSlot] = new Dictionary<TechType, int>();
-            config.coralKilled[saveSlot] = new Dictionary<TechType, int>();
-            config.leviathansKilled[saveSlot] = new Dictionary<TechType, int>();
-            config.plantsRaised[saveSlot] = new Dictionary<TechType, int>();
-            config.eggsHatched[saveSlot] = new Dictionary<TechType, int>();
-            config.itemsCrafted[saveSlot] = new Dictionary<TechType, int>();
-            config.craftingResourcesUsed[saveSlot] = new Dictionary<TechType, float>();
-            config.craftingResourcesUsed_[saveSlot] = new Dictionary<TechType, int>();
+            config.floraFound[saveSlot] = new HashSet<string>();
+            config.faunaFound[saveSlot] = new HashSet<string>();
+            config.leviathanFound[saveSlot] = new HashSet<string>();
+            config.coralFound[saveSlot] = new HashSet<string>();
+            config.animalsKilled[saveSlot] = new Dictionary<string, int>();
+            config.plantsKilled[saveSlot] = new Dictionary<string, int>();
+            config.coralKilled[saveSlot] = new Dictionary<string, int>();
+            config.leviathansKilled[saveSlot] = new Dictionary<string, int>();
+            config.plantsRaised[saveSlot] = new Dictionary<string, int>();
+            config.eggsHatched[saveSlot] = new Dictionary<string, int>();
+            config.itemsCrafted[saveSlot] = new Dictionary<string, int>();
+            config.craftingResourcesUsed[saveSlot] = new Dictionary<string, float>();
+            config.craftingResourcesUsed_[saveSlot] = new Dictionary<string, int>();
             config.biomesFound[saveSlot] = new HashSet<string>();
             config.kooshFound[saveSlot] = false;
             config.jeweledDiskFound[saveSlot] = false;
             config.ghostLevFound[saveSlot] = false;
-            config.storedBase[saveSlot] = new Dictionary<TechType, int>();
-            config.storedSub[saveSlot] = new Dictionary<TechType, int>();
-            config.storedOutside[saveSlot] = new Dictionary<TechType, int>();
+            config.storedBase[saveSlot] = new Dictionary<string, int>();
+            config.storedEscapePod[saveSlot] = new Dictionary<string, int>();
+            config.storedSub[saveSlot] = new Dictionary<string, int>();
+            config.storedOutside[saveSlot] = new Dictionary<string, int>();
             config.medkitsUsed[saveSlot] = 0;
 
         }
@@ -144,7 +145,7 @@ namespace Stats_Tracker
                     return;
                 }
                 Setup();
-                gameLoaded = true;
+                setupDone = true;
             }
         }
 
@@ -157,12 +158,14 @@ namespace Stats_Tracker
 
         [HarmonyPatch(typeof(EscapePod), "TriggerIntroCinematic")]
         internal class EscapePod_TriggerIntroCinematic_Patch
-        { // in case player starts new game, quits and starts again
+        {
             public static void Postfix(EscapePod __instance )
             {
+                Stats_Patch.GetStartingLoot();
                 //AddDebug("Trigger Intro Cinematic " + SaveLoadManager.main.currentSlot);
-                PrepareSaveSlot(SaveLoadManager.main.currentSlot);
-                config.Save();
+                //if (!config.distanceTraveled.ContainsKey(SaveLoadManager.main.currentSlot))
+                //    PrepareSaveSlot(SaveLoadManager.main.currentSlot);
+                //config.Save();
             }
         }
 
@@ -179,7 +182,9 @@ namespace Stats_Tracker
 
         public static void CleanUp()
         {
-            gameLoaded = false;
+            setupDone = false;
+            Stats_Patch.powerRelays = new HashSet<PowerRelay>();
+            Stats_Patch.timeLastUpdate = TimeSpan.Zero;
             config.Load();
         }
 

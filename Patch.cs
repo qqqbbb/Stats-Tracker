@@ -5,7 +5,6 @@ using System;
 //using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
-//using System.Reflection;
 using UnityEngine;
 using SMLHelper.V2.Handlers;
 using static ErrorMessage;
@@ -14,6 +13,8 @@ namespace Stats_Tracker
 {
     internal class Stats_Patch
     {
+        static bool craftedItem = false;
+        static LiveMixin killedLM = null;
         public static string saveSlot;
         public static CraftNode lastEncNode;
         public static Dictionary<string, PDAEncyclopedia.EntryData> mapping;
@@ -24,7 +25,7 @@ namespace Stats_Tracker
         {TechType.GhostLeviathan, TechType.GhostLeviathanJuvenile, TechType.ReaperLeviathan, TechType.Reefback, TechType.SeaDragon, TechType.SeaEmperorJuvenile, TechType.SeaTreader };
         public static string[] moddedCreatureTechtypes = new string[] { "StellarThalassacean", "JasperThalassacean", "GrandGlider", "Axetail", "AmberClownPincher", "CitrineClownPincher", "EmeraldClownPincher", "RubyClownPincher", "SapphireClownPincher", "GulperLeviathan", "RibbonRay", "Twisteel", "Filtorb", "JellySpinner", "TriangleFish" };
         public static List<TechType> coral = new List<TechType> { TechType.PurpleBrainCoral, TechType.CoralShellPlate, TechType.BrownTubes, TechType.BigCoralTubes, TechType.BlueCoralTubes, TechType.RedTipRockThings, TechType.GenericJeweledDisk, TechType.BlueJeweledDisk, TechType.GreenJeweledDisk, TechType.RedJeweledDisk, TechType.PurpleJeweledDisk, TechType.TreeMushroom};
-        public static List<TechType> flora = new List<TechType> { TechType.AcidMushroom, TechType.BloodRoot, TechType.BloodVine, TechType.BluePalm, TechType.SmallKoosh, TechType.MediumKoosh, TechType.LargeKoosh, TechType.HugeKoosh, TechType.BulboTree, TechType.PurpleBranches, TechType.PurpleVegetablePlant, TechType.Creepvine, TechType.WhiteMushroom, TechType.EyesPlant, TechType.FernPalm, TechType.RedRollPlant, TechType.GabeSFeather, TechType.JellyPlant, TechType.RedGreenTentacle, TechType.OrangePetalsPlant, TechType.OrangeMushroom, TechType.SnakeMushroom, TechType.HangingFruitTree, TechType.MembrainTree, TechType.PurpleVasePlant, TechType.PinkMushroom, TechType.SmallFan, TechType.SmallFanCluster, TechType.RedBush, TechType.RedConePlant, TechType.RedBasketPlant, TechType.SeaCrown, TechType.PurpleRattle, TechType.ShellGrass, TechType.SpottedLeavesPlant, TechType.CrashHome, TechType.SpikePlant, TechType.PurpleFan, TechType.PurpleStalk, TechType.PinkFlower, TechType.PurpleTentacle, TechType.BloodGrass, TechType.RedGrass, TechType.RedSeaweed, TechType.BlueBarnacle, TechType.BlueBarnacleCluster, TechType.BlueLostRiverLilly, TechType.BlueTipLostRiverPlant, TechType.HangingStinger, TechType.CoveTree, TechType.BlueCluster, TechType.GreenReeds, TechType.BarnacleSuckers, TechType.BallClusters};
+        public static List<TechType> flora = new List<TechType> { TechType.MelonPlant, TechType.AcidMushroom, TechType.BloodRoot, TechType.BloodVine, TechType.BluePalm, TechType.SmallKoosh, TechType.MediumKoosh, TechType.LargeKoosh, TechType.HugeKoosh, TechType.BulboTree, TechType.PurpleBranches, TechType.PurpleVegetablePlant, TechType.Creepvine, TechType.WhiteMushroom, TechType.EyesPlant, TechType.FernPalm, TechType.RedRollPlant, TechType.GabeSFeather, TechType.JellyPlant, TechType.RedGreenTentacle, TechType.OrangePetalsPlant, TechType.OrangeMushroom, TechType.SnakeMushroom, TechType.HangingFruitTree, TechType.MembrainTree, TechType.PurpleVasePlant, TechType.PinkMushroom, TechType.SmallFan, TechType.SmallFanCluster, TechType.RedBush, TechType.RedConePlant, TechType.RedBasketPlant, TechType.SeaCrown, TechType.PurpleRattle, TechType.ShellGrass, TechType.SpottedLeavesPlant, TechType.CrashHome, TechType.SpikePlant, TechType.PurpleFan, TechType.PurpleStalk, TechType.PinkFlower, TechType.PurpleTentacle, TechType.BloodGrass, TechType.RedGrass, TechType.RedSeaweed, TechType.BlueBarnacle, TechType.BlueBarnacleCluster, TechType.BlueLostRiverLilly, TechType.BlueTipLostRiverPlant, TechType.HangingStinger, TechType.CoveTree, TechType.BlueCluster, TechType.GreenReeds, TechType.BarnacleSuckers, TechType.BallClusters};
         static bool removingItemsForRecipe = false;
         static TimeSpan bedTimeStart = TimeSpan.Zero;
         public static TimeSpan timeLastUpdate = TimeSpan.Zero;
@@ -39,7 +40,7 @@ namespace Stats_Tracker
                 TimeSpan total = TimeSpan.Zero;
                 foreach (var item in Main.config.timePlayed)
                 {
-                    if (item.Key != saveSlot)
+                    //if (item.Key != saveSlot)
                         total += item.Value;
                 }
                 total += GetTimePlayed();
@@ -57,7 +58,7 @@ namespace Stats_Tracker
                     if (pr)
                         total += (int)pr.GetMaxPower();
                 }
-                return total /2;
+                return total;
             }
         }
         static int basePowerTotal
@@ -67,8 +68,8 @@ namespace Stats_Tracker
                 int total = 0;
                 foreach (var kv in Main.config.basePower)
                 {
-                    if (kv.Key != saveSlot)
-                        total += kv.Value;
+                    //if (kv.Key != saveSlot)
+                    total += kv.Value;
                 }
                 total += basePower;
 
@@ -86,34 +87,12 @@ namespace Stats_Tracker
                 return total;
             }
         }
-        static int craftingResourcesUsedTotal_
-        {
-            get
-            {
-                int total = 0;
-                foreach (var kv in Main.config.craftingResourcesUsedTotal_)
-                    total += kv.Value;
-
-                return total;
-            }
-        }
         static float craftingResourcesUsed
         {
             get
             {
                 float total = 0;
                 foreach (var crafted in Main.config.craftingResourcesUsed[saveSlot])
-                    total += crafted.Value;
-
-                return total;
-            }
-        }
-        static int craftingResourcesUsed_
-        {
-            get
-            {
-                int total = 0;
-                foreach (var crafted in Main.config.craftingResourcesUsed_[saveSlot])
                     total += crafted.Value;
 
                 return total;
@@ -317,7 +296,28 @@ namespace Stats_Tracker
                 return total;
             }
         }
+        static int storedEscapePod
+        {
+            get
+            {
+                int total = 0;
+                foreach (var kv in Main.config.storedEscapePod[saveSlot])
+                    total += kv.Value;
 
+                return total;
+            }
+        }
+        static int storedOutside
+        {
+            get
+            {
+                int total = 0;
+                foreach (var kv in Main.config.storedOutside[saveSlot])
+                    total += kv.Value;
+
+                return total;
+            }
+        }
         private readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>()
         {
             { "BloodKelp", "Blood Kelp Zone"},
@@ -348,20 +348,20 @@ namespace Stats_Tracker
             { "ilz", "Inactive Lava Zone" },
         };
 
-        public static string GetCraftingResourcesUsedTotal(TechType tt)
+        public static string GetCraftingResourcesUsedTotal(string str)
         {
-            if (Main.config.craftingResourcesUsedTotal.ContainsKey(tt))
-                return Language.main.Get(tt.AsString()) + " " + Main.config.craftingResourcesUsedTotal_[tt] + ", " + Main.config.craftingResourcesUsedTotal[tt].ToString("0.0") + " kg";
+            if (Main.config.craftingResourcesUsedTotal.ContainsKey(str))
+                return Language.main.Get(str) + " " + Main.config.craftingResourcesUsedTotal_[str] + ", " + Main.config.craftingResourcesUsedTotal[str].ToString("0.0") + " kg";
             else
-                return Language.main.Get(tt.AsString()) + " " + Main.config.craftingResourcesUsedTotal_[tt];
+                return Language.main.Get(str) + " " + Main.config.craftingResourcesUsedTotal_[str];
         }
 
-        public static string GetCraftingResourcesUsed(TechType tt)
+        public static string GetCraftingResourcesUsed(string str)
         {
-            if (Main.config.craftingResourcesUsed[saveSlot].ContainsKey(tt))
-                return Language.main.Get(tt.AsString()) + " " + Main.config.craftingResourcesUsed_[saveSlot][tt] + ", " + Main.config.craftingResourcesUsed[saveSlot][tt].ToString("0.0") + " kg";
+            if (Main.config.craftingResourcesUsed[saveSlot].ContainsKey(str))
+                return Language.main.Get(str) + " " + Main.config.craftingResourcesUsed_[saveSlot][str] + ", " + Main.config.craftingResourcesUsed[saveSlot][str].ToString("0.0") + " kg";
             else
-                return Language.main.Get(tt.AsString()) + " " + Main.config.craftingResourcesUsed_[saveSlot][tt];
+                return Language.main.Get(str) + " " + Main.config.craftingResourcesUsed_[saveSlot][str];
         }
 
         public static string GetBiomeName(string name)
@@ -489,6 +489,25 @@ namespace Stats_Tracker
             }
         }
 
+        public static void GetStartingLoot()
+        {
+            //AddDebug("LootSpawner Start  " + LootSpawner.main.escapePodTechTypes.Count);
+            foreach (TechType tt in LootSpawner.main.escapePodTechTypes)
+            {
+                //AddDebug("Start Loot " + tt);
+                string name = tt.AsString();
+                if (Main.config.storedEscapePod[saveSlot].ContainsKey(name))
+                    Main.config.storedEscapePod[saveSlot][name]++;
+                else
+                    Main.config.storedEscapePod[saveSlot][name] = 1;
+
+                if (Main.config.storedEscapePodTotal.ContainsKey(name))
+                    Main.config.storedEscapePodTotal[name]++;
+                else
+                    Main.config.storedEscapePodTotal[name] = 1;
+            }
+        }
+
         [HarmonyPatch(typeof(Language), "TryGet")]
         internal class Language_TryGet_Patch
         {
@@ -497,130 +516,7 @@ namespace Stats_Tracker
                 if (descs == null || key == null || !descs.ContainsKey(key))
                     return;
                 //AddDebug("TryGet " + key);
-                if (key == "EncyDesc_StatsGlobal")
-                {
-                    result = timePlayedTotal;
-                    if (Main.config.gamesWon > 0)
-                        result += "\nGames completed " + Main.config.gamesWon;
-                    result += "\nDeaths: " + Main.config.playerDeathsTotal;
-
-                    result += "\n\nTime spent on feet: " + Main.config.timeWalkedTotal.Days + " days, " + Main.config.timeWalkedTotal.Hours + " hours, " + Main.config.timeWalkedTotal.Minutes + " minutes.";
-                    result += "\nTime spent swimming: " + Main.config.timeSwamTotal.Days + " days, " + Main.config.timeSwamTotal.Hours + " hours, " + Main.config.timeSwamTotal.Minutes + " minutes.";
-                    result += "\nTime spent sleeping: " + Main.config.timeSleptTotal.Days + " days, " + Main.config.timeSleptTotal.Hours + " hours, " + Main.config.timeSleptTotal.Minutes + " minutes.";
-                    result += "\nTime spent in your life pod: " + Main.config.timeEscapePodTotal.Days + " days, " + Main.config.timeEscapePodTotal.Hours + " hours, " + Main.config.timeEscapePodTotal.Minutes + " minutes.";
-                    result += "\nTime spent in your base: " + Main.config.timeBaseTotal.Days + " days, " + Main.config.timeBaseTotal.Hours + " hours, " + Main.config.timeBaseTotal.Minutes + " minutes.";
-                    result += "\nTime spent in seamoth: " + Main.config.timeSeamothTotal.Days + " days, " + Main.config.timeSeamothTotal.Hours + " hours, " + Main.config.timeSeamothTotal.Minutes + " minutes.";
-                    result += "\nTime spent in prawn suit: " + Main.config.timeExosuitTotal.Days + " days, " + Main.config.timeExosuitTotal.Hours + " hours, " + Main.config.timeExosuitTotal.Minutes + " minutes.";
-                    result += "\nTime spent in cyclops: " + Main.config.timeCyclopsTotal.Days + " days, " + Main.config.timeCyclopsTotal.Hours + " hours, " + Main.config.timeCyclopsTotal.Minutes + " minutes.";
-
-                    result += "\n\nDistance traveled: " + GetTraveledString(Main.config.distanceTraveledTotal);
-                    result += "\nDistance traveled by foot: " + Main.config.distanceTraveledWalkTotal + " meters.";
-                    result += "\nDistance traveled by swimming: " + Main.config.distanceTraveledSwimTotal + " meters.";
-                    result += "\nDistance traveled by seaglide: " + Main.config.distanceTraveledSeaglideTotal + " meters.";
-                    result += "\nDistance traveled in seamoth: " + Main.config.distanceTraveledSeamothTotal + " meters.";
-                    result += "\nDistance traveled in prawn suit: " + Main.config.distanceTraveledExosuitTotal + " meters.";
-                    result += "\nDistance traveled in cyclops: " + Main.config.distanceTraveledSubTotal + " meters.";
-                    result += "\nMax depth reached: " + Main.config.maxDepthGlobal + " meters.";
-
-                    result += "\n\nSeamoths constructed: " + Main.config.seamothsBuiltTotal;
-                    result += "\nSeamoths lost: " + Main.config.seamothsLostTotal;
-                    result += "\nPrawn suits constructed: " + Main.config.exosuitsBuiltTotal;
-                    result += "\nPrawn suits lost: " + Main.config.exosuitsLostTotal;
-                    result += "\nCyclopes constructed: " + Main.config.cyclopsBuiltTotal;
-                    result += "\nCyclopes lost: " + Main.config.cyclopsLostTotal;
-
-                    result += "\nHealth lost: " + Main.config.healthLostTotal;
-                    result += "\nFirst aid kits used: " + Main.config.medkitsUsedTotal;
-
-                    result += "\n\nWater drunk: " + Main.config.waterDrunkTotal + " liters.";
-                    result += "\nFood eaten: " + foodEatenTotal + " kg.";
-                    foreach (var kv in Main.config.foodEatenTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value + " kg.";
-
-                    result += "\n\nTotal power generated for your bases: " + basePowerTotal;
-                    result += "\nBase corridor segments built: " + Main.config.baseCorridorsBuiltTotal;
-                    result += "\nBase rooms built: " + baseRoomsBuiltTotal;
-                    foreach (var kv in Main.config.baseRoomsBuiltTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-
-                    result += "\n\nObjects scanned: " + Main.config.objectsScannedTotal;
-                    result += "\nBlueprints unlocked by scanning: " + Main.config.blueprintsUnlockedTotal;
-                    result += "\nBlueprints found in databoxes: " + Main.config.blueprintsFromDataboxTotal;
-
-                    result += "\n\nPlants killed: " + plantsKilledTotal;
-                    foreach (var kv in Main.config.plantsKilledTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-
-                    result += "\n\nAnimals killed: " + animalsKilledTotal;
-                    foreach (var kv in Main.config.animalsKilledTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-
-                    result += "\n\nCorals killed: " + coralKilledTotal;
-                    foreach (var kv in Main.config.coralKilledTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-
-                    result += "\n\nLeviathans killed: " + leviathansKilledTotal;
-                    foreach (var kv in Main.config.leviathansKilledTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-
-                    result += "\n\nItems crafted: " + itemsCraftedTotal;
-                    foreach (var kv in Main.config.itemsCraftedTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-
-                    result += "\n\nResources used for crafting and constructing: " + craftingResourcesUsedTotal_ + ", " + craftingResourcesUsedTotal.ToString("0.0") + " kg";
-                    foreach (var kv in Main.config.craftingResourcesUsedTotal_)
-                        result += "\n      " + GetCraftingResourcesUsedTotal(kv.Key);
-
-                    result += "\n\nPlants raised: " + plantsRaisedTotal;
-                    foreach (var kv in Main.config.plantsRaisedTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-
-                    result += "\n\nEggs hatched in AC: " + eggsHatchedTotal;
-                    foreach (var kv in Main.config.eggsHatchedTotal)
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-
-                    result += "\n\nThings stored in your bases: ";
-                    foreach (var kv in Main.config.storedBaseTotal)
-                    {
-                        if (kv.Value > 0)
-                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-                    }
-
-                    result += "\n\nThings stored in cyclops: ";
-                    foreach (var kv in Main.config.storedSubTotal)
-                    {
-                        if (kv.Value > 0)
-                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-                    }
-
-                    result += "\n\nThings stored outside your bases: ";
-                    foreach (var kv in Main.config.storedOutsideTotal)
-                    {
-                        if (kv.Value > 0)
-                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
-                    }
-
-                    result += "\n\nBiomes discovered:";
-                    foreach (string biome in Main.config.biomesFoundGlobal)
-                        result += "\n      " + biome;
-
-                    result += "\n\nFauna species discovered: ";
-                    foreach (TechType tt in Main.config.faunaFoundTotal)
-                        result += "\n      " + Language.main.Get(tt.AsString());
-
-                    result += "\n\nFlora species discovered: ";
-                    foreach (TechType tt in Main.config.floraFoundTotal)
-                        result += "\n      " + Language.main.Get(tt.AsString());
-
-                    result += "\n\nCoral species discovered: ";
-                    foreach (TechType tt in Main.config.coralFoundTotal)
-                        result += "\n      " + Language.main.Get(tt.AsString());
-
-                    result += "\n\nLeviathan species discovered: ";
-                    foreach (TechType tt in Main.config.leviathanFoundTotal)
-                        result += "\n      " + Language.main.Get(tt.AsString());
-                }
-                else if (key == "EncyDesc_StatsThisGame")
+                if (key == "EncyDesc_StatsThisGame")
                 {
                     //string biomeName = Player.main.GetBiomeString();
                     string biomeName = GetBiomeName(LargeWorld.main.GetBiome(Player.main.transform.position));
@@ -672,7 +568,8 @@ namespace Stats_Tracker
 
                     if (GameModeUtils.currentGameMode != GameModeOption.Creative)
                     {
-                        result += "\n\nHealth lost: " + Main.config.healthLost[saveSlot];
+                        if (Main.config.healthLost[saveSlot] > 0)
+                            result += "\n\nHealth lost: " + Main.config.healthLost[saveSlot];
                         if (Main.config.medkitsUsed[saveSlot] > 0)
                             result += "\nFirst aid kits used: " + Main.config.medkitsUsed[saveSlot];
                     }
@@ -682,7 +579,7 @@ namespace Stats_Tracker
                         result += "\n\nWater drunk: " + Main.config.waterDrunk[saveSlot] + " liters.";
                         result += "\nFood eaten: " + foodEaten + " kg.";
                         foreach (var kv in Main.config.foodEaten[saveSlot])
-                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value + " kg.";
+                            result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value + " kg.";
                     }
 
                     if (baseRoomsBuilt > 0 || Main.config.baseCorridorsBuilt[saveSlot] > 0)
@@ -692,7 +589,7 @@ namespace Stats_Tracker
                     if (baseRoomsBuilt > 0)
                         result += "\nBase rooms built: " + baseRoomsBuilt;
                     foreach (var kv in Main.config.baseRoomsBuilt[saveSlot])
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
                     if (Main.config.objectsScanned[saveSlot] > 0 || Main.config.blueprintsFromDatabox[saveSlot] > 0)
                         result += "\n";
@@ -706,48 +603,61 @@ namespace Stats_Tracker
                     if (plantsKilled > 0)
                         result += "\n\nPlants killed: " + plantsKilled;
                     foreach (var kv in Main.config.plantsKilled[saveSlot])
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
                     if (animalsKilled > 0)
                         result += "\n\nAnimals killed: " + animalsKilled;
                     foreach (var kv in Main.config.animalsKilled[saveSlot])
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
                     if (coralKilled > 0)
                         result += "\n\nCorals killed: " + coralKilled;
                     foreach (var kv in Main.config.coralKilled[saveSlot])
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
                     if (leviathansKilled > 0)
                         result += "\n\nLeviathans killed: " + leviathansKilled;
                     foreach (var kv in Main.config.leviathansKilled[saveSlot])
-                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
                     result += "\n\nItems crafted: " + itemsCrafted;
-                    foreach (var crafted in Main.config.itemsCrafted[saveSlot])
-                        result += "\n      " + Language.main.Get(crafted.Key.AsString()) + " " + crafted.Value;
+                    foreach (var kv in Main.config.itemsCrafted[saveSlot])
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
-                    result += "\n\nResources used for crafting and constructing: " + craftingResourcesUsed_ + ", " + craftingResourcesUsed.ToString("0.0") + " kg";
+                    result += "\n\nResources used for crafting and constructing: " + craftingResourcesUsed.ToString("0.0") + " kg";
                     foreach (var kv in Main.config.craftingResourcesUsed_[saveSlot])
                         result += "\n      " + GetCraftingResourcesUsed(kv.Key);
 
                     if (plantsRaised > 0)
                         result += "\n\nPlants raised: " + plantsRaised;
                     foreach (var kv in Main.config.plantsRaised[saveSlot])
-                        result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
                     if (eggsHatched > 0)
                     {
                         result += "\n\nEggs hatched in AC: " + eggsHatched;
                         foreach (var kv in Main.config.eggsHatched[saveSlot])
-                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                            result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
                     }
 
-                    result += "\n\nThings stored in your bases: ";
-                    foreach (var kv in Main.config.storedBase[saveSlot])
+                    if (storedEscapePod > 0)
                     {
-                        if (kv.Value > 0)
-                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        result += "\n\nThings stored in your life pod: ";
+                        foreach (var kv in Main.config.storedEscapePod[saveSlot])
+                        {
+                            if (kv.Value > 0)
+                                result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+                        }
+                    }
+
+                    if (baseRoomsBuilt > 0 || Main.config.baseCorridorsBuilt[saveSlot] > 0)
+                    {
+                        result += "\n\nThings stored in your bases: ";
+                        foreach (var kv in Main.config.storedBase[saveSlot])
+                        {
+                            if (kv.Value > 0)
+                                result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+                        }
                     }
 
                     if (Main.config.cyclopsBuilt[saveSlot] > 0)
@@ -756,15 +666,18 @@ namespace Stats_Tracker
                         foreach (var kv in Main.config.storedSub[saveSlot])
                         {
                             if (kv.Value > 0)
-                                result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                                result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
                         }
                     }
 
-                    result += "\n\nThings stored outside your bases: ";
-                    foreach (var kv in Main.config.storedOutside[saveSlot])
+                    if (storedOutside > 0)
                     {
-                        if (kv.Value > 0)
-                            result += "\n      " + Language.main.Get(kv.Key.AsString()) + " " + kv.Value;
+                        result += "\n\nThings stored outside your bases: ";
+                        foreach (var kv in Main.config.storedOutside[saveSlot])
+                        {
+                            if (kv.Value > 0)
+                                result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+                        }
                     }
 
                     result += "\n\nBiomes discovered:";
@@ -773,147 +686,164 @@ namespace Stats_Tracker
 
                     if (Main.config.faunaFound[saveSlot].Count > 0)
                         result += "\n\nFauna species discovered: ";
-                    foreach (TechType tt in Main.config.faunaFound[saveSlot])
-                        result += "\n      " + Language.main.Get(tt.AsString());
+                    foreach (string str in Main.config.faunaFound[saveSlot])
+                        result += "\n      " + Language.main.Get(str);
 
                     if (Main.config.floraFound[saveSlot].Count > 0)
                         result += "\n\nFlora species discovered: ";
-                    foreach (TechType tt in Main.config.floraFound[saveSlot])
-                        result += "\n      " + Language.main.Get(tt.AsString());
+                    foreach (string str in Main.config.floraFound[saveSlot])
+                            result += "\n      " + Language.main.Get(str);
 
                     if (Main.config.coralFound[saveSlot].Count > 0)
                         result += "\n\nCoral species discovered: ";
-                    foreach (TechType tt in Main.config.coralFound[saveSlot])
-                        result += "\n      " + Language.main.Get(tt.AsString());
+                    foreach (string str in Main.config.coralFound[saveSlot])
+                            result += "\n      " + Language.main.Get(str);
 
                     if (Main.config.leviathanFound[saveSlot].Count > 0)
                         result += "\n\nLeviathan species discovered: ";
-                    foreach (TechType tt in Main.config.leviathanFound[saveSlot])
-                        result += "\n      " + Language.main.Get(tt.AsString());
+                    foreach (string str in Main.config.leviathanFound[saveSlot])
+                            result += "\n      " + Language.main.Get(str);
                 }
-            }
-        }
-
-
-
-        [HarmonyPatch(typeof(SpawnEscapePodSupplies), "OnNewBorn")]
-        class SpawnEscapePodSupplies_OnNewBorn_Patch
-        {
-            public static void Postfix(SpawnEscapePodSupplies __instance)
-            {
-                if (string.IsNullOrEmpty(saveSlot))
-                    return;
-                //AddDebug("LootSpawner Start  ");
-                foreach (TechType tt in LootSpawner.main.escapePodTechTypes)
+                else if (key == "EncyDesc_StatsGlobal")
                 {
-                    //AddDebug("Start Loot " + tt);
-                    if (Main.config.storedOutside[saveSlot].ContainsKey(tt))
-                        Main.config.storedOutside[saveSlot][tt]++;
-                    else
-                        Main.config.storedOutside[saveSlot][tt] = 1;
+                    result = timePlayedTotal;
+                    if (Main.config.gamesWon > 0)
+                        result += "\nGames completed " + Main.config.gamesWon;
+                    result += "\nDeaths: " + Main.config.playerDeathsTotal;
 
-                    if (Main.config.storedOutsideTotal.ContainsKey(tt))
-                        Main.config.storedOutsideTotal[tt]++;
-                    else
-                        Main.config.storedOutsideTotal[tt] = 1;
-                }
-            }
-        }
+                    result += "\n\nTime spent on feet: " + Main.config.timeWalkedTotal.Days + " days, " + Main.config.timeWalkedTotal.Hours + " hours, " + Main.config.timeWalkedTotal.Minutes + " minutes.";
+                    result += "\nTime spent swimming: " + Main.config.timeSwamTotal.Days + " days, " + Main.config.timeSwamTotal.Hours + " hours, " + Main.config.timeSwamTotal.Minutes + " minutes.";
+                    result += "\nTime spent sleeping: " + Main.config.timeSleptTotal.Days + " days, " + Main.config.timeSleptTotal.Hours + " hours, " + Main.config.timeSleptTotal.Minutes + " minutes.";
+                    result += "\nTime spent in your life pod: " + Main.config.timeEscapePodTotal.Days + " days, " + Main.config.timeEscapePodTotal.Hours + " hours, " + Main.config.timeEscapePodTotal.Minutes + " minutes.";
+                    result += "\nTime spent in your base: " + Main.config.timeBaseTotal.Days + " days, " + Main.config.timeBaseTotal.Hours + " hours, " + Main.config.timeBaseTotal.Minutes + " minutes.";
+                    result += "\nTime spent in seamoth: " + Main.config.timeSeamothTotal.Days + " days, " + Main.config.timeSeamothTotal.Hours + " hours, " + Main.config.timeSeamothTotal.Minutes + " minutes.";
+                    result += "\nTime spent in prawn suit: " + Main.config.timeExosuitTotal.Days + " days, " + Main.config.timeExosuitTotal.Hours + " hours, " + Main.config.timeExosuitTotal.Minutes + " minutes.";
+                    result += "\nTime spent in cyclops: " + Main.config.timeCyclopsTotal.Days + " days, " + Main.config.timeCyclopsTotal.Hours + " hours, " + Main.config.timeCyclopsTotal.Minutes + " minutes.";
 
-        [HarmonyPatch(typeof(Player), "OnKill")]
-        internal class Player_OnKill_Patch
-        {
-            public static void Postfix(Player __instance)
-            {
-                Main.config.playerDeaths[saveSlot] ++;
-                Main.config.playerDeathsTotal++;
-            }
-        }
+                    result += "\n\nDistance traveled: " + GetTraveledString(Main.config.distanceTraveledTotal);
+                    result += "\nDistance traveled by foot: " + Main.config.distanceTraveledWalkTotal + " meters.";
+                    result += "\nDistance traveled by swimming: " + Main.config.distanceTraveledSwimTotal + " meters.";
+                    result += "\nDistance traveled by seaglide: " + Main.config.distanceTraveledSeaglideTotal + " meters.";
+                    result += "\nDistance traveled in seamoth: " + Main.config.distanceTraveledSeamothTotal + " meters.";
+                    result += "\nDistance traveled in prawn suit: " + Main.config.distanceTraveledExosuitTotal + " meters.";
+                    result += "\nDistance traveled in cyclops: " + Main.config.distanceTraveledSubTotal + " meters.";
+                    result += "\nMax depth reached: " + Main.config.maxDepthGlobal + " meters.";
 
-        [HarmonyPatch(typeof(DamageSystem), "CalculateDamage")]
-        class DamageSystem_CalculateDamage_Patch
-        {
-            public static void Postfix(DamageSystem __instance, float damage, DamageType type, GameObject target, GameObject dealer, ref float __result)
-            {
-                if (__result > 0f && target == Player.mainObject)
-                {
-                    //AddDebug("Player takes damage");
-                    int dam = Mathf.RoundToInt(__result);
-                    Main.config.healthLost[saveSlot] += dam;
-                    Main.config.healthLostTotal += dam;
-                }
-            }
-        }
+                    result += "\n\nSeamoths constructed: " + Main.config.seamothsBuiltTotal;
+                    result += "\nSeamoths lost: " + Main.config.seamothsLostTotal;
+                    result += "\nPrawn suits constructed: " + Main.config.exosuitsBuiltTotal;
+                    result += "\nPrawn suits lost: " + Main.config.exosuitsLostTotal;
+                    result += "\nCyclopes constructed: " + Main.config.cyclopsBuiltTotal;
+                    result += "\nCyclopes lost: " + Main.config.cyclopsLostTotal;
 
-        [HarmonyPatch(typeof(Survival), "Use")]
-        class Survival_Use_Patch
-        {
-            public static void Postfix(Survival __instance, GameObject useObj, bool __result)
-            {
-                if (!__result)
-                    return;
+                    result += "\nHealth lost: " + Main.config.healthLostTotal;
+                    result += "\nFirst aid kits used: " + Main.config.medkitsUsedTotal;
 
-                TechType tt = CraftData.GetTechType(useObj);
-                if (tt == TechType.FirstAidKit)
-                {
-                    //AddDebug("medkit used");
-                    Main.config.medkitsUsed[saveSlot]++;
-                    Main.config.medkitsUsedTotal++;
-                }
-            }
-        }
+                    result += "\n\nWater drunk: " + Main.config.waterDrunkTotal + " liters.";
+                    result += "\nFood eaten: " + foodEatenTotal + " kg.";
+                    foreach (var kv in Main.config.foodEatenTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value + " kg.";
 
-        [HarmonyPatch(typeof(Survival), "Eat")]
-        class Survival_Eat_Patch
-        {
-            public static void Postfix(Survival __instance, GameObject useObj, bool __result)
-            {
-                if (__result)
-                {
-                    Eatable eatable = useObj.GetComponent<Eatable>();
-                    Rigidbody rb = useObj.GetComponent<Rigidbody>();
-                    if (eatable && rb)
+                    result += "\n\nTotal power generated for your bases: " + basePowerTotal;
+                    result += "\nBase corridor segments built: " + Main.config.baseCorridorsBuiltTotal;
+                    result += "\nBase rooms built: " + baseRoomsBuiltTotal;
+                    foreach (var kv in Main.config.baseRoomsBuiltTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+
+                    result += "\n\nObjects scanned: " + Main.config.objectsScannedTotal;
+                    result += "\nBlueprints unlocked by scanning: " + Main.config.blueprintsUnlockedTotal;
+                    result += "\nBlueprints found in databoxes: " + Main.config.blueprintsFromDataboxTotal;
+
+                    result += "\n\nPlants killed: " + plantsKilledTotal;
+                    foreach (var kv in Main.config.plantsKilledTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+
+                    result += "\n\nAnimals killed: " + animalsKilledTotal;
+                    foreach (var kv in Main.config.animalsKilledTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+
+                    result += "\n\nCorals killed: " + coralKilledTotal;
+                    foreach (var kv in Main.config.coralKilledTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+
+                    result += "\n\nLeviathans killed: " + leviathansKilledTotal;
+                    foreach (var kv in Main.config.leviathansKilledTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+
+                    result += "\n\nItems crafted: " + itemsCraftedTotal;
+                    foreach (var kv in Main.config.itemsCraftedTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+
+                    result += "\n\nResources used for crafting and constructing: " +  craftingResourcesUsedTotal.ToString("0.0") + " kg";
+                    foreach (var kv in Main.config.craftingResourcesUsedTotal_)
+                        result += "\n      " + GetCraftingResourcesUsedTotal(kv.Key);
+             
+                    result += "\n\nPlants raised: " + plantsRaisedTotal;
+                    foreach (var kv in Main.config.plantsRaisedTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+
+                    result += "\n\nEggs hatched in AC: " + eggsHatchedTotal;
+                    foreach (var kv in Main.config.eggsHatchedTotal)
+                        result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+
+                    result += "\n\nThings stored in your life pods: ";
+                    foreach (var kv in Main.config.storedEscapePodTotal)
                     {
-                        float foodValue = eatable.GetFoodValue();
-                        float waterValue = eatable.GetWaterValue();
-                        TechType tt = CraftData.GetTechType(useObj);
-                        if (foodValue > waterValue)
-                        {
-                            if (Main.config.foodEaten[saveSlot].ContainsKey(tt))
-                                Main.config.foodEaten[saveSlot][tt] += rb.mass;
-                            else
-                                Main.config.foodEaten[saveSlot][tt] = rb.mass;
-
-                            if (Main.config.foodEatenTotal.ContainsKey(tt))
-                                Main.config.foodEatenTotal[tt] += rb.mass;
-                            else
-                                Main.config.foodEatenTotal[tt] = rb.mass;
-                        }
-                        else if (waterValue > foodValue)
-                        {
-                            Main.config.waterDrunk[saveSlot] += rb.mass;
-                            Main.config.waterDrunkTotal += rb.mass;
-                        }
+                        if (kv.Value > 0)
+                            result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
                     }
+
+                    result += "\n\nThings stored in your bases: ";
+                    foreach (var kv in Main.config.storedBaseTotal)
+                    {
+                        if (kv.Value > 0)
+                            result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+                    }
+
+                    result += "\n\nThings stored in cyclops: ";
+                    foreach (var kv in Main.config.storedSubTotal)
+                    {
+                        if (kv.Value > 0)
+                            result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+                    }
+
+                    result += "\n\nThings stored outside your bases: ";
+                    foreach (var kv in Main.config.storedOutsideTotal)
+                    {
+                        if (kv.Value > 0)
+                            result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
+                    }
+
+                    result += "\n\nBiomes discovered:";
+                    foreach (string biome in Main.config.biomesFoundGlobal)
+                        result += "\n      " + biome;
+
+                    result += "\n\nFauna species discovered: ";
+                    foreach (string str in Main.config.faunaFoundTotal)
+                        result += "\n      " + Language.main.Get(str);
+
+                    result += "\n\nFlora species discovered: ";
+                    foreach (string str in Main.config.floraFoundTotal)
+                        result += "\n      " + Language.main.Get(str);
+
+                    result += "\n\nCoral species discovered: ";
+                    foreach (string str in Main.config.coralFoundTotal)
+                        result += "\n      " + Language.main.Get(str);
+
+                    result += "\n\nLeviathan species discovered: ";
+                    foreach (string str in Main.config.leviathanFoundTotal)
+                        result += "\n      " + Language.main.Get(str);
                 }
             }
         }
 
-        [HarmonyPatch(typeof(LaunchRocket), "StartEndCinematic")]
-        internal class LaunchRocket_StartEndCinematic_Patch
+        [HarmonyPatch(typeof(Player))]
+        internal class Player_Patch
         {
-            public static void Postfix(LaunchRocket __instance)
+            [HarmonyPrefix]
+            [HarmonyPatch("TrackTravelStats")]
+            public static bool TrackTravelStatsPrefix(Player __instance)
             {
-                Main.config.gamesWon++;
-                Main.config.Save();
-            }
-        }
-
-        [HarmonyPatch(typeof(Player), "TrackTravelStats")]
-        internal class Player_TrackTravelStats_Patch
-        {
-            public static bool Prefix(Player __instance)
-            { 
                 Vector3 position = __instance.transform.position;
                 if (string.IsNullOrEmpty(saveSlot))
                     return false;
@@ -935,12 +865,12 @@ namespace Stats_Tracker
                 int distanceTraveled = Mathf.RoundToInt((__instance.lastPosition - position).magnitude);
                 if (__instance.lastPosition == Vector3.zero)
                     distanceTraveled = 0;
-                    //Main.Log("lastPosition " + __instance.lastPosition);
-                    //Main.Log("position " + position);
+                //Main.Log("lastPosition " + __instance.lastPosition);
+                //Main.Log("position " + position);
                 Main.config.distanceTraveled[saveSlot] += distanceTraveled;
                 Main.config.distanceTraveledTotal += distanceTraveled;
 
-                if (travelMode == TravelMode.Swim && __instance.motorMode == Player.MotorMode.Dive)
+                if (travelMode == TravelMode.Swim && Player.main.IsUnderwaterForSwimming())
                 {
                     Main.config.distanceTraveledSwim[saveSlot] += distanceTraveled;
                     Main.config.distanceTraveledSwimTotal += distanceTraveled;
@@ -973,7 +903,7 @@ namespace Stats_Tracker
                 }
                 __instance.lastPosition = position;
 
-                if (__instance.motorMode == Player.MotorMode.Dive)
+                if (Player.main.IsUnderwaterForSwimming())
                     travelMode = TravelMode.Swim;
                 else if (__instance.motorMode == Player.MotorMode.Seaglide)
                     travelMode = TravelMode.Seaglide;
@@ -993,7 +923,7 @@ namespace Stats_Tracker
                     Main.config.timeWalked[saveSlot] += ts;
                     Main.config.timeWalkedTotal += ts;
                 }
-                if (__instance.IsSwimming())
+                else if (__instance.IsUnderwaterForSwimming())
                 {
                     Main.config.timeSwam[saveSlot] += ts;
                     Main.config.timeSwamTotal += ts;
@@ -1031,6 +961,92 @@ namespace Stats_Tracker
                 //Main.config.timePlayedTotal = DayNightCycle.main.timePassedSinceOrigin;
                 return false;
             }
+            [HarmonyPatch("OnKill")]
+            [HarmonyPostfix]
+            public static void OnKillPostfix(Player __instance)
+            {
+                Main.config.playerDeathsTotal++;
+                if(!GameModeUtils.IsPermadeath())
+					Main.config.playerDeaths[saveSlot] ++;
+            }
+        }
+
+        [HarmonyPatch(typeof(DamageSystem), "CalculateDamage")]
+        class DamageSystem_CalculateDamage_Patch
+        {
+            public static void Postfix(DamageSystem __instance, float damage, DamageType type, GameObject target, GameObject dealer, ref float __result)
+            {
+                if (__result > 0f && target == Player.mainObject)
+                {
+                    //AddDebug("Player takes damage");
+                    int dam = Mathf.RoundToInt(__result);
+                    Main.config.healthLost[saveSlot] += dam;
+                    Main.config.healthLostTotal += dam;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Survival))]
+        class Survival_Patch
+        {
+            [HarmonyPatch("Use")]
+            [HarmonyPostfix]
+            public static void UsePostfix(Survival __instance, GameObject useObj, bool __result)
+            {
+                if (!__result)
+                    return;
+
+                TechType tt = CraftData.GetTechType(useObj);
+                if (tt == TechType.FirstAidKit)
+                {
+                    //AddDebug("medkit used");
+                    Main.config.medkitsUsed[saveSlot]++;
+                    Main.config.medkitsUsedTotal++;
+                }
+            }
+            [HarmonyPatch("Eat")]
+            [HarmonyPostfix]
+            public static void EatPostfix(Survival __instance, GameObject useObj, bool __result)
+            {
+                if (__result)
+                {
+                    Eatable eatable = useObj.GetComponent<Eatable>();
+                    Rigidbody rb = useObj.GetComponent<Rigidbody>();
+                    if (eatable && rb)
+                    {
+                        float foodValue = eatable.GetFoodValue();
+                        float waterValue = eatable.GetWaterValue();
+                        string name = CraftData.GetTechType(useObj).AsString();
+                        if (foodValue >= waterValue)
+                        {
+                            if (Main.config.foodEaten[saveSlot].ContainsKey(name))
+                                Main.config.foodEaten[saveSlot][name] += rb.mass;
+                            else
+                                Main.config.foodEaten[saveSlot][name] = rb.mass;
+
+                            if (Main.config.foodEatenTotal.ContainsKey(name))
+                                Main.config.foodEatenTotal[name] += rb.mass;
+                            else
+                                Main.config.foodEatenTotal[name] = rb.mass;
+                        }
+                        else if (waterValue > foodValue)
+                        {
+                            Main.config.waterDrunk[saveSlot] += rb.mass;
+                            Main.config.waterDrunkTotal += rb.mass;
+                        }
+                    }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(LaunchRocket), "StartEndCinematic")]
+        internal class LaunchRocket_StartEndCinematic_Patch
+        {
+            public static void Postfix(LaunchRocket __instance)
+            {
+                Main.config.gamesWon++;
+                Main.config.Save();
+            }
         }
 
         [HarmonyPatch(typeof(CreatureEgg), "Hatch")]
@@ -1042,127 +1058,132 @@ namespace Stats_Tracker
                 if (__instance.hatchingCreature == TechType.None)
                     return;
 
-                if (Main.config.eggsHatchedTotal.ContainsKey(__instance.hatchingCreature))
-                    Main.config.eggsHatchedTotal[__instance.hatchingCreature]++;
+                string name = __instance.hatchingCreature.AsString();
+                if (Main.config.eggsHatchedTotal.ContainsKey(name))
+                    Main.config.eggsHatchedTotal[name]++;
                 else
-                    Main.config.eggsHatchedTotal[__instance.hatchingCreature] = 1;
+                    Main.config.eggsHatchedTotal[name] = 1;
 
-                if (Main.config.eggsHatched[saveSlot].ContainsKey(__instance.hatchingCreature))
-                    Main.config.eggsHatched[saveSlot][__instance.hatchingCreature]++;
+                if (Main.config.eggsHatched[saveSlot].ContainsKey(name))
+                    Main.config.eggsHatched[saveSlot][name]++;
                 else
-                    Main.config.eggsHatched[saveSlot][__instance.hatchingCreature] = 1;
+                    Main.config.eggsHatched[saveSlot][name] = 1;
             }
         }
 
-        [HarmonyPatch(typeof(GrownPlant), "Awake")]
-        internal class GrownPlant_Awake_Patch
+        [HarmonyPatch(typeof(GrowingPlant), "SpawnGrownModel")]
+        internal class GrowingPlant_SpawnGrownModel_Patch
         {
-            public static void Postfix(GrownPlant __instance)
+            public static void Postfix(GrowingPlant __instance)
             {
-                if (string.IsNullOrEmpty(saveSlot))
+                if (__instance.seed.plantTechType == TechType.None)
                     return;
 
-                TechType tt = CraftData.GetTechType(__instance.gameObject);
+                string name = __instance.seed.plantTechType.AsString();
                 //AddDebug("GrownPlant Awake " + tt);
-                if (tt == TechType.None)
-                    return;
 
-                if (Main.config.plantsRaisedTotal.ContainsKey(tt))
-                    Main.config.plantsRaisedTotal[tt]++;
+                if (Main.config.plantsRaisedTotal.ContainsKey(name))
+                    Main.config.plantsRaisedTotal[name]++;
                 else
-                    Main.config.plantsRaisedTotal[tt] = 1;
+                    Main.config.plantsRaisedTotal[name] = 1;
 
-                if (Main.config.plantsRaised[saveSlot].ContainsKey(tt))
-                    Main.config.plantsRaised[saveSlot][tt]++;
+                if (Main.config.plantsRaised[saveSlot].ContainsKey(name))
+                    Main.config.plantsRaised[saveSlot][name]++;
                 else
-                    Main.config.plantsRaised[saveSlot][tt] = 1;
+                    Main.config.plantsRaised[saveSlot][name] = 1;
             }
         }
 
-        [HarmonyPatch(typeof(LiveMixin), "TakeDamage")]
-        internal class LiveMixin_TakeDamage_Patch
+        [HarmonyPatch(typeof(LiveMixin))]
+        internal class LiveMixin_Patch
         {
-            static bool wasAlive = false;
-            public static void Prefix(LiveMixin __instance)
+            [HarmonyPatch("Kill")]
+            [HarmonyPrefix]
+            public static void KillPrefix(LiveMixin __instance)
             {
-                wasAlive = __instance.health > 0f;
+                //TechType tt = CraftData.GetTechType(__instance.gameObject);
+                //AddDebug("Kill " + tt);
+                killedLM = __instance;
             }
-            public static void Postfix(LiveMixin __instance, float originalDamage, Vector3 position, DamageType type , GameObject dealer)
+            [HarmonyPatch("TakeDamage")]
+            [HarmonyPostfix]
+            public static void TakeDamagePostfix(LiveMixin __instance, float originalDamage, Vector3 position, DamageType type, GameObject dealer)
             {
-                if (dealer && wasAlive && __instance.health <= 0f)
+                if (dealer && killedLM && __instance == killedLM)
                 {
-                    if (dealer == Player.main.gameObject || dealer == Player.main.currentMountedVehicle?.gameObject)
+                    //AddDebug(__instance.name + " killed by " + dealer.name);
+                    if (dealer == Player.main.gameObject || dealer == Player.main.currentMountedVehicle?.gameObject || dealer == Player.main.currentSub?.gameObject)
                     {
                         TechType tt = CraftData.GetTechType(__instance.gameObject);
                         if (tt == TechType.None)
                             return;
                         //AddDebug(tt + " killed by player");
-                        //if (dealer == Player.main.gameObject)
-                        //    AddDebug(tt + " killed by player");
-                        //if (dealer == Player.main.currentMountedVehicle?.gameObject)
-                        //    AddDebug(tt + " killed by vehicle");
-
+                        string name = tt.AsString();
                         if (fauna.Contains(tt))
                         {
                             //AddDebug(tt + " animal killed by player");
-                            if (Main.config.animalsKilledTotal.ContainsKey(tt))
-                                Main.config.animalsKilledTotal[tt]++;
+                            if (Main.config.animalsKilledTotal.ContainsKey(name))
+                                Main.config.animalsKilledTotal[name]++;
                             else
-                                Main.config.animalsKilledTotal[tt] = 1;
+                                Main.config.animalsKilledTotal[name] = 1;
 
-                            if (Main.config.animalsKilled[saveSlot].ContainsKey(tt))
-                                Main.config.animalsKilled[saveSlot][tt]++;
+                            if (Main.config.animalsKilled[saveSlot].ContainsKey(name))
+                                Main.config.animalsKilled[saveSlot][name]++;
                             else
-                                Main.config.animalsKilled[saveSlot][tt] = 1;
+                                Main.config.animalsKilled[saveSlot][name] = 1;
                         }
                         else if (flora.Contains(tt))
                         {
                             //AddDebug(tt + " plant killed by player");
-                            if (Main.config.plantsKilledTotal.ContainsKey(tt))
-                                Main.config.plantsKilledTotal[tt]++;
+                            if (Main.config.plantsKilledTotal.ContainsKey(name))
+                                Main.config.plantsKilledTotal[name]++;
                             else
-                                Main.config.plantsKilledTotal[tt] = 1;
+                                Main.config.plantsKilledTotal[name] = 1;
 
-                            if (Main.config.plantsKilled[saveSlot].ContainsKey(tt))
-                                Main.config.plantsKilled[saveSlot][tt]++;
+                            if (Main.config.plantsKilled[saveSlot].ContainsKey(name))
+                                Main.config.plantsKilled[saveSlot][name]++;
                             else
-                                Main.config.plantsKilled[saveSlot][tt] = 1;
+                                Main.config.plantsKilled[saveSlot][name] = 1;
                         }
                         else if (coral.Contains(tt))
                         {
                             //AddDebug(tt + " coral killed by player");
-                            if (Main.config.coralKilledTotal.ContainsKey(tt))
-                                Main.config.coralKilledTotal[tt]++;
+                            if (Main.config.coralKilledTotal.ContainsKey(name))
+                                Main.config.coralKilledTotal[name]++;
                             else
-                                Main.config.coralKilledTotal[tt] = 1;
+                                Main.config.coralKilledTotal[name] = 1;
 
-                            if (Main.config.coralKilled[saveSlot].ContainsKey(tt))
-                                Main.config.coralKilled[saveSlot][tt]++;
+                            if (Main.config.coralKilled[saveSlot].ContainsKey(name))
+                                Main.config.coralKilled[saveSlot][name]++;
                             else
-                                Main.config.coralKilled[saveSlot][tt] = 1;
+                                Main.config.coralKilled[saveSlot][name] = 1;
                         }
                         else if (leviathans.Contains(tt))
                         {
                             //AddDebug(tt + " leviathan killed by player");
-                            if (Main.config.leviathansKilled[saveSlot].ContainsKey(tt))
-                                Main.config.leviathansKilled[saveSlot][tt]++;
+                            if (Main.config.leviathansKilled[saveSlot].ContainsKey(name))
+                                Main.config.leviathansKilled[saveSlot][name]++;
                             else
-                                Main.config.leviathansKilled[saveSlot][tt] = 1;
+                                Main.config.leviathansKilled[saveSlot][name] = 1;
 
-                            if (Main.config.leviathansKilledTotal.ContainsKey(tt))
-                                Main.config.leviathansKilledTotal[tt]++;
+                            if (Main.config.leviathansKilledTotal.ContainsKey(name))
+                                Main.config.leviathansKilledTotal[name]++;
                             else
-                                Main.config.leviathansKilledTotal[tt] = 1;
+                                Main.config.leviathansKilledTotal[name] = 1;
                         }
+                        killedLM = null;
                     }
                 }
             }
         }
 
-        [HarmonyPatch(typeof(Inventory), "ConsumeResourcesForRecipe")]
-        internal class Inventory_ConsumeResourcesForRecipe_Patch
+        [HarmonyPatch(typeof(Inventory))]
+        internal class Inventory_Patch
         { // runs when you have enough ingredients
-            public static void Prefix(DamageOnPickup __instance, TechType techType)
+          // static TechType tt = TechType.None;
+            [HarmonyPatch("ConsumeResourcesForRecipe")]
+            [HarmonyPrefix]
+            public static void ConsumeResourcesForRecipePrefix(DamageOnPickup __instance, TechType techType)
             {
                 ITechData techData = CraftData.Get(techType);
                 if (techData == null)
@@ -1182,132 +1203,15 @@ namespace Stats_Tracker
                         //Main.config.plantsKilled[saveSlot]++;
                 //}
             }
+            [HarmonyPostfix]
+            [HarmonyPatch("ConsumeResourcesForRecipe")]
             public static void Postfix(DamageOnPickup __instance, TechType techType)
             {
                 removingItemsForRecipe = false;
             }
-        }
-
-        [HarmonyPatch(typeof(ItemsContainer), "NotifyAddItem")]
-        internal class ItemsContainer_NotifyAddItem_Patch
-        {
-            public static void Prefix(ItemsContainer __instance, InventoryItem item)
-            {
-                if (string.IsNullOrEmpty(saveSlot) || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
-                    return;
-                //AddDebug("NotifyAddItem " + __instance.tr.name);
-                TechType tt = item.item.GetTechType();
-                Rigidbody rb = item.item.GetComponent<Rigidbody>();
-                if (tt == TechType.None || rb == null)
-                    return;
-
-                if (Player.main.currentSub)
-                {
-                    if (Player.main.currentSub.isCyclops)
-                    {
-                        if (!Main.config.storedSub.ContainsKey(saveSlot))
-                            Main.PrepareSaveSlot(saveSlot);
-                        //AddDebug("NotifyAddItem IsInBase " + tt);
-                        if (Main.config.storedSub[saveSlot].ContainsKey(tt))
-                            Main.config.storedSub[saveSlot][tt]++;
-                        else
-                            Main.config.storedSub[saveSlot][tt] = 1;
-
-                        if (Main.config.storedSubTotal.ContainsKey(tt))
-                            Main.config.storedSubTotal[tt]++;
-                        else
-                            Main.config.storedSubTotal[tt] = 1;
-                    }
-                    else
-                    {
-                        if (!Main.config.storedBase.ContainsKey(saveSlot))
-                            Main.PrepareSaveSlot(saveSlot);
-
-                        if (Main.config.storedBase[saveSlot].ContainsKey(tt))
-                            Main.config.storedBase[saveSlot][tt]++;
-                        else
-                            Main.config.storedBase[saveSlot][tt] = 1;
-
-                        if (Main.config.storedBaseTotal.ContainsKey(tt))
-                            Main.config.storedBaseTotal[tt]++;
-                        else
-                            Main.config.storedBaseTotal[tt] = 1;
-                    }
-                }
-                else
-                {
-                    if (!Main.config.storedOutside.ContainsKey(saveSlot))
-                        Main.PrepareSaveSlot(saveSlot);
-
-                    if (Main.config.storedOutside[saveSlot].ContainsKey(tt))
-                        Main.config.storedOutside[saveSlot][tt]++;
-                    else
-                        Main.config.storedOutside[saveSlot][tt] = 1;
-
-                    if (Main.config.storedOutsideTotal.ContainsKey(tt))
-                        Main.config.storedOutsideTotal[tt]++;
-                    else
-                        Main.config.storedOutsideTotal[tt] = 1;
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(ItemsContainer), "NotifyRemoveItem")]
-        internal class ItemsContainer_NotifyRemoveItem_Patch
-        {
-            public static void Prefix(ItemsContainer __instance, InventoryItem item)
-            {
-                if (string.IsNullOrEmpty(saveSlot) || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
-                    return;
-
-                //AddDebug("NotifyRemoveItem " + __instance.tr.name);
-                TechType tt = item.item.GetTechType();
-                Rigidbody rb = item.item.GetComponent<Rigidbody>();
-                if (tt == TechType.None || rb == null)
-                    return;
-                if (Player.main.currentSub)
-                {
-                    if (Player.main.currentSub.isCyclops)
-                    {
-                        if (!Main.config.storedSub.ContainsKey(saveSlot))
-                            Main.PrepareSaveSlot(saveSlot);
-                        //AddDebug("NotifyRemoveItem isCyclops " + tt); 
-                        if (Main.config.storedSub[saveSlot].ContainsKey(tt) && Main.config.storedSub[saveSlot][tt] > 0)
-                            Main.config.storedSub[saveSlot][tt]--;
-
-                        if (Main.config.storedSubTotal.ContainsKey(tt) && Main.config.storedSubTotal[tt] > 0)
-                            Main.config.storedSubTotal[tt]--;
-                    }
-                    else
-                    {
-                        if (!Main.config.storedBase.ContainsKey(saveSlot))
-                            Main.PrepareSaveSlot(saveSlot);
-                        //AddDebug("NotifyRemoveItem IsInBase " + tt);
-                        if (Main.config.storedBase[saveSlot].ContainsKey(tt) && Main.config.storedBase[saveSlot][tt] > 0)
-                            Main.config.storedBase[saveSlot][tt]--;
-
-                        if (Main.config.storedBaseTotal.ContainsKey(tt) && Main.config.storedBaseTotal[tt] > 0)
-                            Main.config.storedBaseTotal[tt]--;
-                    }
-                }
-                else
-                {
-                    if (!Main.config.storedOutside.ContainsKey(saveSlot))
-                        Main.PrepareSaveSlot(saveSlot);
-                    //AddDebug("NotifyRemoveItem " + tt);
-                    if (Main.config.storedOutside[saveSlot].ContainsKey(tt) && Main.config.storedOutside[saveSlot][tt] > 0)
-                        Main.config.storedOutside[saveSlot][tt]--;
-
-                    if (Main.config.storedOutsideTotal.ContainsKey(tt) && Main.config.storedOutsideTotal[tt] > 0)
-                        Main.config.storedOutsideTotal[tt]--;
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(Inventory), "OnRemoveItem")]
-        internal class Inventory_OnRemoveItem_Patch
-        { 
-            public static void Postfix(InventoryItem item)
+            [HarmonyPostfix]
+            [HarmonyPatch("OnRemoveItem")]
+            public static void OnRemoveItemPostfix(InventoryItem item)
             {
                 if (string.IsNullOrEmpty(saveSlot) || !removingItemsForRecipe)
                     return;
@@ -1319,63 +1223,191 @@ namespace Stats_Tracker
                 LiveMixin liveMixin = item.item.GetComponent<LiveMixin>();
                 Rigidbody rb = item.item.GetComponent<Rigidbody>();
                 bool alive = liveMixin && liveMixin.IsAlive();
+                string name = tt.AsString();
+
                 if (alive || liveMixin == null)
                 {
                     //TechType tt = CraftData.GetTechType(item.item.gameObject);
+
                     if (fauna.Contains(tt))
                     {
                         //AddDebug(tt + " animal killed by player");
-                        if (Main.config.animalsKilledTotal.ContainsKey(tt))
-                            Main.config.animalsKilledTotal[tt]++;
+                        if (Main.config.animalsKilledTotal.ContainsKey(name))
+                            Main.config.animalsKilledTotal[name]++;
                         else
-                            Main.config.animalsKilledTotal[tt] = 1;
+                            Main.config.animalsKilledTotal[name] = 1;
 
-                        if (Main.config.animalsKilled[saveSlot].ContainsKey(tt))
-                            Main.config.animalsKilled[saveSlot][tt]++;
+                        if (Main.config.animalsKilled[saveSlot].ContainsKey(name))
+                            Main.config.animalsKilled[saveSlot][name]++;
                         else
-                            Main.config.animalsKilled[saveSlot][tt] = 1;
+                            Main.config.animalsKilled[saveSlot][name] = 1;
                     }
                     else if (flora.Contains(tt))
                     {
                         //AddDebug(tt + " plant killed by player");
-                        if (Main.config.plantsKilledTotal.ContainsKey(tt))
-                            Main.config.plantsKilledTotal[tt]++;
+                        if (Main.config.plantsKilledTotal.ContainsKey(name))
+                            Main.config.plantsKilledTotal[name]++;
                         else
-                            Main.config.plantsKilledTotal[tt] = 1;
+                            Main.config.plantsKilledTotal[name] = 1;
 
-                        if (Main.config.plantsKilled[saveSlot].ContainsKey(tt))
-                            Main.config.plantsKilled[saveSlot][tt]++;
+                        if (Main.config.plantsKilled[saveSlot].ContainsKey(name))
+                            Main.config.plantsKilled[saveSlot][name]++;
                         else
-                            Main.config.plantsKilled[saveSlot][tt] = 1;
+                            Main.config.plantsKilled[saveSlot][name] = 1;
                     }
                 }
 
                 if (item.item.GetComponent<Eatable>())
                     return;
 
-                if (Main.config.craftingResourcesUsed_[saveSlot].ContainsKey(tt))
-                    Main.config.craftingResourcesUsed_[saveSlot][tt]++;
+                if (Main.config.craftingResourcesUsed_[saveSlot].ContainsKey(name))
+                    Main.config.craftingResourcesUsed_[saveSlot][name]++;
                 else
-                    Main.config.craftingResourcesUsed_[saveSlot][tt] = 1;
+                    Main.config.craftingResourcesUsed_[saveSlot][name] = 1;
 
-                if (Main.config.craftingResourcesUsedTotal_.ContainsKey(tt))
-                    Main.config.craftingResourcesUsedTotal_[tt]++;
+                if (Main.config.craftingResourcesUsedTotal_.ContainsKey(name))
+                    Main.config.craftingResourcesUsedTotal_[name]++;
                 else
-                    Main.config.craftingResourcesUsedTotal_[tt] = 1;
+                    Main.config.craftingResourcesUsedTotal_[name] = 1;
 
                 if (rb)
                 {
-                    if (Main.config.craftingResourcesUsed[saveSlot].ContainsKey(tt))
-                        Main.config.craftingResourcesUsed[saveSlot][tt] += rb.mass;
+                    if (Main.config.craftingResourcesUsed[saveSlot].ContainsKey(name))
+                        Main.config.craftingResourcesUsed[saveSlot][name] += rb.mass;
                     else
-                        Main.config.craftingResourcesUsed[saveSlot][tt] = rb.mass;
+                        Main.config.craftingResourcesUsed[saveSlot][name] = rb.mass;
 
-                    if (Main.config.craftingResourcesUsedTotal.ContainsKey(tt))
-                        Main.config.craftingResourcesUsedTotal[tt] += rb.mass;
+                    if (Main.config.craftingResourcesUsedTotal.ContainsKey(name))
+                        Main.config.craftingResourcesUsedTotal[name] += rb.mass;
                     else
-                        Main.config.craftingResourcesUsedTotal[tt] = rb.mass;
+                        Main.config.craftingResourcesUsedTotal[name] = rb.mass;
                 }
+            }
+        }
 
+        [HarmonyPatch(typeof(ItemsContainer))]
+        internal class ItemsContainer_Patch
+        {
+            [HarmonyPatch("NotifyAddItem")]
+            [HarmonyPostfix]
+            public static void NotifyAddItemPostfix(ItemsContainer __instance, InventoryItem item)
+            {
+                if (!Main.setupDone || Inventory.main.usedStorage.Count == 0 || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
+                    return;
+                //AddDebug("NotifyAddItem " + __instance.tr.name);
+                TechType tt = item.item.GetTechType();
+                string name = tt.AsString();
+                Rigidbody rb = item.item.GetComponent<Rigidbody>();
+                if (tt == TechType.None || rb == null)
+                    return;
+
+                if (Player.main.currentSub)
+                {
+                    if (Player.main.currentSub.isCyclops)
+                    {
+                        //AddDebug("NotifyAddItem IsInBase " + tt);
+                        if (Main.config.storedSub[saveSlot].ContainsKey(name))
+                            Main.config.storedSub[saveSlot][name]++;
+                        else
+                            Main.config.storedSub[saveSlot][name] = 1;
+
+                        if (Main.config.storedSubTotal.ContainsKey(name))
+                            Main.config.storedSubTotal[name]++;
+                        else
+                            Main.config.storedSubTotal[name] = 1;
+                    }
+                    else
+                    {
+                        if (Main.config.storedBase[saveSlot].ContainsKey(name))
+                            Main.config.storedBase[saveSlot][name]++;
+                        else
+                            Main.config.storedBase[saveSlot][name] = 1;
+
+                        if (Main.config.storedBaseTotal.ContainsKey(name))
+                            Main.config.storedBaseTotal[name]++;
+                        else
+                            Main.config.storedBaseTotal[name] = 1;
+                    }
+                }
+                else if (Player.main._currentEscapePod)
+                {
+                    //AddDebug("NotifyAddItem EscapePod " + tt);
+                    if (Main.config.storedEscapePod[saveSlot].ContainsKey(name))
+                        Main.config.storedEscapePod[saveSlot][name]++;
+                    else
+                        Main.config.storedEscapePod[saveSlot][name] = 1;
+
+                    if (Main.config.storedEscapePodTotal.ContainsKey(name))
+                        Main.config.storedEscapePodTotal[name]++;
+                    else
+                        Main.config.storedEscapePodTotal[name] = 1;
+                }
+                else
+                {
+                    if (Main.config.storedOutside[saveSlot].ContainsKey(name))
+                        Main.config.storedOutside[saveSlot][name]++;
+                    else
+                        Main.config.storedOutside[saveSlot][name] = 1;
+
+                    if (Main.config.storedOutsideTotal.ContainsKey(name))
+                        Main.config.storedOutsideTotal[name]++;
+                    else
+                        Main.config.storedOutsideTotal[name] = 1;
+                }
+            }
+            [HarmonyPatch("NotifyRemoveItem")]
+            [HarmonyPostfix]
+            public static void NotifyRemoveItemPostfix(ItemsContainer __instance, InventoryItem item)
+            {
+                if (!Main.setupDone || Inventory.main.usedStorage.Count == 0 || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
+                    return;
+
+                //AddDebug("NotifyRemoveItem " + __instance.tr.name);
+                //AddDebug("NotifyRemoveItem " + saveSlot);
+                TechType tt = item.item.GetTechType();
+                string name = tt.AsString();
+                Rigidbody rb = item.item.GetComponent<Rigidbody>();
+                if (tt == TechType.None || rb == null)
+                    return;
+                if (Player.main.currentSub)
+                {
+                    if (Player.main.currentSub.isCyclops)
+                    {
+                        //AddDebug("NotifyRemoveItem isCyclops " + tt); 
+                        if (Main.config.storedSub[saveSlot].ContainsKey(name) && Main.config.storedSub[saveSlot][name] > 0)
+                            Main.config.storedSub[saveSlot][name]--;
+
+                        if (Main.config.storedSubTotal.ContainsKey(name) && Main.config.storedSubTotal[name] > 0)
+                            Main.config.storedSubTotal[name]--;
+                    }
+                    else
+                    {
+                        //AddDebug("NotifyRemoveItem IsInBase " + tt);
+                        if (Main.config.storedBase[saveSlot].ContainsKey(name) && Main.config.storedBase[saveSlot][name] > 0)
+                            Main.config.storedBase[saveSlot][name]--;
+
+                        if (Main.config.storedBaseTotal.ContainsKey(name) && Main.config.storedBaseTotal[name] > 0)
+                            Main.config.storedBaseTotal[name]--;
+                    }
+                }
+                else if (Player.main._currentEscapePod)
+                {
+                    //AddDebug("NotifyRemoveItem EscapePod " + tt);
+                    if (Main.config.storedEscapePod[saveSlot].ContainsKey(name) && Main.config.storedEscapePod[saveSlot][name] > 0)
+                        Main.config.storedEscapePod[saveSlot][name]--;
+
+                    if (Main.config.storedEscapePodTotal.ContainsKey(name) && Main.config.storedEscapePodTotal[name] > 0)
+                        Main.config.storedEscapePodTotal[name]--;
+                }
+                else
+                {
+                    //AddDebug("NotifyRemoveItem " + tt);
+                    if (Main.config.storedOutside[saveSlot].ContainsKey(name) && Main.config.storedOutside[saveSlot][name] > 0)
+                        Main.config.storedOutside[saveSlot][name]--;
+
+                    if (Main.config.storedOutsideTotal.ContainsKey(name) && Main.config.storedOutsideTotal[name] > 0)
+                        Main.config.storedOutsideTotal[name]--;
+                }
             }
         }
 
@@ -1410,12 +1442,13 @@ namespace Stats_Tracker
                     Main.config.objectsScanned[saveSlot] ++;
                     Main.config.objectsScannedTotal++;
                     TechType tt = PDAScanner.scanTarget.techType;
+                    string name = tt.AsString();
 
                     if (fauna.Contains(tt))
                     {
                         //AddDebug("scanned creature");
-                        Main.config.faunaFound[saveSlot].Add(tt);
-                        Main.config.faunaFoundTotal.Add(tt);
+                        Main.config.faunaFound[saveSlot].Add(name);
+                        Main.config.faunaFoundTotal.Add(name);
                     }
                     else if (flora.Contains(tt))
                     {
@@ -1426,8 +1459,8 @@ namespace Stats_Tracker
                                 return;
                             Main.config.kooshFound[saveSlot] = true;
                         }
-                        Main.config.floraFound[saveSlot].Add(tt);
-                        Main.config.floraFoundTotal.Add(tt);
+                        Main.config.floraFound[saveSlot].Add(name);
+                        Main.config.floraFoundTotal.Add(name);
                     }
                     else if (coral.Contains(tt))
                     {
@@ -1438,8 +1471,8 @@ namespace Stats_Tracker
                                 return;
                             Main.config.jeweledDiskFound[saveSlot] = true;
                         }
-                        Main.config.coralFound[saveSlot].Add(tt);
-                        Main.config.coralFoundTotal.Add(tt);
+                        Main.config.coralFound[saveSlot].Add(name);
+                        Main.config.coralFoundTotal.Add(name);
                     }
                     else if (leviathans.Contains(tt))
                     {
@@ -1450,8 +1483,8 @@ namespace Stats_Tracker
                                 return;
                             Main.config.ghostLevFound[saveSlot] = true;
                         }
-                        Main.config.leviathanFound[saveSlot].Add(tt);
-                        Main.config.leviathanFoundTotal.Add(tt);
+                        Main.config.leviathanFound[saveSlot].Add(name);
+                        Main.config.leviathanFoundTotal.Add(name);
                     }
 
                 }
@@ -1462,9 +1495,9 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(PDAScanner), "Unlock")]
         internal class PDAScanner_Unlock_Patch
         {
-            public static void Postfix(PDAScanner.EntryData entryData, bool unlockBlueprint, bool unlockEncyclopedia)
+            public static void Postfix(PDAScanner.EntryData entryData, bool unlockBlueprint, bool unlockEncyclopedia, bool verbose)
             {
-                if (entryData == null || string.IsNullOrEmpty(saveSlot))
+                if (entryData == null || !verbose)
                     return;
 
                 //AddDebug("unlock  " + entryData.key);
@@ -1498,10 +1531,12 @@ namespace Stats_Tracker
             }
         }
 
-        [HarmonyPatch(typeof(Constructable), "Construct")]
-        internal class Constructable_Construct_Patch
+        [HarmonyPatch(typeof(Constructable))]
+        internal class Constructable_Patch
         {
-            public static void Postfix(Constructable __instance)
+            [HarmonyPatch("Construct")]
+            [HarmonyPostfix]
+            public static void ConstructPostfix(Constructable __instance)
             {
                 if (__instance.constructedAmount >= 1f)
                 {
@@ -1515,46 +1550,47 @@ namespace Stats_Tracker
                         GameObject prefab = CraftData.GetPrefabForTechType(tt);
                         //if (prefab.GetComponent<Eatable>())
                         //    return;
-
                         if (prefab)
                         {
-                            if (Main.config.craftingResourcesUsed_[saveSlot].ContainsKey(tt))
-                                Main.config.craftingResourcesUsed_[saveSlot][tt]++;
+                            string name = tt.AsString();
+                            if (Main.config.craftingResourcesUsed_[saveSlot].ContainsKey(name))
+                                Main.config.craftingResourcesUsed_[saveSlot][name]++;
                             else
-                                Main.config.craftingResourcesUsed_[saveSlot][tt] = 1;
+                                Main.config.craftingResourcesUsed_[saveSlot][name] = 1;
 
-                            if (Main.config.craftingResourcesUsedTotal_.ContainsKey(tt))
-                                Main.config.craftingResourcesUsedTotal_[tt]++;
+                            if (Main.config.craftingResourcesUsedTotal_.ContainsKey(name))
+                                Main.config.craftingResourcesUsedTotal_[name]++;
                             else
-                                Main.config.craftingResourcesUsedTotal_[tt] = 1;
+                                Main.config.craftingResourcesUsedTotal_[name] = 1;
 
                             Rigidbody rb = prefab.GetComponent<Rigidbody>();
                             if (rb)
                             {
-                                if (Main.config.craftingResourcesUsed[saveSlot].ContainsKey(tt))
-                                    Main.config.craftingResourcesUsed[saveSlot][tt] += rb.mass;
+                                if (Main.config.craftingResourcesUsed[saveSlot].ContainsKey(name))
+                                    Main.config.craftingResourcesUsed[saveSlot][name] += rb.mass;
                                 else
-                                    Main.config.craftingResourcesUsed[saveSlot][tt] = rb.mass;
+                                    Main.config.craftingResourcesUsed[saveSlot][name] = rb.mass;
 
-                                if (Main.config.craftingResourcesUsedTotal.ContainsKey(tt))
-                                    Main.config.craftingResourcesUsedTotal[tt] += rb.mass;
+                                if (Main.config.craftingResourcesUsedTotal.ContainsKey(name))
+                                    Main.config.craftingResourcesUsedTotal[name] += rb.mass;
                                 else
-                                    Main.config.craftingResourcesUsedTotal[tt] = rb.mass;
+                                    Main.config.craftingResourcesUsedTotal[name] = rb.mass;
                             }
                         }
                     }
 
                     if (roomTypes.Contains(__instance.techType))
                     {
-                        if (Main.config.baseRoomsBuilt[saveSlot].ContainsKey(__instance.techType))
-                            Main.config.baseRoomsBuilt[saveSlot][__instance.techType]++;
+                        string name = __instance.techType.AsString();
+                        if (Main.config.baseRoomsBuilt[saveSlot].ContainsKey(name))
+                            Main.config.baseRoomsBuilt[saveSlot][name]++;
                         else
-                            Main.config.baseRoomsBuilt[saveSlot][__instance.techType] = 1;
+                            Main.config.baseRoomsBuilt[saveSlot][name] = 1;
 
-                        if (Main.config.baseRoomsBuiltTotal.ContainsKey(__instance.techType))
-                            Main.config.baseRoomsBuiltTotal[__instance.techType]++;
+                        if (Main.config.baseRoomsBuiltTotal.ContainsKey(name))
+                            Main.config.baseRoomsBuiltTotal[name]++;
                         else
-                            Main.config.baseRoomsBuiltTotal[__instance.techType] = 1;
+                            Main.config.baseRoomsBuiltTotal[name] = 1;
                     }
                     else if (corridorTypes.Contains(__instance.techType))
                     {
@@ -1563,23 +1599,21 @@ namespace Stats_Tracker
                     }
                 }
             }
-        }
-
-        [HarmonyPatch(typeof(Constructable), "Deconstruct")]
-        internal class Constructable_Deconstruct_Patch
-        {
-            public static void Postfix(Constructable __instance)
+            [HarmonyPatch("Deconstruct")]
+            [HarmonyPostfix]
+            public static void DeconstructPostfix(Constructable __instance)
             {
                 if (__instance.constructedAmount <= 0f)
                 {
                     //AddDebug(" deconstructed " + __instance.techType);
                     if (roomTypes.Contains(__instance.techType))
                     {
-                        if (Main.config.baseRoomsBuilt[saveSlot].ContainsKey(__instance.techType) && Main.config.baseRoomsBuilt[saveSlot][__instance.techType] > 0)
-                            Main.config.baseRoomsBuilt[saveSlot][__instance.techType]--;
+                        string name = __instance.techType.AsString();
+                        if (Main.config.baseRoomsBuilt[saveSlot].ContainsKey(name) && Main.config.baseRoomsBuilt[saveSlot][name] > 0)
+                            Main.config.baseRoomsBuilt[saveSlot][name]--;
 
-                        if (Main.config.baseRoomsBuiltTotal.ContainsKey(__instance.techType) && Main.config.baseRoomsBuiltTotal[__instance.techType] > 0)
-                            Main.config.baseRoomsBuiltTotal[__instance.techType]--;
+                        if (Main.config.baseRoomsBuiltTotal.ContainsKey(name) && Main.config.baseRoomsBuiltTotal[name] > 0)
+                            Main.config.baseRoomsBuiltTotal[name]--;
                     }
                     else if (corridorTypes.Contains(__instance.techType))
                     {
@@ -1590,20 +1624,43 @@ namespace Stats_Tracker
                     }
                 }
             }
+
         }
 
-        [HarmonyPatch(typeof(PowerRelay), "Start")]
-        internal class PowerRelay_Start_Patch
+        [HarmonyPatch(typeof(SubRoot))]
+        class SubRoot_Patch
         {
-            public static void Postfix(PowerRelay __instance)
+            [HarmonyPatch("Start")]
+            [HarmonyPostfix]
+            static void StartPostfix(SubRoot __instance)
             {
-                //AddDebug(" PowerRelay Start " + __instance.GetMaxPower());
-                if (__instance.GetComponent<EscapePod>())
-                { }
-                else if(__instance.GetComponent<SubControl>())
-                { }
-                else
-                    powerRelays.Add(__instance);
+                if (!__instance.isCyclops && __instance.powerRelay)
+                    powerRelays.Add(__instance.powerRelay);
+            }
+            [HarmonyPatch("OnKill")]
+            [HarmonyPostfix]
+            public static void OnKillPostfix(SubRoot __instance)
+            { // assuming player uses 1 sub
+              //AddDebug("Sub lost");
+                Main.config.cyclopsLost[saveSlot]++;
+                Main.config.cyclopsLostTotal++;
+
+                foreach (var kv in Main.config.storedSub[saveSlot])
+                {
+                    if (Main.config.storedSubTotal.ContainsKey(kv.Key))
+                        Main.config.storedSubTotal[kv.Key] -= kv.Value;
+
+                    if (Main.config.storedOutside[saveSlot].ContainsKey(kv.Key))
+                        Main.config.storedOutside[saveSlot][kv.Key] += kv.Value;
+                    else
+                        Main.config.storedOutside[saveSlot][kv.Key] = 1;
+
+                    if (Main.config.storedOutsideTotal.ContainsKey(kv.Key))
+                        Main.config.storedOutsideTotal[kv.Key] += kv.Value;
+                    else
+                        Main.config.storedOutsideTotal[kv.Key] = 1;
+                }
+                Main.config.storedSub[saveSlot] = new Dictionary<string, int>();
             }
         }
 
@@ -1641,34 +1698,6 @@ namespace Stats_Tracker
             }
         }
 
-        [HarmonyPatch(typeof(SubRoot), "OnKill")]
-        internal class SubRoot_OnKill_Patch
-        {
-            public static void Postfix(SubRoot __instance)
-            { // assuming player uses 1 sub
-                    //AddDebug("Sub lost");
-                Main.config.cyclopsLost[saveSlot]++;
-                Main.config.cyclopsLostTotal++;
-
-                foreach (var kv in Main.config.storedSub[saveSlot])
-                {
-                    if (Main.config.storedSubTotal.ContainsKey(kv.Key))
-                        Main.config.storedSubTotal[kv.Key] -= kv.Value;
-
-                    if (Main.config.storedOutside[saveSlot].ContainsKey(kv.Key))
-                        Main.config.storedOutside[saveSlot][kv.Key] += kv.Value;
-                    else
-                        Main.config.storedOutside[saveSlot][kv.Key] = 1;
-
-                    if (Main.config.storedOutsideTotal.ContainsKey(kv.Key))
-                        Main.config.storedOutsideTotal[kv.Key] += kv.Value;
-                    else
-                        Main.config.storedOutsideTotal[kv.Key] = 1;
-                }
-                Main.config.storedSub[saveSlot] = new Dictionary<TechType, int>();
-            }
-        }
-
         [HarmonyPatch(typeof(Constructor), "OnConstructionDone")]
         internal class Constructor_OnConstructionDone_Patch
         {
@@ -1697,42 +1726,54 @@ namespace Stats_Tracker
             }
         }
 
-        [HarmonyPatch(typeof(CrafterLogic), "TryPickupSingle")]
+        [HarmonyPatch(typeof(CrafterLogic))]
         internal class GhostCrafter_TryPickupSingle_Patch
         {
-            public static void Postfix(CrafterLogic __instance, TechType techType)
+            [HarmonyPatch("TryPickupSingle")]
+            [HarmonyPrefix]
+            public static void TryPickupSinglePrefix(CrafterLogic __instance, TechType techType)
             {
                 //AddDebug("TryPickupSingle " + techType);
-                GameObject prefab = CraftData.GetPrefabForTechType(techType);
-                if (prefab && prefab.GetComponent<Eatable>())
+                craftedItem = true;
+            }
+            [HarmonyPatch("NotifyCraftEnd")]
+            [HarmonyPostfix]
+            public static void NotifyCraftEndPostfix(CrafterLogic __instance, GameObject target, TechType techType)
+            {
+                //GameObject prefab = CraftData.GetPrefabForTechType(techType);
+                if (!craftedItem)
                     return;
+                craftedItem = false;
+                if (target && target.GetComponent<Eatable>())
+                    return;
+                //AddDebug("NotifyCraftEnd " + techType);
+                string name = techType.AsString();
 
-                if (Main.config.itemsCrafted[saveSlot].ContainsKey(techType))
-                    Main.config.itemsCrafted[saveSlot][techType]++;
+                if (Main.config.itemsCrafted[saveSlot].ContainsKey(name))
+                    Main.config.itemsCrafted[saveSlot][name]++;
                 else
-                    Main.config.itemsCrafted[saveSlot][techType] = 1;
+                    Main.config.itemsCrafted[saveSlot][name] = 1;
 
-                if (Main.config.itemsCraftedTotal.ContainsKey(techType))
-                    Main.config.itemsCraftedTotal[techType]++;
+                if (Main.config.itemsCraftedTotal.ContainsKey(name))
+                    Main.config.itemsCraftedTotal[name]++;
                 else
-                    Main.config.itemsCraftedTotal[techType] = 1;
+                    Main.config.itemsCraftedTotal[name] = 1;
             }
         }
 
-        [HarmonyPatch(typeof(Bed), "EnterInUseMode")]
-        internal class Bed_EnterInUseMode_Patch
+        [HarmonyPatch(typeof(Bed))]
+        internal class Bed_Patch
         {
-            public static void Postfix(Bed __instance)
+            [HarmonyPatch("EnterInUseMode")]
+            [HarmonyPostfix]
+            public static void EnterInUseModePostfix(Bed __instance)
             {
                 bedTimeStart = GetTimePlayed();
                 //AddDebug("EnterInUseMode " );
             }
-        }
-
-        [HarmonyPatch(typeof(Bed), "ExitInUseMode")]
-        internal class Bed_ExitInUseMode_Patch
-        {
-            public static void Postfix(Bed __instance)
+            [HarmonyPatch("ExitInUseMode")]
+            [HarmonyPostfix]
+            public static void ExitInUseModePostfix(Bed __instance)
             {
                 TimeSpan ts = GetTimePlayed() - bedTimeStart;
                 Main.config.timeSlept[saveSlot] += ts;
