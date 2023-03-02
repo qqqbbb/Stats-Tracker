@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,12 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\core\BepInEx.dll</HintPath>
+    </Reference>
     <Reference Include="LitJson, Version=1.0.5467.41753, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\Subnautica_Data\Managed\LitJson.dll</HintPath>
-    </Reference>
-    <Reference Include="QModInstaller">
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\plugins\QModManager\QModInstaller.dll</HintPath>
     </Reference>
     <Reference Include="0Harmony">
       <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\core\0Harmony.dll</HintPath>
@@ -80,7 +81,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "C:\GAMES\Steam\steamapps\common\Subnautica\QMods\$(TargetName)\$(TargetFileName)"
+    <PostBuildEvent>mkdir "C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\plugins\$(TargetName)"
+copy /Y "$(TargetPath)" "C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\plugins\$(TargetName)\$(TargetFileName)"
 	</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

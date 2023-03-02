@@ -1,25 +1,34 @@
 ﻿
 using HarmonyLib;
-using QModManager.API.ModLoading;
+//using QModManager.API.ModLoading;
 using SMLHelper.V2.Handlers;
 using System.Reflection;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using BepInEx;
+using BepInEx.Logging;
+using BepInEx.Bootstrap;
 using static ErrorMessage;
 
 namespace Stats_Tracker
 {
-    [QModCore]
-    public class Main
+    [BepInPlugin(GUID, MODNAME, VERSION)]
+    public class Main : BaseUnityPlugin
     {
+        private const string
+            MODNAME = "Stats Tracker",
+            GUID = "qqqbbb.subnautica.statsTracker",
+            VERSION = "2.0";
+
+        public static ManualLogSource logger;
         public static Config config = new Config();
         public static bool setupDone = false;
         //internal static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
 
-        public static void Log(string str, QModManager.Utility.Logger.Level lvl = QModManager.Utility.Logger.Level.Debug)
+        private void Awake()
         {
-            QModManager.Utility.Logger.Log(lvl, str);
+            logger = Logger;
         }
 
         //[HarmonyPatch(typeof(Player), "Start")]
@@ -38,6 +47,7 @@ namespace Stats_Tracker
 
         public static void Setup()
         {
+            //AddDebug(" Setup");
             Stats_Patch.timeLastUpdate = Stats_Patch.GetTimePlayed();
             string saveSlot = SaveLoadManager.main.currentSlot;
             Stats_Patch.saveSlot = saveSlot;
@@ -49,6 +59,8 @@ namespace Stats_Tracker
             Stats_Patch.ModCompat();
             foreach (var s in Stats_Patch.myStrings)
                 PDAEncyclopedia.Add(s.Key, false);
+
+            setupDone = true;
         }
 
         public static void PrepareSaveSlot(string saveSlot)
@@ -115,17 +127,17 @@ namespace Stats_Tracker
 
         public static void GetBiomeNames()
         {
-            if (LargeWorld.main == null || LargeWorld.main.biomeMapLegend == null)
+            if (LargeWorld.main == null)
             {
                 //AddDebug("LargeWorld.main = null");
                 return;
             }
-            foreach (KeyValuePair<Int3, BiomeProperties> keyValuePair in LargeWorld.main.biomeMapLegend)
-            {
-                string name = keyValuePair.Value.name;
-                if (!string.IsNullOrEmpty(name))
-                    Log(name);
-            }
+            //foreach (KeyValuePair<Int3, BiomeProperties> keyValuePair in LargeWorld.main.biomeMapLegend)
+            //{
+            //    string name = keyValuePair.Value.name;
+            //    if (!string.IsNullOrEmpty(name))
+            //        Log(name);
+            //}
         }
 
         public static string GetFriendlyName(GameObject go)
@@ -134,18 +146,13 @@ namespace Stats_Tracker
             return Language.main.Get(tt.AsString(false));
         }
 
-        [HarmonyPatch(typeof(uGUI_SceneLoading), "End")]
-        internal class uGUI_SceneLoading_End_Patch
-        { // fires after game loads
-            public static void Postfix(uGUI_SceneLoading __instance)
-            {
-                if (!uGUI.main.hud.active)
-                {
-                    //AddDebug(" is Loading");
-                    return;
-                }
-                Setup();
-                setupDone = true;
+        [HarmonyPatch(typeof(WaitScreen), "Remove")]
+        class WaitScreen_Remove_Patch
+        {
+            public static void Postfix(WaitScreen.IWaitItem item)
+            { // __instance is null !
+                if (WaitScreen.main.items.Count == 0)
+                    Setup();
             }
         }
 
@@ -175,6 +182,7 @@ namespace Stats_Tracker
             public static void Postfix(SaveLoadManager __instance, string slotName)
             {
                 //AddDebug("ClearSlotAsync " + slotName);
+                //logger.LogInfo("ClearSlotAsync");
                 PrepareSaveSlot(slotName);
                 config.Save();
             }
@@ -182,13 +190,27 @@ namespace Stats_Tracker
 
         public static void CleanUp()
         {
+            //AddDebug("CleanUp ");
+            //logger.LogInfo("CleanUp");
             setupDone = false;
             Stats_Patch.powerRelays = new HashSet<PowerRelay>();
             Stats_Patch.timeLastUpdate = TimeSpan.Zero;
             config.Load();
         }
 
-        [QModPatch]
+        private void Start()
+        {
+            //BepInEx.Logging.Logger.CreateLogSource("Stats Tracker: ").Log(LogLevel.Error, " Start ");
+            //AddDebug("Mono Start ");
+            //Logger.LogInfo("Mono Start");
+            //config.Load();
+            Harmony harmony = new Harmony(GUID);
+            harmony.PatchAll();
+            IngameMenuHandler.RegisterOnSaveEvent(SaveData);
+            IngameMenuHandler.RegisterOnQuitEvent(CleanUp);
+        }
+
+        //[QModPatch]
         public static void Load()
         {
             config.Load();

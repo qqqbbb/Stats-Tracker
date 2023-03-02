@@ -2,7 +2,7 @@
 //using QModManager.Utility;
 using System;
 //using SMLHelper.V2.Assets;
-//using System.Collections;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,21 +18,21 @@ namespace Stats_Tracker
         public static string saveSlot;
         public static CraftNode lastEncNode;
         public static Dictionary<string, PDAEncyclopedia.EntryData> mapping;
-        public static TechType[] roomTypes = new TechType[] { TechType.BaseRoom, TechType.BaseMapRoom, TechType.BaseMoonpool, TechType.BaseObservatory };
+        public static TechType[] roomTypes = new TechType[] { TechType.BaseRoom, TechType.BaseMapRoom, TechType.BaseMoonpool, TechType.BaseObservatory, TechType.BaseLargeRoom };
         public static TechType[] corridorTypes = new TechType[] { TechType.BaseCorridorI, TechType.BaseCorridorL, TechType.BaseCorridorT, TechType.BaseCorridorX, TechType.BaseCorridorGlassI, TechType.BaseCorridorGlassL, TechType.BaseCorridor, TechType.BaseCorridorGlass };
-        public static List<TechType> fauna = new List<TechType> { TechType.Shocker, TechType.Biter, TechType.Blighter, TechType.BoneShark, TechType.Crabsnake, TechType.CrabSquid, TechType.Crash, TechType.LavaLizard, TechType.Mesmer, TechType.SpineEel, TechType.Sandshark, TechType.Stalker, TechType.Warper, TechType.Bladderfish, TechType.Boomerang, TechType.GhostRayRed, TechType.Cutefish, TechType.Eyeye, TechType.GarryFish, TechType.Gasopod, TechType.GhostRayBlue, TechType.HoleFish, TechType.Hoopfish, TechType.Hoverfish, TechType.Jellyray, TechType.LavaBoomerang, TechType.Oculus, TechType.Peeper, TechType.RabbitRay, TechType.LavaEyeye, TechType.Reginald, TechType.Skyray, TechType.Spadefish, TechType.Spinefish, TechType.BlueAmoeba, TechType.LargeFloater, TechType.Bleeder, TechType.Shuttlebug, TechType.CaveCrawler, TechType.Floater, TechType.LavaLarva, TechType.Rockgrub, TechType.Jumper};
+        public static List<TechType> fauna = new List<TechType> { TechType.Shocker, TechType.Biter, TechType.Blighter, TechType.BoneShark, TechType.Crabsnake, TechType.CrabSquid, TechType.Crash, TechType.LavaLizard, TechType.Mesmer, TechType.SpineEel, TechType.Sandshark, TechType.Stalker, TechType.Warper, TechType.Bladderfish, TechType.Boomerang, TechType.GhostRayRed, TechType.Cutefish, TechType.Eyeye, TechType.GarryFish, TechType.Gasopod, TechType.GhostRayBlue, TechType.HoleFish, TechType.Hoopfish, TechType.Hoverfish, TechType.Jellyray, TechType.LavaBoomerang, TechType.Oculus, TechType.Peeper, TechType.RabbitRay, TechType.LavaEyeye, TechType.Reginald, TechType.Skyray, TechType.Spadefish, TechType.Spinefish, TechType.BlueAmoeba, TechType.LargeFloater, TechType.Bleeder, TechType.Shuttlebug, TechType.CaveCrawler, TechType.Floater, TechType.LavaLarva, TechType.Rockgrub, TechType.Jumper };
         public static List<TechType> leviathans = new List<TechType>
         {TechType.GhostLeviathan, TechType.GhostLeviathanJuvenile, TechType.ReaperLeviathan, TechType.Reefback, TechType.SeaDragon, TechType.SeaEmperorJuvenile, TechType.SeaTreader };
         public static string[] moddedCreatureTechtypes = new string[] { "StellarThalassacean", "JasperThalassacean", "GrandGlider", "Axetail", "AmberClownPincher", "CitrineClownPincher", "EmeraldClownPincher", "RubyClownPincher", "SapphireClownPincher", "GulperLeviathan", "RibbonRay", "Twisteel", "Filtorb", "JellySpinner", "TriangleFish" };
-        public static List<TechType> coral = new List<TechType> { TechType.PurpleBrainCoral, TechType.CoralShellPlate, TechType.BrownTubes, TechType.BigCoralTubes, TechType.BlueCoralTubes, TechType.RedTipRockThings, TechType.GenericJeweledDisk, TechType.BlueJeweledDisk, TechType.GreenJeweledDisk, TechType.RedJeweledDisk, TechType.PurpleJeweledDisk, TechType.TreeMushroom};
-        public static List<TechType> flora = new List<TechType> { TechType.MelonPlant, TechType.AcidMushroom, TechType.BloodRoot, TechType.BloodVine, TechType.BluePalm, TechType.SmallKoosh, TechType.MediumKoosh, TechType.LargeKoosh, TechType.HugeKoosh, TechType.BulboTree, TechType.PurpleBranches, TechType.PurpleVegetablePlant, TechType.Creepvine, TechType.WhiteMushroom, TechType.EyesPlant, TechType.FernPalm, TechType.RedRollPlant, TechType.GabeSFeather, TechType.JellyPlant, TechType.RedGreenTentacle, TechType.OrangePetalsPlant, TechType.OrangeMushroom, TechType.SnakeMushroom, TechType.HangingFruitTree, TechType.MembrainTree, TechType.PurpleVasePlant, TechType.PinkMushroom, TechType.SmallFan, TechType.SmallFanCluster, TechType.RedBush, TechType.RedConePlant, TechType.RedBasketPlant, TechType.SeaCrown, TechType.PurpleRattle, TechType.ShellGrass, TechType.SpottedLeavesPlant, TechType.CrashHome, TechType.SpikePlant, TechType.PurpleFan, TechType.PurpleStalk, TechType.PinkFlower, TechType.PurpleTentacle, TechType.BloodGrass, TechType.RedGrass, TechType.RedSeaweed, TechType.BlueBarnacle, TechType.BlueBarnacleCluster, TechType.BlueLostRiverLilly, TechType.BlueTipLostRiverPlant, TechType.HangingStinger, TechType.CoveTree, TechType.BlueCluster, TechType.GreenReeds, TechType.BarnacleSuckers, TechType.BallClusters};
+        public static List<TechType> coral = new List<TechType> { TechType.PurpleBrainCoral, TechType.CoralShellPlate, TechType.BrownTubes, TechType.BigCoralTubes, TechType.BlueCoralTubes, TechType.RedTipRockThings, TechType.GenericJeweledDisk, TechType.BlueJeweledDisk, TechType.GreenJeweledDisk, TechType.RedJeweledDisk, TechType.PurpleJeweledDisk, TechType.TreeMushroom };
+        public static List<TechType> flora = new List<TechType> { TechType.MelonPlant, TechType.AcidMushroom, TechType.BloodRoot, TechType.BloodVine, TechType.BluePalm, TechType.SmallKoosh, TechType.MediumKoosh, TechType.LargeKoosh, TechType.HugeKoosh, TechType.BulboTree, TechType.PurpleBranches, TechType.PurpleVegetablePlant, TechType.Creepvine, TechType.WhiteMushroom, TechType.EyesPlant, TechType.FernPalm, TechType.RedRollPlant, TechType.GabeSFeather, TechType.JellyPlant, TechType.RedGreenTentacle, TechType.OrangePetalsPlant, TechType.OrangeMushroom, TechType.SnakeMushroom, TechType.HangingFruitTree, TechType.MembrainTree, TechType.PurpleVasePlant, TechType.PinkMushroom, TechType.SmallFan, TechType.SmallFanCluster, TechType.RedBush, TechType.RedConePlant, TechType.RedBasketPlant, TechType.SeaCrown, TechType.PurpleRattle, TechType.ShellGrass, TechType.SpottedLeavesPlant, TechType.CrashHome, TechType.SpikePlant, TechType.PurpleFan, TechType.PurpleStalk, TechType.PinkFlower, TechType.PurpleTentacle, TechType.BloodGrass, TechType.RedGrass, TechType.RedSeaweed, TechType.BlueBarnacle, TechType.BlueBarnacleCluster, TechType.BlueLostRiverLilly, TechType.BlueTipLostRiverPlant, TechType.HangingStinger, TechType.CoveTree, TechType.BlueCluster, TechType.GreenReeds, TechType.BarnacleSuckers, TechType.BallClusters };
         static bool removingItemsForRecipe = false;
         static TimeSpan bedTimeStart = TimeSpan.Zero;
         public static TimeSpan timeLastUpdate = TimeSpan.Zero;
         public static Dictionary<string, string> myStrings = new Dictionary<string, string>();
         public static Dictionary<string, string> descs = new Dictionary<string, string>();
         public static HashSet<PowerRelay> powerRelays = new HashSet<PowerRelay>();
-       static string timePlayed { get { return "Time since crashlanding: " + GetTimePlayed().Days + " days, " + GetTimePlayed().Hours + " hours, " + GetTimePlayed().Minutes + " minutes"; } }
+        static string timePlayed { get { return "Time since crashlanding: " + GetTimePlayed().Days + " days, " + GetTimePlayed().Hours + " hours, " + GetTimePlayed().Minutes + " minutes"; } }
         static string timePlayedTotal
         {
             get
@@ -41,7 +41,7 @@ namespace Stats_Tracker
                 foreach (var item in Main.config.timePlayed)
                 {
                     //if (item.Key != saveSlot)
-                        total += item.Value;
+                    total += item.Value;
                 }
                 total += GetTimePlayed();
                 return "Time since crashlanding: " + total.Days + " days, " + total.Hours + " hours, " + total.Minutes + " minutes";
@@ -348,6 +348,22 @@ namespace Stats_Tracker
             { "ilz", "Inactive Lava Zone" },
         };
 
+        static float GetItemMass(TechType techType)
+        {
+            ItemsContainer.ItemGroup itemGroup;
+            if (!Inventory.main._container._items.TryGetValue(techType, out itemGroup))
+                return 0f;
+
+            List<InventoryItem> items = itemGroup.items;
+            int index1 = items.Count - 1;
+            InventoryItem inventoryItem1 = items[index1];
+            Rigidbody rb = inventoryItem1.item.GetComponent<Rigidbody>();
+            if (rb)
+                return rb.mass;
+            
+            return 0f;
+        }
+
         public static string GetCraftingResourcesUsedTotal(string str)
         {
             if (Main.config.craftingResourcesUsedTotal.ContainsKey(str))
@@ -441,8 +457,8 @@ namespace Stats_Tracker
         {
             //AddDebug(" metersToKM " + meters);
             int km = 0;
-            string s = ""; 
-            for (int i = meters; i > 1000; i-=1000)
+            string s = "";
+            for (int i = meters; i > 1000; i -= 1000)
             {
                 km++;
                 meters -= 1000;
@@ -543,7 +559,7 @@ namespace Stats_Tracker
 
                     result += "\n\nDistance traveled: " + Main.config.distanceTraveled[saveSlot] + " meters.";
                     result += "\nDistance traveled by swimming: " + Main.config.distanceTraveledSwim[saveSlot] + " meters.";
-                    result += "\nDistance traveled by foot: " + Main.config.distanceTraveledWalk[saveSlot] + " meters.";
+                    result += "\nDistance traveled on foot: " + Main.config.distanceTraveledWalk[saveSlot] + " meters.";
                     result += "\nDistance traveled by seaglide: " + Main.config.distanceTraveledSeaglide[saveSlot] + " meters.";
                     if (Main.config.seamothsBuilt[saveSlot] > 0)
                         result += "\nDistance traveled in seamoth: " + Main.config.distanceTraveledSeamoth[saveSlot] + " meters.";
@@ -692,17 +708,17 @@ namespace Stats_Tracker
                     if (Main.config.floraFound[saveSlot].Count > 0)
                         result += "\n\nFlora species discovered: ";
                     foreach (string str in Main.config.floraFound[saveSlot])
-                            result += "\n      " + Language.main.Get(str);
+                        result += "\n      " + Language.main.Get(str);
 
                     if (Main.config.coralFound[saveSlot].Count > 0)
                         result += "\n\nCoral species discovered: ";
                     foreach (string str in Main.config.coralFound[saveSlot])
-                            result += "\n      " + Language.main.Get(str);
+                        result += "\n      " + Language.main.Get(str);
 
                     if (Main.config.leviathanFound[saveSlot].Count > 0)
                         result += "\n\nLeviathan species discovered: ";
                     foreach (string str in Main.config.leviathanFound[saveSlot])
-                            result += "\n      " + Language.main.Get(str);
+                        result += "\n      " + Language.main.Get(str);
                 }
                 else if (key == "EncyDesc_StatsGlobal")
                 {
@@ -721,7 +737,7 @@ namespace Stats_Tracker
                     result += "\nTime spent in cyclops: " + Main.config.timeCyclopsTotal.Days + " days, " + Main.config.timeCyclopsTotal.Hours + " hours, " + Main.config.timeCyclopsTotal.Minutes + " minutes.";
 
                     result += "\n\nDistance traveled: " + GetTraveledString(Main.config.distanceTraveledTotal);
-                    result += "\nDistance traveled by foot: " + Main.config.distanceTraveledWalkTotal + " meters.";
+                    result += "\nDistance traveled on foot: " + Main.config.distanceTraveledWalkTotal + " meters.";
                     result += "\nDistance traveled by swimming: " + Main.config.distanceTraveledSwimTotal + " meters.";
                     result += "\nDistance traveled by seaglide: " + Main.config.distanceTraveledSeaglideTotal + " meters.";
                     result += "\nDistance traveled in seamoth: " + Main.config.distanceTraveledSeamothTotal + " meters.";
@@ -774,10 +790,10 @@ namespace Stats_Tracker
                     foreach (var kv in Main.config.itemsCraftedTotal)
                         result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
-                    result += "\n\nResources used for crafting and constructing: " +  craftingResourcesUsedTotal.ToString("0.0") + " kg";
+                    result += "\n\nResources used for crafting and constructing: " + craftingResourcesUsedTotal.ToString("0.0") + " kg";
                     foreach (var kv in Main.config.craftingResourcesUsedTotal_)
                         result += "\n      " + GetCraftingResourcesUsedTotal(kv.Key);
-             
+
                     result += "\n\nPlants raised: " + plantsRaisedTotal;
                     foreach (var kv in Main.config.plantsRaisedTotal)
                         result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
@@ -848,6 +864,7 @@ namespace Stats_Tracker
                 if (string.IsNullOrEmpty(saveSlot))
                     return false;
 
+                //AddDebug("TrackTravelStats");
                 __instance.maxDepth = Mathf.Max(__instance.maxDepth, -position.y);
                 Main.config.maxDepth[saveSlot] = (int)__instance.maxDepth;
                 Main.config.maxDepthGlobal = (int)__instance.maxDepth;
@@ -865,8 +882,7 @@ namespace Stats_Tracker
                 int distanceTraveled = Mathf.RoundToInt((__instance.lastPosition - position).magnitude);
                 if (__instance.lastPosition == Vector3.zero)
                     distanceTraveled = 0;
-                //Main.Log("lastPosition " + __instance.lastPosition);
-                //Main.Log("position " + position);
+ 
                 Main.config.distanceTraveled[saveSlot] += distanceTraveled;
                 Main.config.distanceTraveledTotal += distanceTraveled;
 
@@ -961,13 +977,13 @@ namespace Stats_Tracker
                 //Main.config.timePlayedTotal = DayNightCycle.main.timePassedSinceOrigin;
                 return false;
             }
-            [HarmonyPatch("OnKill")]
             [HarmonyPostfix]
+            [HarmonyPatch("OnKill")]
             public static void OnKillPostfix(Player __instance)
             {
                 Main.config.playerDeathsTotal++;
-                if(!GameModeUtils.IsPermadeath())
-					Main.config.playerDeaths[saveSlot] ++;
+                if (!GameModeUtils.IsPermadeath())
+                    Main.config.playerDeaths[saveSlot]++;
             }
         }
 
@@ -989,8 +1005,8 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(Survival))]
         class Survival_Patch
         {
-            [HarmonyPatch("Use")]
             [HarmonyPostfix]
+            [HarmonyPatch("Use")]
             public static void UsePostfix(Survival __instance, GameObject useObj, bool __result)
             {
                 if (!__result)
@@ -1004,8 +1020,8 @@ namespace Stats_Tracker
                     Main.config.medkitsUsedTotal++;
                 }
             }
-            [HarmonyPatch("Eat")]
             [HarmonyPostfix]
+            [HarmonyPatch("Eat")]
             public static void EatPostfix(Survival __instance, GameObject useObj, bool __result)
             {
                 if (__result)
@@ -1016,7 +1032,8 @@ namespace Stats_Tracker
                     {
                         float foodValue = eatable.GetFoodValue();
                         float waterValue = eatable.GetWaterValue();
-                        string name = CraftData.GetTechType(useObj).AsString();
+                        TechType tt = CraftData.GetTechType(useObj);
+                        string name = tt.AsString();
                         if (foodValue >= waterValue)
                         {
                             if (Main.config.foodEaten[saveSlot].ContainsKey(name))
@@ -1033,6 +1050,23 @@ namespace Stats_Tracker
                         {
                             Main.config.waterDrunk[saveSlot] += rb.mass;
                             Main.config.waterDrunkTotal += rb.mass;
+                        }
+                        if (fauna.Contains(tt))
+                        {
+                            //AddDebug(tt + " animal killed by player");
+                            LiveMixin lm = useObj.GetComponent<LiveMixin>();
+                            if (lm && lm.IsAlive())
+                            {
+                                if (Main.config.animalsKilledTotal.ContainsKey(name))
+                                    Main.config.animalsKilledTotal[name]++;
+                                else
+                                    Main.config.animalsKilledTotal[name] = 1;
+
+                                if (Main.config.animalsKilled[saveSlot].ContainsKey(name))
+                                    Main.config.animalsKilled[saveSlot][name]++;
+                                else
+                                    Main.config.animalsKilled[saveSlot][name] = 1;
+                            }
                         }
                     }
                 }
@@ -1055,10 +1089,10 @@ namespace Stats_Tracker
             public static void Postfix(CreatureEgg __instance)
             {
                 //AddDebug("Hatch  " + __instance.hatchingCreature);
-                if (__instance.hatchingCreature == TechType.None)
+                if (__instance.creatureType == TechType.None)
                     return;
 
-                string name = __instance.hatchingCreature.AsString();
+                string name = __instance.creatureType.AsString();
                 if (Main.config.eggsHatchedTotal.ContainsKey(name))
                     Main.config.eggsHatchedTotal[name]++;
                 else
@@ -1097,16 +1131,16 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(LiveMixin))]
         internal class LiveMixin_Patch
         {
-            [HarmonyPatch("Kill")]
             [HarmonyPrefix]
+            [HarmonyPatch("Kill")]
             public static void KillPrefix(LiveMixin __instance)
             {
                 //TechType tt = CraftData.GetTechType(__instance.gameObject);
                 //AddDebug("Kill " + tt);
                 killedLM = __instance;
             }
-            [HarmonyPatch("TakeDamage")]
             [HarmonyPostfix]
+            [HarmonyPatch("TakeDamage")]
             public static void TakeDamagePostfix(LiveMixin __instance, float originalDamage, Vector3 position, DamageType type, GameObject dealer)
             {
                 if (dealer && killedLM && __instance == killedLM)
@@ -1181,8 +1215,8 @@ namespace Stats_Tracker
         internal class Inventory_Patch
         { // runs when you have enough ingredients
           // static TechType tt = TechType.None;
-            [HarmonyPatch("ConsumeResourcesForRecipe")]
             [HarmonyPrefix]
+            [HarmonyPatch("ConsumeResourcesForRecipe")]
             public static void ConsumeResourcesForRecipePrefix(DamageOnPickup __instance, TechType techType)
             {
                 ITechData techData = CraftData.Get(techType);
@@ -1193,14 +1227,14 @@ namespace Stats_Tracker
                 //for (int ingredientCount = techData.ingredientCount; index < ingredientCount; ++index)
                 //{
                 //    IIngredient ingredient = techData.GetIngredient(index);
-                    //AddDebug("ConsumeResourcesForRecipe  " + ingredient.techType + " " + ingredient.amount);
-                    //AddDebug(ingredient.techType + " killed by player");
-                    //if (fauna.Contains(ingredient.techType))
-                        //AddDebug(ingredient.techType + " animal killed by player");
-                    //    Main.config.animalsKilled[saveSlot]++;
-                    //else if (flora.Contains(ingredient.techType))
-                        //AddDebug(ingredient.techType + " plant killed by player");
-                        //Main.config.plantsKilled[saveSlot]++;
+                //AddDebug("ConsumeResourcesForRecipe  " + ingredient.techType + " " + ingredient.amount);
+                //AddDebug(ingredient.techType + " killed by player");
+                //if (fauna.Contains(ingredient.techType))
+                //AddDebug(ingredient.techType + " animal killed by player");
+                //    Main.config.animalsKilled[saveSlot]++;
+                //else if (flora.Contains(ingredient.techType))
+                //AddDebug(ingredient.techType + " plant killed by player");
+                //Main.config.plantsKilled[saveSlot]++;
                 //}
             }
             [HarmonyPostfix]
@@ -1288,8 +1322,8 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(ItemsContainer))]
         internal class ItemsContainer_Patch
         {
-            [HarmonyPatch("NotifyAddItem")]
             [HarmonyPostfix]
+            [HarmonyPatch("NotifyAddItem")]
             public static void NotifyAddItemPostfix(ItemsContainer __instance, InventoryItem item)
             {
                 if (!Main.setupDone || Inventory.main.usedStorage.Count == 0 || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
@@ -1355,8 +1389,8 @@ namespace Stats_Tracker
                         Main.config.storedOutsideTotal[name] = 1;
                 }
             }
-            [HarmonyPatch("NotifyRemoveItem")]
             [HarmonyPostfix]
+            [HarmonyPatch("NotifyRemoveItem")]
             public static void NotifyRemoveItemPostfix(ItemsContainer __instance, InventoryItem item)
             {
                 if (!Main.setupDone || Inventory.main.usedStorage.Count == 0 || Inventory.main._container == __instance || __instance.tr.parent.GetComponent<Trashcan>())
@@ -1439,7 +1473,7 @@ namespace Stats_Tracker
                 else
                 {
                     //AddDebug("result " + __result + " IsFragment " + fragment);
-                    Main.config.objectsScanned[saveSlot] ++;
+                    Main.config.objectsScanned[saveSlot]++;
                     Main.config.objectsScannedTotal++;
                     TechType tt = PDAScanner.scanTarget.techType;
                     string name = tt.AsString();
@@ -1531,77 +1565,78 @@ namespace Stats_Tracker
             }
         }
 
+
         [HarmonyPatch(typeof(Constructable))]
         internal class Constructable_Patch
         {
+            [HarmonyPrefix]
             [HarmonyPatch("Construct")]
-            [HarmonyPostfix]
-            public static void ConstructPostfix(Constructable __instance)
+            public static void ConstructPrefix(Constructable __instance, bool __result)
             {
-                if (__instance.constructedAmount >= 1f)
+                //AddDebug(" constructed " + __instance.techType);
+                if (!GameModeUtils.RequiresIngredients() || __instance.techType == TechType.None)
+                    return;
+
+                float constructedAmount = __instance.constructedAmount + Time.deltaTime / (__instance.resourceMap.Count * Constructable.GetConstructInterval());
+                //constructedAmount = Mathf.Clamp01(constructedAmount);
+                if (constructedAmount < 1f)
+                    return;
+
+                //AddDebug(" constructed " + __instance.techType);
+                foreach (TechType tt in __instance.resourceMap)
                 {
-                    //AddDebug(" constructed " + __instance.techType);
-                    if (__instance.techType == TechType.None)
-                        return;
+                    //AddDebug("resourceMap  " + tt);
+                    string name = tt.AsString();
+                    if (Main.config.craftingResourcesUsed_[saveSlot].ContainsKey(name))
+                        Main.config.craftingResourcesUsed_[saveSlot][name]++;
+                    else
+                        Main.config.craftingResourcesUsed_[saveSlot][name] = 1;
 
-                    foreach (TechType tt in __instance.resourceMap)
-                    {
-                        //AddDebug("resourceMap  " + tt);
-                        GameObject prefab = CraftData.GetPrefabForTechType(tt);
-                        //if (prefab.GetComponent<Eatable>())
-                        //    return;
-                        if (prefab)
-                        {
-                            string name = tt.AsString();
-                            if (Main.config.craftingResourcesUsed_[saveSlot].ContainsKey(name))
-                                Main.config.craftingResourcesUsed_[saveSlot][name]++;
-                            else
-                                Main.config.craftingResourcesUsed_[saveSlot][name] = 1;
+                    if (Main.config.craftingResourcesUsedTotal_.ContainsKey(name))
+                        Main.config.craftingResourcesUsedTotal_[name]++;
+                    else
+                        Main.config.craftingResourcesUsedTotal_[name] = 1;
 
-                            if (Main.config.craftingResourcesUsedTotal_.ContainsKey(name))
-                                Main.config.craftingResourcesUsedTotal_[name]++;
-                            else
-                                Main.config.craftingResourcesUsedTotal_[name] = 1;
+                    float mass = GetItemMass(tt);
+                    //AddDebug(" GetItemMass " + mass);
+                    if (mass <= 0)
+                        continue;
 
-                            Rigidbody rb = prefab.GetComponent<Rigidbody>();
-                            if (rb)
-                            {
-                                if (Main.config.craftingResourcesUsed[saveSlot].ContainsKey(name))
-                                    Main.config.craftingResourcesUsed[saveSlot][name] += rb.mass;
-                                else
-                                    Main.config.craftingResourcesUsed[saveSlot][name] = rb.mass;
+                    if (Main.config.craftingResourcesUsed[saveSlot].ContainsKey(name))
+                        Main.config.craftingResourcesUsed[saveSlot][name] += mass;
+                    else
+                        Main.config.craftingResourcesUsed[saveSlot][name] = mass;
 
-                                if (Main.config.craftingResourcesUsedTotal.ContainsKey(name))
-                                    Main.config.craftingResourcesUsedTotal[name] += rb.mass;
-                                else
-                                    Main.config.craftingResourcesUsedTotal[name] = rb.mass;
-                            }
-                        }
-                    }
-
-                    if (roomTypes.Contains(__instance.techType))
-                    {
-                        string name = __instance.techType.AsString();
-                        if (Main.config.baseRoomsBuilt[saveSlot].ContainsKey(name))
-                            Main.config.baseRoomsBuilt[saveSlot][name]++;
-                        else
-                            Main.config.baseRoomsBuilt[saveSlot][name] = 1;
-
-                        if (Main.config.baseRoomsBuiltTotal.ContainsKey(name))
-                            Main.config.baseRoomsBuiltTotal[name]++;
-                        else
-                            Main.config.baseRoomsBuiltTotal[name] = 1;
-                    }
-                    else if (corridorTypes.Contains(__instance.techType))
-                    {
-                        Main.config.baseCorridorsBuilt[saveSlot]++;
-                        Main.config.baseCorridorsBuiltTotal++;
-                    }
+                    if (Main.config.craftingResourcesUsedTotal.ContainsKey(name))
+                        Main.config.craftingResourcesUsedTotal[name] += mass;
+                    else
+                        Main.config.craftingResourcesUsedTotal[name] = mass;
                 }
+
+                if (roomTypes.Contains(__instance.techType))
+                {
+                    string name = __instance.techType.AsString();
+                    if (Main.config.baseRoomsBuilt[saveSlot].ContainsKey(name))
+                        Main.config.baseRoomsBuilt[saveSlot][name]++;
+                    else
+                        Main.config.baseRoomsBuilt[saveSlot][name] = 1;
+
+                    if (Main.config.baseRoomsBuiltTotal.ContainsKey(name))
+                        Main.config.baseRoomsBuiltTotal[name]++;
+                    else
+                        Main.config.baseRoomsBuiltTotal[name] = 1;
+                }
+                else if (corridorTypes.Contains(__instance.techType))
+                {
+                    Main.config.baseCorridorsBuilt[saveSlot]++;
+                    Main.config.baseCorridorsBuiltTotal++;
+                }
+
             }
-            [HarmonyPatch("Deconstruct")]
+
             [HarmonyPostfix]
-            public static void DeconstructPostfix(Constructable __instance)
+            [HarmonyPatch("DeconstructAsync")]
+            public static void DeconstructAsyncPostfix(Constructable __instance)
             {
                 if (__instance.constructedAmount <= 0f)
                 {
@@ -1630,15 +1665,15 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(SubRoot))]
         class SubRoot_Patch
         {
-            [HarmonyPatch("Start")]
             [HarmonyPostfix]
+            [HarmonyPatch("Start")]
             static void StartPostfix(SubRoot __instance)
             {
                 if (!__instance.isCyclops && __instance.powerRelay)
                     powerRelays.Add(__instance.powerRelay);
             }
-            [HarmonyPatch("OnKill")]
             [HarmonyPostfix]
+            [HarmonyPatch("OnKill")]
             public static void OnKillPostfix(SubRoot __instance)
             { // assuming player uses 1 sub
               //AddDebug("Sub lost");
@@ -1709,18 +1744,18 @@ namespace Stats_Tracker
                 //if (tt == TechType.Seamoth)
                 if (constructedObject.GetComponent<SeaMoth>())
                 {
-                    Main.config.seamothsBuilt[saveSlot] ++;
+                    Main.config.seamothsBuilt[saveSlot]++;
                     Main.config.seamothsBuiltTotal++;
                 }
                 //else if (tt == TechType.Exosuit)
                 else if (constructedObject.GetComponent<Exosuit>())
                 {
-                    Main.config.exosuitsBuilt[saveSlot] ++;
+                    Main.config.exosuitsBuilt[saveSlot]++;
                     Main.config.exosuitsBuiltTotal++;
                 }
                 else if (constructedObject.GetComponent<SubRoot>())
                 { // tt is none
-                    Main.config.cyclopsBuilt[saveSlot] ++;
+                    Main.config.cyclopsBuilt[saveSlot]++;
                     Main.config.cyclopsBuiltTotal++;
                 }
             }
@@ -1729,20 +1764,21 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(CrafterLogic))]
         internal class GhostCrafter_TryPickupSingle_Patch
         {
-            [HarmonyPatch("TryPickupSingle")]
             [HarmonyPrefix]
+            [HarmonyPatch("TryPickupSingleAsync")]
             public static void TryPickupSinglePrefix(CrafterLogic __instance, TechType techType)
             {
-                //AddDebug("TryPickupSingle " + techType);
+                //AddDebug("TryPickupSingleAsync " + techType);
                 craftedItem = true;
             }
-            [HarmonyPatch("NotifyCraftEnd")]
             [HarmonyPostfix]
+            [HarmonyPatch("NotifyCraftEnd")]
             public static void NotifyCraftEndPostfix(CrafterLogic __instance, GameObject target, TechType techType)
             {
                 //GameObject prefab = CraftData.GetPrefabForTechType(techType);
                 if (!craftedItem)
                     return;
+
                 craftedItem = false;
                 if (target && target.GetComponent<Eatable>())
                     return;
