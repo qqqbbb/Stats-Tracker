@@ -9,7 +9,7 @@ using UnityEngine;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Bootstrap;
-using static ErrorMessage;
+//using static ErrorMessage;
 
 namespace Stats_Tracker
 {
@@ -19,10 +19,10 @@ namespace Stats_Tracker
         private const string
             MODNAME = "Stats Tracker",
             GUID = "qqqbbb.subnautica.statsTracker",
-            VERSION = "2.0";
+            VERSION = "2.01";
 
         public static ManualLogSource logger;
-        public static Config config = new Config();
+        public static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
         public static bool setupDone = false;
         //internal static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
 
