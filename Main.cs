@@ -9,7 +9,7 @@ using UnityEngine;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Bootstrap;
-//using static ErrorMessage;
+//using static ErrorMessage; 
 
 namespace Stats_Tracker
 {
