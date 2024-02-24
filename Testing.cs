@@ -2,7 +2,6 @@
 using HarmonyLib;
 using System.Reflection;
 using System;
-using SMLHelper.V2.Handlers;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +15,7 @@ namespace Stats_Tracker
 {
     class Testing
     {
-        //[HarmonyPatch(typeof(Player), "Update")]
+        //[HarmonyPatch(typeof(Player), "Update")] 
         class Player_Update_Patch
         {
             static void Postfix(Player __instance)

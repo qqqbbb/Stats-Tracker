@@ -1,12 +1,11 @@
 ﻿using HarmonyLib;
-//using QModManager.Utility;
 using System;
-//using SMLHelper.V2.Assets;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using SMLHelper.V2.Handlers;
+using Nautilus.Handlers;
+//using Nautilus.Handlers;
 using static ErrorMessage;
 // gulper lev spawn 1169, 903; 1400, 1281; -72, 867; -174, 1070; -49, 1184; -265, 1118; -717, -1088; -573, 1311; -970, -509
 namespace Stats_Tracker
@@ -437,7 +436,7 @@ namespace Stats_Tracker
                 key = key,
                 nodes = nodes
             };
-            PDAEncyclopediaHandler.AddCustomEntry(entry);
+            PDAHandler.AddEncyclopediaEntry(entry);
             //mapping[key] = entry;
             myStrings[key] = desc;
             descs["EncyDesc_" + key] = desc;
@@ -802,7 +801,7 @@ namespace Stats_Tracker
                     foreach (var kv in Main.config.eggsHatchedTotal)
                         result += "\n      " + Language.main.Get(kv.Key) + " " + kv.Value;
 
-                    result += "\n\nThings stored in your life pods: ";
+                    result += "\n\nThings stored in your life pod: ";
                     foreach (var kv in Main.config.storedEscapePodTotal)
                     {
                         if (kv.Value > 0)
@@ -944,11 +943,6 @@ namespace Stats_Tracker
                     Main.config.timeSwam[saveSlot] += ts;
                     Main.config.timeSwamTotal += ts;
                 }
-                else if (Player.main.currentEscapePod)
-                {
-                    Main.config.timeEscapePod[saveSlot] += ts;
-                    Main.config.timeEscapePodTotal += ts;
-                }
                 else if (__instance.inSeamoth)
                 {
                     Main.config.timeSeamoth[saveSlot] += ts;
@@ -958,6 +952,12 @@ namespace Stats_Tracker
                 {
                     Main.config.timeExosuit[saveSlot] += ts;
                     Main.config.timeExosuitTotal += ts;
+                }
+
+                if (Player.main.currentEscapePod)
+                {
+                    Main.config.timeEscapePod[saveSlot] += ts;
+                    Main.config.timeEscapePodTotal += ts;
                 }
                 else if (Player.main.currentSub)
                 {

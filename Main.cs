@@ -1,7 +1,5 @@
 ﻿
 using HarmonyLib;
-//using QModManager.API.ModLoading;
-using SMLHelper.V2.Handlers;
 using System.Reflection;
 using System;
 using System.Collections.Generic;
@@ -9,6 +7,11 @@ using UnityEngine;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Bootstrap;
+using Nautilus.Handlers;
+using Nautilus.Assets;
+using Nautilus.Utility;
+using Nautilus.Assets.PrefabTemplates;
+using Nautilus.Assets.Gadgets;
 //using static ErrorMessage; 
 
 namespace Stats_Tracker
@@ -19,7 +22,7 @@ namespace Stats_Tracker
         private const string
             MODNAME = "Stats Tracker",
             GUID = "qqqbbb.subnautica.statsTracker",
-            VERSION = "2.01";
+            VERSION = "3.0.0";
 
         public static ManualLogSource logger;
         public static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
@@ -206,18 +209,17 @@ namespace Stats_Tracker
             //config.Load();
             Harmony harmony = new Harmony(GUID);
             harmony.PatchAll();
-            IngameMenuHandler.RegisterOnSaveEvent(SaveData);
-            IngameMenuHandler.RegisterOnQuitEvent(CleanUp);
+            SaveUtils.RegisterOnSaveEvent(SaveData);
+            SaveUtils.RegisterOnQuitEvent(CleanUp);
         }
 
-        //[QModPatch]
         public static void Load()
         {
             config.Load();
             Assembly assembly = Assembly.GetExecutingAssembly();
             new Harmony($"qqqbbb_{assembly.GetName().Name}").PatchAll(assembly);
-            IngameMenuHandler.RegisterOnSaveEvent(SaveData);
-            IngameMenuHandler.RegisterOnQuitEvent(CleanUp);
+            SaveUtils.RegisterOnSaveEvent(SaveData);
+            SaveUtils.RegisterOnQuitEvent(CleanUp);
         }
 
         [HarmonyPatch(typeof(Player), "Awake")]
