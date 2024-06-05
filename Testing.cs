@@ -1,29 +1,36 @@
 ﻿
 using HarmonyLib;
-using System.Reflection;
+using Oculus.Platform;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-//using FMOD;
-//using FMOD.Studio;
-//using FMODUnity;
 using System.Text;
+using UnityEngine;
 using static ErrorMessage;
 
 namespace Stats_Tracker
 {
     class Testing
     {
-        //[HarmonyPatch(typeof(Player), "Update")] 
+
+
+        //[HarmonyPatch(typeof(Player), "Update")]
         class Player_Update_Patch
         {
             static void Postfix(Player __instance)
             {
-                //AddDebug("_currentEscapePod " + Player.main._currentEscapePod);
-                //AddDebug("currentSub " + Player.main.currentSub);
+                if (WaitScreen.IsWaiting)
+                    return;
+
+                //AddDebug("RawBiomeName " + Util.GetRawBiomeName());
+                AddDebug("LargeWorld GetBiome " + LargeWorld.main.GetBiome(__instance.transform.position));
+                AddDebug("GetRichPresence " + PlatformUtils.main.GetServices().GetRichPresence());
                 //float movementSpeed = (float)System.Math.Round(__instance.movementSpeed * 10f) / 10f;
-                if (Input.GetKey(KeyCode.B))
+                //string biome = Language.main.GetFormat("PresenceExploring_biome_" + __instance.biomeString.ToLower());
+                //AddDebug(biome);
+                //AddDebug(Language.main.Get(biome));
+                //AddDebug(Util.GetLocalizedBiomeName());
+                if (Input.GetKeyDown(KeyCode.B))
                 {
                     //AddDebug("currentSlot " + Main.config.escapePodSmokeOut[SaveLoadManager.main.currentSlot]);
                     //if (Player.main.IsInBase())
@@ -43,19 +50,19 @@ namespace Stats_Tracker
                     //HandReticle.main.SetInteractText(nameof(startingFood) + " " + dict[i]);
                 }
 
-                if (Input.GetKey(KeyCode.C))
+                else if (Input.GetKeyDown(KeyCode.C))
                 {
-                    Survival survival = Player.main.GetComponent<Survival>();
 
-                    if (Input.GetKey(KeyCode.LeftShift))
-                        survival.water++;
-                    else
-                        survival.food++;
+                    //Survival survival = Player.main.GetComponent<Survival>();
+                    //if (Input.GetKey(KeyCode.LeftShift))
+                    //    survival.water++;
+                    //else
+                    //    survival.food++;
                 }
 
-                if (Input.GetKey(KeyCode.X))
+                else if (Input.GetKeyDown(KeyCode.X))
                 {
-                    Survival survival = Player.main.GetComponent<Survival>();
+                    //Survival survival = Player.main.GetComponent<Survival>();
                     if (Input.GetKey(KeyCode.LeftShift))
                         //survival.water--;
                         __instance.liveMixin.health--;
@@ -64,7 +71,7 @@ namespace Stats_Tracker
                         __instance.liveMixin.health++;
                 }
 
-                if (Input.GetKey(KeyCode.Z))
+                else if (Input.GetKeyDown(KeyCode.Z))
                 {
                     //AddDebug(" " + LargeWorld.main.GetBiome(Player.main.transform.position));
                     //AddDebug(GameModeUtils.currentGameMode.ToString());
