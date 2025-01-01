@@ -12,13 +12,17 @@ using static ErrorMessage;
 
 namespace Stats_Tracker
 {
-    public class Config : JsonFile
+    public class Config : ConfigFile
     {
-        public Config()
-        {
-            this.Load();
-        }
-        public override string JsonFilePath => Paths.ConfigPath + Path.DirectorySeparatorChar + Main.MODNAME + Path.DirectorySeparatorChar + "config.json";
+        [Toggle("Mod enabled", Tooltip = "Only saved stats will be shown and no new data will be saved when the mod is disabled")]
+        public bool modEnabled = true;
+
+        [Toggle("Show temperature in Fahrenhiet")]
+        public bool fahrenhiet = false;
+
+        [Toggle("Show distance in miles and yards")]
+        public bool miles = false;
+
         public Dictionary<string, TimeSpan> timePlayed = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeEscapePod = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeSwam = new Dictionary<string, TimeSpan>();

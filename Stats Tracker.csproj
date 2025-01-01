@@ -83,13 +83,10 @@
     <Compile Include="Testing.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Stats_Patch.cs" />
+    <Compile Include="Stats_Display.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="ToDo.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Localization\English.json" />

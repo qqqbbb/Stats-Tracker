@@ -12,7 +12,21 @@ namespace Stats_Tracker
 {
     class Testing
     {
+        //static HashSet<TechType> creatures = new HashSet<TechType>();
 
+        //[HarmonyPatch(typeof(Creature), "Start")]
+        class Creature_Start_Patch
+        {
+            static void Postfix(Creature __instance)
+            {
+                //TechType techType = CraftData.GetTechType(__instance.gameObject);
+                //TechTypeExtensions.FromString(techType.ToString(), out TechType tt, false);
+                //if (tt != TechType.None)
+                //{
+                //    creatures.Add(tt);
+                //}
+            }
+        }
 
         //[HarmonyPatch(typeof(Player), "Update")]
         class Player_Update_Patch
@@ -22,9 +36,10 @@ namespace Stats_Tracker
                 if (WaitScreen.IsWaiting)
                     return;
 
+
                 //AddDebug("RawBiomeName " + Util.GetRawBiomeName());
-                AddDebug("LargeWorld GetBiome " + LargeWorld.main.GetBiome(__instance.transform.position));
-                AddDebug("GetRichPresence " + PlatformUtils.main.GetServices().GetRichPresence());
+                //AddDebug("LargeWorld GetBiome " + LargeWorld.main.GetBiome(__instance.transform.position));
+                //AddDebug("GetRichPresence " + PlatformUtils.main.GetServices().GetRichPresence());
                 //float movementSpeed = (float)System.Math.Round(__instance.movementSpeed * 10f) / 10f;
                 //string biome = Language.main.GetFormat("PresenceExploring_biome_" + __instance.biomeString.ToLower());
                 //AddDebug(biome);
@@ -52,7 +67,6 @@ namespace Stats_Tracker
 
                 else if (Input.GetKeyDown(KeyCode.C))
                 {
-
                     //Survival survival = Player.main.GetComponent<Survival>();
                     //if (Input.GetKey(KeyCode.LeftShift))
                     //    survival.water++;

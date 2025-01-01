@@ -115,5 +115,16 @@ namespace Stats_Tracker
             dic[key] = dic.ContainsKey(key) ? dic[key] + value : value;
         }
 
+        public static float CelciusToFahrenhiet(float celcius)
+        {
+            return celcius * 1.8f + 32f;
+        }
+
+        public static float MeterToYard(float meter)
+        {
+            return meter * 1.0936f;
+        }
+
+
     }
 }

@@ -1,6 +1,0 @@
-﻿
-
-modded creatures
-test      TechTypeExtensions.FromString(kv.Key, out TechType tt, false) for mods
-UnsavedData.animalsKilled not in OnRemoveItem
-

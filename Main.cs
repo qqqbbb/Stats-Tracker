@@ -17,10 +17,10 @@ namespace Stats_Tracker
         public const string
             MODNAME = "Stats Tracker",
             GUID = "qqqbbb.subnautica.statsTracker",
-            VERSION = "4.0.0";
+            VERSION = "4.1.0";
 
         public static ManualLogSource logger;
-        public static Config config = new Config();
+        public static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
         public static bool setupDone = false;
 
         private void Awake()
@@ -30,9 +30,9 @@ namespace Stats_Tracker
 
         private void StartLoadingSetup()
         {
-            // AddDebug("StartLoadingSetup " + SaveLoadManager.main.currentSlot);
+            //AddDebug("StartLoadingSetup " + SaveLoadManager.main.currentSlot);
             //Logger.LogInfo("StartLoadingSetup " + SaveLoadManager.main.currentSlot);
-            Stats_Patch.saveSlot = SaveLoadManager.main.currentSlot;
+            Stats_Display.saveSlot = SaveLoadManager.main.currentSlot;
             Patches.saveSlot = SaveLoadManager.main.currentSlot;
         }
 
@@ -40,7 +40,7 @@ namespace Stats_Tracker
         {
             //AddDebug(" FinishLoadingSetup");
             Patches.timeLastUpdate = Patches.GetTimePlayed();
-            foreach (var s in Stats_Patch.myStrings)
+            foreach (var s in Stats_Display.myStrings)
                 PDAEncyclopedia.Add(s.Key, false);
 
             setupDone = true;
@@ -133,7 +133,7 @@ namespace Stats_Tracker
             SaveUtils.RegisterOnQuitEvent(CleanUp);
             LanguageHandler.RegisterLocalizationFolder();
             SaveUtils.RegisterOnFinishLoadingEvent(FinishLoadingSetup);
-            Stats_Patch.AddEntries();
+            Stats_Display.AddEntries();
             AddTechTypesToClassTechtable();
             Harmony harmony = new Harmony(GUID);
             harmony.PatchAll();

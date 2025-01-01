@@ -10,45 +10,42 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using static ErrorMessage;
+using static Nautilus.Options.Attributes.MenuAttribute;
 
 
 namespace Stats_Tracker
 {
-    internal class Stats_Patch
+    internal class Stats_Display
     {
         public static string saveSlot;
         public static Dictionary<string, string> myStrings = new Dictionary<string, string>();
         public static Dictionary<string, string> descs = new Dictionary<string, string>();
-        static string dayLoc = " " + Language.main.Get("ST_day");
-        static string daysLoc = " " + Language.main.Get("ST_days");
-        static string hourLoc = " " + Language.main.Get("ST_hour");
-        static string hoursLoc = " " + Language.main.Get("ST_hours");
-        static string minuteLoc = " " + Language.main.Get("ST_minute");
-        static string minutesLoc = " " + Language.main.Get("ST_minutes");
-        static string meterLoc = " " + Language.main.Get("ST_meter");
-        static string metersLoc = " " + Language.main.Get("ST_meters");
-        static string kmLoc = " " + Language.main.Get("ST_kilometer");
-        static string kmsLoc = " " + Language.main.Get("ST_kilometers");
-        static string kgLoc = " " + Language.main.Get("ST_kilograms");
-        static string litersLoc = " " + Language.main.Get("ST_liters");
+
+        static TimeSpan GetTimePlayed()
+        {
+            if (Main.config.modEnabled)
+                return Patches.GetTimePlayed();
+            else if (Main.config.timePlayed.ContainsKey(saveSlot))
+                return Main.config.timePlayed[saveSlot];
+            else
+                return Patches.GetTimePlayed();
+        }
 
         private static int GetInt(Dictionary<string, int> configDic, int unsaved)
         {
-            int total = 0;
+            int total = unsaved;
             if (configDic.ContainsKey(saveSlot))
                 total += configDic[saveSlot];
 
-            total += unsaved;
             return total;
         }
 
         private static float GetFloat(Dictionary<string, float> configDic, float unsaved)
         {
-            float total = 0;
+            float total = unsaved;
             if (configDic.ContainsKey(saveSlot))
                 total += configDic[saveSlot];
 
-            total += unsaved;
             return total;
         }
 
@@ -105,23 +102,23 @@ namespace Stats_Tracker
             else
                 sb.Append(Language.main.Get(s));
 
-            string day = time.Days == 1 ? dayLoc : daysLoc;
+            string day = time.Days == 1 ? Language.main.Get("ST_day") : Language.main.Get("ST_days");
             if (time.Days > 0)
-                sb.Append(time.Days + day);
+                sb.Append(time.Days + " " + day);
 
             if (time.Days > 0 && (time.Hours > 0 || time.Minutes > 0))
                 sb.Append(", ");
 
-            string hour = time.Hours == 1 ? hourLoc : hoursLoc;
+            string hour = time.Hours == 1 ? Language.main.Get("ST_hour") : Language.main.Get("ST_hours");
             if (time.Hours > 0)
-                sb.Append(time.Hours + hour);
+                sb.Append(time.Hours + " " + hour);
 
             if (time.Hours > 0 && time.Minutes > 0)
                 sb.Append(", ");
 
-            string minute = time.Minutes == 1 ? minuteLoc : minutesLoc;
+            string minute = time.Minutes == 1 ? Language.main.Get("ST_minute") : Language.main.Get("ST_minutes");
             if (time.Minutes > 0)
-                sb.AppendLine(time.Minutes + minute);
+                sb.AppendLine(time.Minutes + " " + minute);
             else
                 sb.AppendLine();
         }
@@ -157,24 +154,48 @@ namespace Stats_Tracker
 
         public static string GetTraveledString(int meters)
         {
-            int km = meters / 1000;
-            int m = meters % 1000;
-            StringBuilder sb = new StringBuilder();
-            if (km == 1)
-                sb.Append(km + kmLoc);
-            else if (km > 1)
-                sb.Append(km + kmsLoc);
+            if (Main.config.miles)
+            {
+                int yards = Mathf.RoundToInt(Util.MeterToYard(meters));
+                int miles = yards / 1760;
+                int y = yards % 1760;
+                StringBuilder sb = new StringBuilder();
+                if (miles == 1)
+                    sb.Append(miles + " " + Language.main.Get("ST_mile"));
+                else if (miles > 1)
+                    sb.Append(miles + " " + Language.main.Get("ST_miles"));
 
-            if (km > 0 && m > 0)
-                sb.Append(", ");
+                if (miles > 0 && y > 0)
+                    sb.Append(", ");
 
-            if (m == 1)
-                sb.Append(m + meterLoc);
-            else if (m > 1)
-                sb.Append(m + metersLoc);
-            //sb.Append(m + metersLoc);
-            //AddDebug(" GetTraveledString " + sb.ToString());
-            return sb.ToString();
+                if (y == 1)
+                    sb.Append(y + " " + Language.main.Get("ST_yard"));
+                else if (y > 1)
+                    sb.Append(y + " " + Language.main.Get("ST_yards"));
+
+                return sb.ToString();
+            }
+            else
+            {
+                int km = meters / 1000;
+                int m = meters % 1000;
+                StringBuilder sb = new StringBuilder();
+                if (km == 1)
+                    sb.Append(km + " " + Language.main.Get("ST_kilometer"));
+                else if (km > 1)
+                    sb.Append(km + " " + Language.main.Get("ST_kilometers"));
+
+                if (km > 0 && m > 0)
+                    sb.Append(", ");
+
+                if (m == 1)
+                    sb.Append(m + " " + Language.main.Get("ST_meter"));
+                else if (m > 1)
+                    sb.Append(m + " " + Language.main.Get("ST_meters"));
+
+                //AddDebug(" GetTraveledString " + sb.ToString());
+                return sb.ToString();
+            }
         }
 
         public static void AddEntries()
@@ -275,7 +296,7 @@ namespace Stats_Tracker
 
         private static void GetTimeStats(StringBuilder sb)
         {
-            AppendTimeSpan(sb, Patches.GetTimePlayed(), "ST_time_since_landing");
+            AppendTimeSpan(sb, GetTimePlayed(), "ST_time_since_landing");
             TimeSpan timeOnFeet = Main.config.timeWalked.ContainsKey(saveSlot) ? Main.config.timeWalked[saveSlot] + UnsavedData.timeWalked : UnsavedData.timeWalked;
             //AddDebug("timeOnFeet " + timeOnFeet);
             AppendTimeSpan(sb, timeOnFeet, "ST_time_on_feet");
@@ -334,7 +355,7 @@ namespace Stats_Tracker
 
             Dictionary<string, int> traveledVehicles = MergeDics(Main.config.distanceTraveledVehicle, UnsavedData.distanceTraveledVehicle);
             if (traveledVehicles.Count > 0)
-                sb.AppendLine(Language.main.Get("ST_distance_vehicles") + traveledVehicles.Values.Sum());
+                AppendTravelLine(sb, "ST_distance_vehicles", traveledVehicles.Values.Sum());
 
             foreach (var kv in traveledVehicles)
                 AppendTravelLine(sb, Language.main.Get(kv.Key) + ": ", kv.Value, true);
@@ -352,7 +373,7 @@ namespace Stats_Tracker
 
             Dictionary<string, int> traveledVehicles = GetDicGlobal(Main.config.distanceTraveledVehicle);
             if (traveledVehicles.Count > 0)
-                sb.AppendLine(Language.main.Get("ST_distance_vehicles") + traveledVehicles.Values.Sum());
+                AppendTravelLine(sb, "ST_distance_vehicles", traveledVehicles.Values.Sum());
 
             foreach (var kv in traveledVehicles)
                 AppendTravelLine(sb, Language.main.Get(kv.Key) + ": ", kv.Value, true);
@@ -376,6 +397,14 @@ namespace Stats_Tracker
             AppendDic(sb, GetDicGlobal(Main.config.leviathansKilled), "ST_leviathans_killed");
         }
 
+        private static string GetTempSuffix()
+        {
+            if (Main.config.fahrenhiet)
+                return "°F";
+            else
+                return "°C";
+        }
+
         private static void GetHealthStats(StringBuilder sb)
         {
             if (GameModeUtils.currentGameMode == GameModeOption.Creative)
@@ -397,63 +426,69 @@ namespace Stats_Tracker
             int maxTemp = GetMaxTemp();
             int minVehicleTemp = GetMinVehicleTemp();
             int maxVehicleTemp = GetMaxVehicleTemp();
+            string tempSuffix = GetTempSuffix();
+
             if (minTemp != int.MaxValue)
-                sb.AppendLine(Language.main.Get("ST_min_temp") + Language.main.GetFormat<float>("ThermalPlantCelsius", minTemp));
+                sb.AppendLine(Language.main.Get("ST_min_temp") + minTemp + tempSuffix);
 
             if (maxTemp != int.MinValue)
-                sb.AppendLine(Language.main.Get("ST_max_temp") + Language.main.GetFormat<float>("ThermalPlantCelsius", maxTemp));
+                sb.AppendLine(Language.main.Get("ST_max_temp") + maxTemp + tempSuffix);
 
             if (minVehicleTemp != int.MaxValue)
-                sb.AppendLine(Language.main.Get("ST_min_vehicle_temp") + Language.main.GetFormat("ThermalPlantCelsius", minVehicleTemp));
+                sb.AppendLine(Language.main.Get("ST_min_vehicle_temp") + minVehicleTemp + tempSuffix);
 
             if (maxVehicleTemp != int.MinValue)
-                sb.AppendLine(Language.main.Get("ST_max_vehicle_temp") + Language.main.GetFormat("ThermalPlantCelsius", maxVehicleTemp));
+                sb.AppendLine(Language.main.Get("ST_max_vehicle_temp") + maxVehicleTemp + tempSuffix);
             //if (deaths > 0 || medkitsUsed > 0 || healthLost > 0)
             sb.AppendLine();
         }
 
         private static int GetMinTemp()
         {
-            if (Main.config.minTemp.ContainsKey(saveSlot))
-            {
-                int tempSaved = Main.config.minTemp[saveSlot];
-                if (tempSaved < UnsavedData.minTemp)
-                    return tempSaved;
-            }
-            return UnsavedData.minTemp;
+            int temp = UnsavedData.minTemp;
+            if (Main.config.minTemp.ContainsKey(saveSlot) && Main.config.minTemp[saveSlot] < temp)
+                temp = Main.config.minTemp[saveSlot];
+
+            if (Main.config.fahrenhiet)
+                temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
+
+            return temp;
         }
 
         private static int GetMaxTemp()
         {
-            if (Main.config.maxTemp.ContainsKey(saveSlot))
-            {
-                int tempSaved = Main.config.maxTemp[saveSlot];
-                if (tempSaved > UnsavedData.maxTemp)
-                    return tempSaved;
-            }
-            return UnsavedData.maxTemp;
+            int temp = UnsavedData.maxTemp;
+            if (Main.config.maxTemp.ContainsKey(saveSlot) && Main.config.maxTemp[saveSlot] > temp)
+                temp = Main.config.maxTemp[saveSlot];
+
+            if (Main.config.fahrenhiet)
+                temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
+
+            return temp;
         }
 
         private static int GetMinVehicleTemp()
         {
-            if (Main.config.minVehicleTemp.ContainsKey(saveSlot))
-            {
-                int tempSaved = Main.config.minVehicleTemp[saveSlot];
-                if (tempSaved < UnsavedData.minVehicleTemp)
-                    return tempSaved;
-            }
-            return UnsavedData.minVehicleTemp;
+            int temp = UnsavedData.minVehicleTemp;
+            if (Main.config.minVehicleTemp.ContainsKey(saveSlot) && Main.config.minVehicleTemp[saveSlot] < temp)
+                temp = Main.config.minVehicleTemp[saveSlot];
+
+            if (Main.config.fahrenhiet)
+                temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
+
+            return temp;
         }
 
         private static int GetMaxVehicleTemp()
         {
-            if (Main.config.maxVehicleTemp.ContainsKey(saveSlot))
-            {
-                int tempSaved = Main.config.maxVehicleTemp[saveSlot];
-                if (tempSaved > UnsavedData.maxVehicleTemp)
-                    return tempSaved;
-            }
-            return UnsavedData.maxVehicleTemp;
+            int temp = UnsavedData.maxVehicleTemp;
+            if (Main.config.maxVehicleTemp.ContainsKey(saveSlot) && Main.config.maxVehicleTemp[saveSlot] > temp)
+                temp = Main.config.maxVehicleTemp[saveSlot];
+
+            if (Main.config.fahrenhiet)
+                temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
+
+            return temp;
         }
 
         private static void GetHealthGlobalStats(StringBuilder sb)
@@ -465,7 +500,16 @@ namespace Stats_Tracker
             int maxTemp = Main.config.maxTemp.Values.Max();
             int minVehicleTemp = Main.config.minVehicleTemp.Values.Min();
             int maxVehicleTemp = Main.config.maxVehicleTemp.Values.Max();
+
+            if (Main.config.fahrenhiet)
+            {
+                maxTemp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(maxTemp));
+                minTemp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(minTemp));
+                maxVehicleTemp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(maxVehicleTemp));
+                minVehicleTemp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(minVehicleTemp));
+            }
             int sbLength = sb.Length;
+            string tempSuffix = GetTempSuffix();
 
             if (deaths > 0)
                 sb.AppendLine(Language.main.Get("ST_deaths") + deaths);
@@ -477,16 +521,16 @@ namespace Stats_Tracker
                 sb.AppendLine(Language.main.Get("ST_med_kits_used") + medkitsUsed);
 
             if (minTemp != int.MaxValue)
-                sb.AppendLine(Language.main.Get("ST_min_temp") + Language.main.GetFormat<float>("ThermalPlantCelsius", minTemp));
+                sb.AppendLine(Language.main.Get("ST_min_temp") + minTemp + tempSuffix);
 
             if (maxTemp != int.MinValue)
-                sb.AppendLine(Language.main.Get("ST_max_temp") + Language.main.GetFormat<float>("ThermalPlantCelsius", maxTemp));
+                sb.AppendLine(Language.main.Get("ST_max_temp") + maxTemp + tempSuffix);
 
             if (minVehicleTemp != int.MaxValue)
-                sb.AppendLine(Language.main.Get("ST_min_vehicle_temp") + Language.main.GetFormat("ThermalPlantCelsius", minVehicleTemp));
+                sb.AppendLine(Language.main.Get("ST_min_vehicle_temp") + minVehicleTemp + tempSuffix);
 
             if (maxVehicleTemp != int.MinValue)
-                sb.AppendLine(Language.main.Get("ST_max_vehicle_temp") + Language.main.GetFormat("ThermalPlantCelsius", maxVehicleTemp));
+                sb.AppendLine(Language.main.Get("ST_max_vehicle_temp") + maxVehicleTemp + tempSuffix);
 
             if (sb.Length != sbLength)
                 sb.AppendLine();
@@ -500,8 +544,9 @@ namespace Stats_Tracker
             float waterTotal = GetFloat(Main.config.waterDrunk, UnsavedData.waterDrunk);
             decimal waterTotalD = Math.Round((decimal)waterTotal, 1);
             if (waterTotalD > 0)
-                sb.AppendLine(Language.main.Get("ST_water_drunk") + waterTotalD + litersLoc);
+                sb.AppendLine(Language.main.Get("ST_water_drunk") + waterTotalD + " " + Language.main.Get("ST_liters"));
 
+            string kgLoc = " " + Language.main.Get("ST_kilograms");
             float foodTotal = GetFoodKilosEaten();
             decimal foodTotalD = Math.Round((decimal)foodTotal, 1);
             if (foodTotalD > 0)
@@ -519,10 +564,11 @@ namespace Stats_Tracker
             float waterTotal = Main.config.waterDrunk.Values.Sum();
             decimal waterTotalD = Math.Round((decimal)waterTotal, 1);
             if (waterTotalD > 0)
-                sb.AppendLine(Language.main.Get("ST_water_drunk") + waterTotalD + litersLoc);
+                sb.AppendLine(Language.main.Get("ST_water_drunk") + waterTotalD + " " + Language.main.Get("ST_liters"));
 
             float foodTotal = GetFloatGlobal(Main.config.foodEaten);
             decimal foodTotalD = Math.Round((decimal)foodTotal, 1);
+            string kgLoc = " " + Language.main.Get("ST_kilograms");
 
             if (foodTotalD > 0)
                 sb.AppendLine(Language.main.Get("ST_food_eaten") + foodTotalD + kgLoc);
@@ -555,12 +601,16 @@ namespace Stats_Tracker
             Dictionary<TechType, int> basePower = new Dictionary<TechType, int>();
             foreach (PowerSource ps in UnsavedData.basePowerSources)
             {
-                if (ps == null || (int)ps.power < 1)
+                if (ps == null)
+                    continue;
+
+                int power = Mathf.RoundToInt(ps.power);
+                if (power < 1)
                     continue;
                 //AddDebug("GetBasePowerDic " + ps.name + " " + (int)ps.power);
                 TechType tt = CraftData.GetTechType(ps.gameObject);
                 if (Patches.basePowerSourceTypes.Contains(tt))
-                    basePower.AddValue(tt, (int)ps.power);
+                    basePower.AddValue(tt, power);
             }
             return basePower;
         }
@@ -670,6 +720,7 @@ namespace Stats_Tracker
             AppendSet(sb, MergeSets(Main.config.coralFound, UnsavedData.coralFound), "ST_corals_discovered");
             AppendSet(sb, MergeSets(Main.config.leviathanFound, UnsavedData.leviathanFound), "ST_leviathans_discovered");
         }
+
         private static void GetGlobalDiscoverStats(StringBuilder sb)
         {
             AppendSet(sb, GetSetGlobal(Main.config.faunaFound), "ST_fauna_discovered");
@@ -681,9 +732,12 @@ namespace Stats_Tracker
         private static string GetCurrentStats()
         {
             //AddDebug("GetCurrentStats");
-            //string biomeName = Player.main.GetBiomeString();
             string biomeName = Language.main.Get(Util.GetBiomeName());
-            StringBuilder sb = new StringBuilder(Language.main.Get("ST_current_biome") + biomeName + "\n");
+            StringBuilder sb = new StringBuilder();
+            if (!Main.config.modEnabled)
+                sb.Append(Language.main.Get("ST_mod_disabled") + "\n" + "\n");
+
+            sb.Append(Language.main.Get("ST_current_biome") + biomeName + "\n");
             sb.AppendLine();
             GetTimeStats(sb);
             GetTravelStats(sb);

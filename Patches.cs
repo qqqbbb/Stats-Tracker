@@ -85,7 +85,7 @@ namespace Stats_Tracker
                 if (__instance.liveMixin)
                 {
                     TechType tt = CraftData.GetTechType(__instance.gameObject);
-                    if (__instance.liveMixin.maxHealth >= leviathanMinHealth)
+                    if (__instance.liveMixin && __instance.liveMixin.maxHealth >= leviathanMinHealth)
                         leviathans.Add(tt);
                     else
                         creatures.Add(tt);
@@ -126,6 +126,9 @@ namespace Stats_Tracker
             static void OnConstructPostfix(CraftingAnalytics __instance, TechType techType)
             {
                 //AddDebug("CraftingAnalytics OnConstruct " + techType);
+                if (!Main.config.modEnabled)
+                    return;
+
                 if (corridorTypes.Contains(techType) || roomTypes.Contains(techType))
                     return;
 
@@ -137,6 +140,9 @@ namespace Stats_Tracker
             [HarmonyPatch("OnCraft")]
             static void OnCraftPostfix(CraftingAnalytics __instance, TechType techType)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 //AddDebug("CraftingAnalytics OnCraft " + techType);
                 if (constructorBuilt.Contains(techType))
                 {
@@ -249,7 +255,7 @@ namespace Stats_Tracker
                 else if (Player.main.currentSub)
                 {
                     if (Player.main.currentSub.isCyclops)
-                        UnsavedData.timeVehicles[TechType.Cyclops] += timeSinceLastUpdate;
+                        UnsavedData.timeVehicles.AddValue(TechType.Cyclops, timeSinceLastUpdate);
                     else
                         UnsavedData.timeBase += timeSinceLastUpdate;
                 }
@@ -273,10 +279,10 @@ namespace Stats_Tracker
                         //AddDebug("currentSub temp " + (int)temp);
                     }
                     if (UnsavedData.minVehicleTemp > temp)
-                        UnsavedData.minVehicleTemp = (int)temp;
+                        UnsavedData.minVehicleTemp = Mathf.RoundToInt(temp);
 
                     if (UnsavedData.maxVehicleTemp < temp)
-                        UnsavedData.maxVehicleTemp = (int)temp;
+                        UnsavedData.maxVehicleTemp = Mathf.RoundToInt(temp);
 
                     return;
                 }
@@ -286,16 +292,19 @@ namespace Stats_Tracker
                 temp = WaterTemperatureSimulation.main.GetTemperature(player.transform.position);
                 //AddDebug("player temp " + (int)temp);
                 if (UnsavedData.minTemp > temp)
-                    UnsavedData.minTemp = (int)temp;
+                    UnsavedData.minTemp = Mathf.RoundToInt(temp);
 
                 if (UnsavedData.maxTemp < temp)
-                    UnsavedData.maxTemp = (int)temp;
+                    UnsavedData.maxTemp = Mathf.RoundToInt(temp);
             }
 
             [HarmonyPrefix]
             [HarmonyPatch("TrackTravelStats")]
             public static bool TrackTravelStatsPrefix(Player __instance)
             {
+                if (!Main.config.modEnabled)
+                    return true;
+
                 if (WaitScreen.IsWaiting || string.IsNullOrEmpty(saveSlot))
                     return false;
 
@@ -313,7 +322,9 @@ namespace Stats_Tracker
             [HarmonyPatch("OnKill")]
             public static void OnKillPostfix(Player __instance)
             {
-                //UnsavedData.playerDeathsTotal++;
+                if (!Main.config.modEnabled)
+                    return;
+
                 if (GameModeUtils.IsPermadeath())
                 {
                     Main.config.permaDeaths++;
@@ -329,10 +340,13 @@ namespace Stats_Tracker
         {
             public static void Postfix(DamageSystem __instance, float damage, DamageType type, GameObject target, GameObject dealer, ref float __result)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 if (__result > 0f && target == Player.mainObject)
                 {
                     //AddDebug("Player takes damage");
-                    UnsavedData.healthLost += (int)__result;
+                    UnsavedData.healthLost += Mathf.RoundToInt(__result);
                 }
             }
         }
@@ -344,7 +358,7 @@ namespace Stats_Tracker
             [HarmonyPatch("Use")]
             public static void UsePostfix(Survival __instance, GameObject useObj, bool __result)
             {
-                if (!__result)
+                if (!Main.config.modEnabled || !__result)
                     return;
 
                 TechType tt = CraftData.GetTechType(useObj);
@@ -358,7 +372,7 @@ namespace Stats_Tracker
             [HarmonyPatch("Eat")]
             public static void EatPostfix(Survival __instance, GameObject useObj, bool __result)
             {
-                if (__result == false)
+                if (!Main.config.modEnabled || __result == false)
                     return;
 
                 TechType tt = CraftData.GetTechType(useObj);
@@ -398,6 +412,9 @@ namespace Stats_Tracker
         {
             public static void Postfix(LaunchRocket __instance)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 Main.config.gamesWon++;
                 Main.config.Save();
             }
@@ -408,6 +425,8 @@ namespace Stats_Tracker
         {
             public static void Postfix(CreatureEgg __instance)
             {
+                if (!Main.config.modEnabled)
+                    return;
                 //AddDebug("Hatch  " + __instance.hatchingCreature);
                 TechType tt = __instance.creatureType;
                 if (tt == TechType.None)
@@ -422,6 +441,9 @@ namespace Stats_Tracker
         {
             public static void Postfix(GrowingPlant __instance)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 TechType tt = __instance.seed.plantTechType;
                 if (tt == TechType.None)
                     return;
@@ -459,6 +481,9 @@ namespace Stats_Tracker
             [HarmonyPatch("TakeDamage")]
             public static void TakeDamagePostfix(LiveMixin __instance, float originalDamage, Vector3 position, DamageType type, GameObject dealer)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 if (WasKilledByPlayer(__instance, dealer))
                 {
                     killedLM = null;
@@ -512,7 +537,7 @@ namespace Stats_Tracker
         {
             public static void Prefix(BlueprintHandTarget __instance)
             {
-                if (string.IsNullOrEmpty(saveSlot) || __instance.used)
+                if (!Main.config.modEnabled || string.IsNullOrEmpty(saveSlot) || __instance.used)
                     return;
 
                 if (!KnownTech.Contains(__instance.unlockTechType))
@@ -528,7 +553,8 @@ namespace Stats_Tracker
         {
             public static void Postfix(ScannerTool __instance, PDAScanner.Result __result)
             {
-                //TechType techType = PDAScanner.scanTarget.techType;
+                if (!Main.config.modEnabled)
+                    return;
 
                 if (__result == PDAScanner.Result.None || __result == PDAScanner.Result.Scan || __result == PDAScanner.Result.Known) { }
                 else
@@ -574,14 +600,14 @@ namespace Stats_Tracker
         {
             public static void Postfix(PDAScanner.EntryData entryData, bool unlockBlueprint, bool unlockEncyclopedia, bool verbose)
             {
-                if (entryData == null || !verbose || !unlockBlueprint)
+                if (!Main.config.modEnabled || entryData == null || !verbose || !unlockBlueprint)
                     return;
 
                 //AddDebug(" scanned " + entryData.key);
                 //AddDebug("unlock Blueprint " + entryData.blueprint);
                 TechType tt = entryData.blueprint;
                 if (tt != TechType.None)
-                { // scanning bladderfish unlocks bladderfish blueprint
+                { // bladderfish unlocks filteredWater blueprint
                     if (creatures.Contains(tt) || flora.Contains(tt) || coral.Contains(tt) || leviathans.Contains(tt))
                         return;
 
@@ -601,7 +627,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(Base __instance)
             {
-                if (__instance.isGhost)
+                if (!Main.config.modEnabled || __instance.isGhost)
                     return;
 
                 UnsavedData.bases.Add(__instance);
@@ -644,6 +670,9 @@ namespace Stats_Tracker
             public static void DeconstructAsyncPostfix(Constructable __instance)
             {
 
+                if (!Main.config.modEnabled)
+                    return;
+
                 if (__instance.constructedAmount <= 0f)
                 {
                     //AddDebug(" deconstructed " + __instance.techType + " " + __instance.constructedAmount);
@@ -653,7 +682,7 @@ namespace Stats_Tracker
 
             private static void HandleDeconstruction(TechType techType)
             {
-                if (UnsavedData.builderToolBuilt.ContainsKey(techType))
+                if (UnsavedData.builderToolBuilt.ContainsKey(techType) && UnsavedData.builderToolBuilt[techType] > 0)
                 {
                     UnsavedData.builderToolBuilt[techType]--;
                 }
@@ -683,6 +712,8 @@ namespace Stats_Tracker
             [HarmonyPatch("OnKill")]
             public static void OnKillPostfix(SubRoot __instance)
             {
+                if (!Main.config.modEnabled)
+                    return;
                 //AddDebug("Sub lost");
                 if (__instance.isCyclops)
                     UnsavedData.vehiclesLost.AddValue(TechType.Cyclops, 1);
@@ -696,6 +727,9 @@ namespace Stats_Tracker
             [HarmonyPatch("OnKill")]
             public static void OnKillPostfix(Vehicle __instance)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 if (__instance is SeaMoth)
                 {
                     //AddDebug("SeaMoth lost" );
@@ -727,6 +761,9 @@ namespace Stats_Tracker
         {
             public static void Postfix(ConstructorInput __instance, TechType techType)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 constructorBuilt.Add(techType);
                 //AddDebug("Constructor OnCraftingBegin " + techType);
             }
@@ -741,6 +778,9 @@ namespace Stats_Tracker
             [HarmonyPatch("EnterInUseMode")]
             public static void EnterInUseModePostfix(Bed __instance)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 bedTimeStart = GetTimePlayed();
                 //AddDebug("EnterInUseMode " );
             }
@@ -748,6 +788,9 @@ namespace Stats_Tracker
             [HarmonyPatch("ExitInUseMode")]
             public static void ExitInUseModePostfix(Bed __instance)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 TimeSpan timeSlept = GetTimePlayed() - bedTimeStart;
                 UnsavedData.timeSlept += timeSlept;
                 //AddDebug("ExitInUseMode " );
@@ -759,6 +802,9 @@ namespace Stats_Tracker
         {
             static void Postfix(LiveMixin __instance, DamageType type)
             {
+                if (!Main.config.modEnabled)
+                    return;
+
                 if (__instance.gameObject.tag == "Player" && __instance.damageInfo.damage > 0)
                 {
                     if (type == DamageType.Fire || type == DamageType.Heat)
@@ -766,14 +812,14 @@ namespace Stats_Tracker
                         float temp = WaterTemperatureSimulation.main.GetTemperature(__instance.transform.position);
                         //AddDebug("player fire damage " + (int)temp);
                         if (UnsavedData.maxTemp < temp)
-                            UnsavedData.maxTemp = (int)temp;
+                            UnsavedData.maxTemp = Mathf.RoundToInt(temp);
                     }
                     else if (type == DamageType.Cold)
                     {
                         float temp = WaterTemperatureSimulation.main.GetTemperature(__instance.transform.position);
                         //AddDebug("player Cold damage " + (int)temp);
                         if (UnsavedData.minTemp > temp)
-                            UnsavedData.minTemp = (int)temp;
+                            UnsavedData.minTemp = Mathf.RoundToInt(temp);
                     }
                 }
             }
