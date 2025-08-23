@@ -125,6 +125,16 @@ namespace Stats_Tracker
             return meter * 1.0936f;
         }
 
+        public static float KiloToPound(float kilos)
+        {
+            return kilos * 2.20462f;
+        }
+
+        public static float literToGallon(float liters)
+        { // US gallon
+            return liters / 3.785f;
+        }
+
 
     }
 }

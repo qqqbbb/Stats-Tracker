@@ -2,10 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-//using static ErrorMessage;
+using static ErrorMessage;
 
 namespace Stats_Tracker
 {
@@ -14,7 +15,6 @@ namespace Stats_Tracker
         static LiveMixin killedLM = null;
         public static string saveSlot;
         public static TimeSpan timeLastUpdate = TimeSpan.Zero;
-        public const float gameSecondMultiplier = 72f;
         public static HashSet<TechType> roomTypes = new HashSet<TechType> { TechType.BaseRoom, TechType.BaseMapRoom, TechType.BaseMoonpool, TechType.BaseObservatory, TechType.BaseLargeRoom };
         public static Dictionary<Base.CellType, TechType> roomTypeToTechtype = new Dictionary<Base.CellType, TechType>
         {
@@ -44,7 +44,7 @@ namespace Stats_Tracker
 
         public static TimeSpan GetTimePlayed()
         {
-            return new TimeSpan(0, 0, Mathf.FloorToInt(DayNightCycle.main.timePassedSinceOrigin * gameSecondMultiplier));
+            return new TimeSpan(0, 0, Mathf.FloorToInt(DayNightCycle.main.timePassedSinceOrigin * DayNightCycle.gameSecondMultiplier));
         }
 
         static float GetItemMass(TechType techType)
@@ -150,16 +150,15 @@ namespace Stats_Tracker
                     constructorBuilt.Remove(techType);
                     return;
                 }
-                ITechData techData = CraftData.Get(techType);
-                if (techData == null)
+                ReadOnlyCollection<Ingredient> ingredients = TechData.GetIngredients(techType);
+                if (ingredients == null)
                     return;
 
-                for (int index = 0; index < techData.ingredientCount; ++index)
+                for (int j = 0; j < ingredients.Count; j++)
                 {
-                    IIngredient ingredient = techData.GetIngredient(index);
+                    Ingredient ingredient = ingredients[j];
                     TechType ingredientTT = ingredient.techType;
-                    //AddDebug("ingredient " + tt + " " + ingredient.amount);
-
+                    //AddDebug("ingredient " + ingredientTT + " " + ingredient.amount);
                     if (creatures.Contains(ingredientTT))
                     {
                         //AddDebug(ingredientTT + " animal killed by player");
@@ -175,7 +174,8 @@ namespace Stats_Tracker
                 if (tts.StartsWith("Cooked") || tts.StartsWith("Cured"))
                     return;
 
-                UnsavedData.itemsCrafted.AddValue(techType, techData.craftAmount);
+                //AddDebug(techType + " Craft Amount " + TechData.GetCraftAmount(techType));
+                UnsavedData.itemsCrafted.AddValue(techType, TechData.GetCraftAmount(techType));
             }
         }
 

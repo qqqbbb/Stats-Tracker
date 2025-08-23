@@ -23,6 +23,9 @@ namespace Stats_Tracker
         [Toggle("Show distance in miles and yards")]
         public bool miles = false;
 
+        [Toggle("Show weight in pounds")]
+        public bool pounds = false;
+
         public Dictionary<string, TimeSpan> timePlayed = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeEscapePod = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeSwam = new Dictionary<string, TimeSpan>();

@@ -35,18 +35,19 @@
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\0Harmony.dll</HintPath>
+      <HintPath>..\..\..\DLL\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass_publicized">
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\Assembly-CSharp-firstpass_publicized.dll</HintPath>
+    <Reference Include="Assembly-CSharp-firstpass_publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\DLL\Assembly-CSharp-firstpass_publicized.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp_publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\Assembly-CSharp_publicized.dll</HintPath>
+      <HintPath>..\..\..\DLL\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx, Version=5.4.22.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\BepInEx.dll</HintPath>
+      <HintPath>..\..\..\DLL\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="LitJson, Version=1.0.5467.41753, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -54,25 +55,25 @@
     </Reference>
     <Reference Include="Nautilus, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\Nautilus.dll</HintPath>
+      <HintPath>C:\GAMES\Subnautica\BepInEx\plugins\Nautilus\Nautilus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\DLL\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\..\..\DLL\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>..\..\..\DLL\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\GAMES\Steam\steamapps\common\Subnautica\DLL\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>..\..\..\DLL\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -94,10 +95,17 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir "C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\plugins\$(TargetName)"
-copy /Y "$(TargetPath)" "C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\plugins\$(TargetName)\$(TargetFileName)"
-mkdir "C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\plugins\$(TargetName)\Localization"
-copy /Y "$(ProjectDir)\Localization\*.*" "C:\GAMES\Steam\steamapps\common\Subnautica\BepInEx\plugins\$(TargetName)\Localization"</PostBuildEvent>
+    <PostBuildEvent>mkdir "C:\GAMES\Subnautica\BepInEx\plugins\$(TargetName)"
+copy /Y "$(TargetPath)" "C:\GAMES\Subnautica\BepInEx\plugins\$(TargetName)\$(TargetFileName)"
+
+mkdir "C:\GAMES\Subnautica\BepInEx\plugins\$(TargetName)\Localization"
+copy /Y "$(ProjectDir)\Localization\*.*" "C:\GAMES\Subnautica\BepInEx\plugins\$(TargetName)\Localization"
+
+mkdir "D:\SteamLibrary\steamapps\common\Subnautica\BepInEx\plugins\$(TargetName)"
+copy /Y "$(TargetPath)" "C:\GAMES\Subnautica\BepInEx\plugins\$(TargetName)\$(TargetFileName)"
+
+mkdir "D:\SteamLibrary\steamapps\common\Subnautica\BepInEx\plugins\$(TargetName)\Localization"
+copy /Y "$(ProjectDir)\Localization\*.*" "C:\GAMES\Subnautica\BepInEx\plugins\$(TargetName)\Localization"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

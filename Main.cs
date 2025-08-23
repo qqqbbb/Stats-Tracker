@@ -17,7 +17,7 @@ namespace Stats_Tracker
         public const string
             MODNAME = "Stats Tracker",
             GUID = "qqqbbb.subnautica.statsTracker",
-            VERSION = "4.1.0";
+            VERSION = "5.1.0";
 
         public static ManualLogSource logger;
         public static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
@@ -129,10 +129,12 @@ namespace Stats_Tracker
 
         private void Start()
         {
-            SaveUtils.RegisterOnStartLoadingEvent(StartLoadingSetup);
+            //SaveUtils.RegisterOnStartLoadingEvent(StartLoadingSetup);
+            WaitScreenHandler.RegisterEarlyLoadTask(MODNAME, task => StartLoadingSetup());
             SaveUtils.RegisterOnQuitEvent(CleanUp);
             LanguageHandler.RegisterLocalizationFolder();
-            SaveUtils.RegisterOnFinishLoadingEvent(FinishLoadingSetup);
+            //SaveUtils.RegisterOnFinishLoadingEvent(FinishLoadingSetup);
+            WaitScreenHandler.RegisterLateLoadTask(MODNAME, task => FinishLoadingSetup());
             Stats_Display.AddEntries();
             AddTechTypesToClassTechtable();
             Harmony harmony = new Harmony(GUID);
@@ -151,6 +153,9 @@ namespace Stats_Tracker
 
         private static void AddTechTypesToClassTechtable()
         {
+            if (CraftData.entClassTechTable == null)
+                CraftData.entClassTechTable = new Dictionary<string, TechType>();
+
             CraftData.entClassTechTable["769f9f44-30f6-46ed-aaf6-fbba358e1676"] = TechType.BaseBioReactor;
             CraftData.entClassTechTable["864f7780-a4c3-4bf2-b9c7-f4296388b70f"] = TechType.BaseNuclearReactor;
         }

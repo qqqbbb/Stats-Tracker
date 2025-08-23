@@ -23,7 +23,9 @@
   "ST_unknown_biome": "Неизвестный биом",
 
   "ST_kilograms": "кг",
+  "ST_pounds": "фунтов",
   "ST_liters": "литров",
+  "ST_gallons": "галлонов",
   "ST_kilometer": "км",
   "ST_kilometers": "км",
   "ST_mile": "миля",

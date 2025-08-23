@@ -1,8 +1,6 @@
 ﻿using HarmonyLib;
 using Nautilus.Handlers;
-//using static Stats_Tracker.Patches;
 using Nautilus.Utility;
-using ProtoBuf.Compiler;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +8,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using static ErrorMessage;
-using static Nautilus.Options.Attributes.MenuAttribute;
 
 
 namespace Stats_Tracker
@@ -94,7 +91,7 @@ namespace Stats_Tracker
 
         public static void AppendTimeSpan(StringBuilder sb, TimeSpan time, string s, bool indent = false)
         {
-            if (time.Days == 0 && time.Hours == 0 && time.Minutes == 0)
+            if (time.TotalMinutes < 1)
                 return;
 
             if (indent)
@@ -123,14 +120,32 @@ namespace Stats_Tracker
                 sb.AppendLine();
         }
 
-        private static float GetFoodKilosEaten()
+        public static string AppendTimeSpan(TimeSpan time, string s)
         {
-            float total = 0;
-            if (Main.config.foodEaten.ContainsKey(saveSlot))
-                total += Main.config.foodEaten[saveSlot].Values.Sum();
+            if (time.TotalMinutes < 1)
+                return s;
 
-            total += UnsavedData.foodEaten.Values.Sum();
-            return total;
+            StringBuilder sb = new StringBuilder(s);
+
+            string day = time.Days == 1 ? Language.main.Get("ST_day") : Language.main.Get("ST_days");
+            if (time.Days > 0)
+                sb.Append(time.Days + " " + day);
+
+            if (time.Days > 0 && (time.Hours > 0 || time.Minutes > 0))
+                sb.Append(", ");
+
+            string hour = time.Hours == 1 ? Language.main.Get("ST_hour") : Language.main.Get("ST_hours");
+            if (time.Hours > 0)
+                sb.Append(time.Hours + " " + hour);
+
+            if (time.Hours > 0 && time.Minutes > 0)
+                sb.Append(", ");
+
+            string minute = time.Minutes == 1 ? Language.main.Get("ST_minute") : Language.main.Get("ST_minutes");
+            if (time.Minutes > 0)
+                sb.Append(time.Minutes + " " + minute);
+
+            return sb.ToString();
         }
 
         public static void AddPDAentry(string key, string name, string desc, string path)
@@ -198,6 +213,17 @@ namespace Stats_Tracker
             }
         }
 
+        private static void AppendVehicleTravel(StringBuilder sb, Dictionary<string, int> traveledVehicles)
+        {
+            if (traveledVehicles.Count == 0)
+                return;
+
+            AppendTravelLine(sb, "ST_distance_vehicles", traveledVehicles.Values.Sum());
+            SortedDictionary<string, int> sortedDic = GetTranslatedSortedDic(traveledVehicles);
+            foreach (var kv in sortedDic)
+                AppendTravelLine(sb, kv.Key + ": ", kv.Value, true);
+        }
+
         public static void AddEntries()
         {
             AddPDAentry("ST_StatsGlobal", Language.main.Get("ST_global_statistics"), "", "ST_stats");
@@ -212,6 +238,20 @@ namespace Stats_Tracker
                 newDic = new Dictionary<string, int>(configDic[saveSlot]);
             else
                 newDic = new Dictionary<string, int>();
+
+            foreach (var kv in unsavedDic)
+                newDic.AddValue(kv.Key.ToString(), kv.Value);
+
+            return newDic;
+        }
+
+        private static Dictionary<string, TimeSpan> MergeDics(Dictionary<string, Dictionary<string, TimeSpan>> configDic, Dictionary<TechType, TimeSpan> unsavedDic)
+        {
+            Dictionary<string, TimeSpan> newDic;
+            if (configDic.ContainsKey(saveSlot))
+                newDic = new Dictionary<string, TimeSpan>(configDic[saveSlot]);
+            else
+                newDic = new Dictionary<string, TimeSpan>();
 
             foreach (var kv in unsavedDic)
                 newDic.AddValue(kv.Key.ToString(), kv.Value);
@@ -308,15 +348,23 @@ namespace Stats_Tracker
             AppendTimeSpan(sb, timeEscapePod, "ST_time_escape_pod");
             TimeSpan timeBase = Main.config.timeBase.ContainsKey(saveSlot) ? Main.config.timeBase[saveSlot] + UnsavedData.timeBase : UnsavedData.timeBase;
             AppendTimeSpan(sb, timeBase, "ST_time_base");
+            Dictionary<string, TimeSpan> vehiclesTime = MergeDics(Main.config.timeVehicles, UnsavedData.timeVehicles);
             int sbLength = sb.Length;
-            AppendTimeDic(sb, GetDic(Main.config.timeVehicles, UnsavedData.timeVehicles), "ST_time_vehicles");
+            if (vehiclesTime.Count > 0)
+            {
+                TimeSpan vehiclesTotalTime = TimeSpan.Zero;
+                foreach (var d in vehiclesTime)
+                    vehiclesTotalTime += d.Value;
+
+                string title = AppendTimeSpan(vehiclesTotalTime, Language.main.Get("ST_time_vehicles"));
+                AppendTimeDic(sb, vehiclesTime, title);
+            }
             if (sbLength == sb.Length)
                 sb.AppendLine();
         }
 
         private static void GetTimeGlobalStats(StringBuilder sb)
         {
-            //GetTimeSinceLandingGlobal(sb);
             AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timePlayed), "ST_time_since_landing");
             AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeWalked), "ST_time_on_feet");
             AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeSwam), "ST_time_swimming");
@@ -324,7 +372,12 @@ namespace Stats_Tracker
             AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeEscapePod), "ST_time_escape_pod");
             AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeBase), "ST_time_base");
             int sbLength = sb.Length;
-            AppendTimeDic(sb, GetDicGlobal(Main.config.timeVehicles), "ST_time_vehicles");
+            TimeSpan vehiclesTotalTime = TimeSpan.Zero;
+            foreach (var d in Main.config.timeVehicles)
+                vehiclesTotalTime += GetSumOfDicValues(d.Value);
+
+            string title = AppendTimeSpan(vehiclesTotalTime, Language.main.Get("ST_time_vehicles"));
+            AppendTimeDic(sb, GetDicGlobal(Main.config.timeVehicles), title);
             if (sbLength == sb.Length)
                 sb.AppendLine();
         }
@@ -352,14 +405,8 @@ namespace Stats_Tracker
             AppendTravelLine(sb, "ST_distance_seaglide", distanceTraveledSeaglide);
             int maxDepth = Main.config.maxDepth.ContainsKey(saveSlot) && Main.config.maxDepth[saveSlot] > UnsavedData.maxDepth ? Main.config.maxDepth[saveSlot] : UnsavedData.maxDepth;
             AppendTravelLine(sb, "ST_max_depth", maxDepth);
-
             Dictionary<string, int> traveledVehicles = MergeDics(Main.config.distanceTraveledVehicle, UnsavedData.distanceTraveledVehicle);
-            if (traveledVehicles.Count > 0)
-                AppendTravelLine(sb, "ST_distance_vehicles", traveledVehicles.Values.Sum());
-
-            foreach (var kv in traveledVehicles)
-                AppendTravelLine(sb, Language.main.Get(kv.Key) + ": ", kv.Value, true);
-
+            AppendVehicleTravel(sb, traveledVehicles);
             sb.AppendLine();
         }
 
@@ -370,14 +417,8 @@ namespace Stats_Tracker
             AppendTravelLine(sb, "ST_distance_walked", Main.config.distanceTraveledWalk.Values.Sum());
             AppendTravelLine(sb, "ST_distance_seaglide", Main.config.distanceTraveledSeaglide.Values.Sum());
             AppendTravelLine(sb, "ST_max_depth", Main.config.maxDepth.Values.Max());
-
             Dictionary<string, int> traveledVehicles = GetDicGlobal(Main.config.distanceTraveledVehicle);
-            if (traveledVehicles.Count > 0)
-                AppendTravelLine(sb, "ST_distance_vehicles", traveledVehicles.Values.Sum());
-
-            foreach (var kv in traveledVehicles)
-                AppendTravelLine(sb, Language.main.Get(kv.Key) + ": ", kv.Value, true);
-
+            AppendVehicleTravel(sb, traveledVehicles);
             sb.AppendLine();
         }
 
@@ -473,7 +514,7 @@ namespace Stats_Tracker
             if (Main.config.minVehicleTemp.ContainsKey(saveSlot) && Main.config.minVehicleTemp[saveSlot] < temp)
                 temp = Main.config.minVehicleTemp[saveSlot];
 
-            if (Main.config.fahrenhiet)
+            if (temp != int.MaxValue && Main.config.fahrenhiet)
                 temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
 
             return temp;
@@ -485,7 +526,7 @@ namespace Stats_Tracker
             if (Main.config.maxVehicleTemp.ContainsKey(saveSlot) && Main.config.maxVehicleTemp[saveSlot] > temp)
                 temp = Main.config.maxVehicleTemp[saveSlot];
 
-            if (Main.config.fahrenhiet)
+            if (temp != int.MinValue && Main.config.fahrenhiet)
                 temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
 
             return temp;
@@ -536,47 +577,59 @@ namespace Stats_Tracker
                 sb.AppendLine();
         }
 
+        private static void AppendWater(StringBuilder sb, float water)
+        {
+            if (water == 0)
+                return;
+
+            if (Main.config.pounds)
+                sb.AppendLine(Language.main.Get("ST_water_drunk") + Util.literToGallon(water).ToString("0.0") + " " + Language.main.Get("ST_gallons"));
+            else
+                sb.AppendLine(Language.main.Get("ST_water_drunk") + water.ToString("0.0") + " " + Language.main.Get("ST_liters"));
+        }
+
+        private static void AppendFood(StringBuilder sb, float foodTotal, Dictionary<string, float> dic)
+        {
+            if (foodTotal == 0)
+                return;
+
+            string kgLoc = Main.config.pounds ? " " + Language.main.Get("ST_pounds") : " " + Language.main.Get("ST_kilograms");
+            if (Main.config.pounds)
+                foodTotal = Util.KiloToPound(foodTotal);
+
+            sb.AppendLine(Language.main.Get("ST_food_eaten") + foodTotal.ToString("0.0") + kgLoc);
+            SortedDictionary<string, float> sortedDic = GetTranslatedSortedDic(dic);
+            foreach (var kv in sortedDic)
+            {
+                float kg = kv.Value;
+                if (Main.config.pounds)
+                    kg = Util.KiloToPound(kg);
+
+                sb.AppendLine("     " + kv.Key + ": " + kg.ToString("0.0") + kgLoc);
+            }
+        }
+
         private static void GetFoodStats(StringBuilder sb)
         {
             if (!GameModeUtils.RequiresSurvival())
                 return;
 
             float waterTotal = GetFloat(Main.config.waterDrunk, UnsavedData.waterDrunk);
-            decimal waterTotalD = Math.Round((decimal)waterTotal, 1);
-            if (waterTotalD > 0)
-                sb.AppendLine(Language.main.Get("ST_water_drunk") + waterTotalD + " " + Language.main.Get("ST_liters"));
-
-            string kgLoc = " " + Language.main.Get("ST_kilograms");
-            float foodTotal = GetFoodKilosEaten();
-            decimal foodTotalD = Math.Round((decimal)foodTotal, 1);
-            if (foodTotalD > 0)
-                sb.AppendLine(Language.main.Get("ST_food_eaten") + foodTotalD + kgLoc);
-
-            foreach (var kv in GetDic(Main.config.foodEaten, UnsavedData.foodEaten))
-                sb.AppendLine("     " + Language.main.Get(kv.Key) + " " + kv.Value + kgLoc);
-
-            if (waterTotalD > 0 || foodTotalD > 0)
+            AppendWater(sb, waterTotal);
+            Dictionary<string, float> dic = GetDic(Main.config.foodEaten, UnsavedData.foodEaten);
+            float foodTotal = dic.Values.Sum();
+            AppendFood(sb, foodTotal, dic);
+            if (waterTotal > 0 || foodTotal > 0)
                 sb.AppendLine();
         }
 
         private static void GetFoodGlobalStats(StringBuilder sb)
         {
             float waterTotal = Main.config.waterDrunk.Values.Sum();
-            decimal waterTotalD = Math.Round((decimal)waterTotal, 1);
-            if (waterTotalD > 0)
-                sb.AppendLine(Language.main.Get("ST_water_drunk") + waterTotalD + " " + Language.main.Get("ST_liters"));
-
+            AppendWater(sb, waterTotal);
             float foodTotal = GetFloatGlobal(Main.config.foodEaten);
-            decimal foodTotalD = Math.Round((decimal)foodTotal, 1);
-            string kgLoc = " " + Language.main.Get("ST_kilograms");
-
-            if (foodTotalD > 0)
-                sb.AppendLine(Language.main.Get("ST_food_eaten") + foodTotalD + kgLoc);
-
-            foreach (var kv in GetDicGlobal(Main.config.foodEaten))
-                sb.AppendLine("     " + Language.main.Get(kv.Key) + " " + kv.Value + kgLoc);
-
-            if (waterTotalD > 0 || foodTotalD > 0)
+            AppendFood(sb, foodTotal, GetDicGlobal(Main.config.foodEaten));
+            if (waterTotal > 0 || foodTotal > 0)
                 sb.AppendLine();
         }
 
@@ -658,6 +711,50 @@ namespace Stats_Tracker
                 sb.AppendLine();
         }
 
+        private static SortedDictionary<string, int> GetTranslatedSortedDic(Dictionary<string, int> dic)
+        {
+            SortedDictionary<string, int> sortedDic = new SortedDictionary<string, int>();
+            foreach (var kv in dic)
+            {
+                if (kv.Value > 0)
+                    sortedDic.Add(Language.main.Get(kv.Key), kv.Value);
+            }
+            return sortedDic;
+        }
+
+        private static SortedDictionary<string, int> GetTranslatedSortedDic(Dictionary<TechType, int> dic)
+        {
+            SortedDictionary<string, int> sortedDic = new SortedDictionary<string, int>();
+            foreach (var kv in dic)
+            {
+                if (kv.Value > 0)
+                    sortedDic.Add(Language.main.Get(kv.Key), kv.Value);
+            }
+            return sortedDic;
+        }
+
+        private static SortedDictionary<string, float> GetTranslatedSortedDic(Dictionary<string, float> dic)
+        {
+            SortedDictionary<string, float> sortedDic = new SortedDictionary<string, float>();
+            foreach (var kv in dic)
+            {
+                if (kv.Value > 0)
+                    sortedDic.Add(Language.main.Get(kv.Key), kv.Value);
+            }
+            return sortedDic;
+        }
+
+        private static SortedDictionary<string, TimeSpan> GetTranslatedSortedDic(Dictionary<string, TimeSpan> dic)
+        {
+            SortedDictionary<string, TimeSpan> sortedDic = new SortedDictionary<string, TimeSpan>();
+            foreach (var kv in dic)
+            {
+                if (kv.Value.TotalMinutes >= 1)
+                    sortedDic.Add(Language.main.Get(kv.Key), kv.Value);
+            }
+            return sortedDic;
+        }
+
         private static void AppendDic(StringBuilder sb, Dictionary<string, int> dic, string title)
         {
             int ValuesSum = dic.Values.Sum();
@@ -665,11 +762,9 @@ namespace Stats_Tracker
                 return;
 
             sb.AppendLine(Language.main.Get(title) + ValuesSum);
-            foreach (var kv in dic)
-            {
-                if (kv.Value > 0)
-                    sb.AppendLine("     " + Language.main.Get(kv.Key) + ": " + kv.Value);
-            }
+            foreach (var kv in GetTranslatedSortedDic(dic))
+                sb.AppendLine("     " + kv.Key + ": " + kv.Value);
+
             sb.AppendLine();
         }
 
@@ -680,11 +775,10 @@ namespace Stats_Tracker
                 return;
 
             sb.AppendLine(Language.main.Get(title) + ValuesSum);
-            foreach (var kv in dic)
-            {
-                if (kv.Value > 0)
-                    sb.AppendLine("     " + Language.main.Get(kv.Key) + ": " + kv.Value);
-            }
+            SortedDictionary<string, int> sortedDic = GetTranslatedSortedDic(dic);
+            foreach (var kv in sortedDic)
+                sb.AppendLine("     " + kv.Key + ": " + kv.Value);
+
             sb.AppendLine();
         }
 
@@ -693,10 +787,10 @@ namespace Stats_Tracker
             if (dic.Count == 0)
                 return;
 
+            SortedDictionary<string, TimeSpan> sortedDic = GetTranslatedSortedDic(dic);
             sb.AppendLine(Language.main.Get(title));
-            foreach (var kv in dic)
-                AppendTimeSpan(sb, kv.Value, Language.main.Get(kv.Key) + ": ", true);
-            //sb.AppendLine("     " + Language.main.Get(kv.Key) + " " + kv.Value);
+            foreach (var kv in sortedDic)
+                AppendTimeSpan(sb, kv.Value, kv.Key + ": ", true);
 
             sb.AppendLine();
         }
@@ -707,8 +801,9 @@ namespace Stats_Tracker
                 return;
 
             sb.AppendLine(Language.main.Get(title));
-            foreach (var s in set)
-                sb.AppendLine("     " + Language.main.Get(s));
+            SortedSet<string> sortedSet = GetTranslatedSortedSet(set);
+            foreach (var s in sortedSet)
+                sb.AppendLine("     " + s);
 
             sb.AppendLine();
         }
@@ -727,6 +822,15 @@ namespace Stats_Tracker
             AppendSet(sb, GetSetGlobal(Main.config.floraFound), "ST_flora_discovered");
             AppendSet(sb, GetSetGlobal(Main.config.coralFound), "ST_corals_discovered");
             AppendSet(sb, GetSetGlobal(Main.config.leviathanFound), "ST_leviathans_discovered");
+        }
+
+        private static SortedSet<string> GetTranslatedSortedSet(HashSet<string> set)
+        {
+            SortedSet<string> sortedSet = new SortedSet<string>();
+            foreach (var s in set)
+                sortedSet.Add(Language.main.Get(s));
+
+            return sortedSet;
         }
 
         private static string GetCurrentStats()
