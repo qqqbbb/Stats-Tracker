@@ -64,6 +64,7 @@ namespace Stats_Tracker
         public Dictionary<string, Dictionary<string, int>> leviathansKilled = new Dictionary<string, Dictionary<string, int>>();
         public Dictionary<string, Dictionary<string, int>> plantsGrown = new Dictionary<string, Dictionary<string, int>>();
         public Dictionary<string, Dictionary<string, int>> eggsHatched = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, Dictionary<string, int>> creaturesBred = new Dictionary<string, Dictionary<string, int>>();
         public Dictionary<string, Dictionary<string, int>> pickedUpItems = new Dictionary<string, Dictionary<string, int>>();
         public Dictionary<string, Dictionary<string, int>> builderToolBuilt = new Dictionary<string, Dictionary<string, int>>();
         public Dictionary<string, Dictionary<string, int>> constructorBuilt = new Dictionary<string, Dictionary<string, int>>();

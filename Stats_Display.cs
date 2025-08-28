@@ -228,6 +228,7 @@ namespace Stats_Tracker
         {
             AddPDAentry("ST_StatsGlobal", Language.main.Get("ST_global_statistics"), "", "ST_stats");
             AddPDAentry("ST_StatsThisGame", Language.main.Get("ST_current_game_statistics"), "", "ST_stats");
+            //AddPDAentry("ST_TEST", "ST_test_name", "", "ST_StatsThisGame");
             //LanguageHandler.SetLanguageLine("EncyPath_ST_Stats", "ST_statistics");
         }
 
@@ -855,7 +856,8 @@ namespace Stats_Tracker
             AppendTimeDic(sb, MergeDics(Main.config.timeBiomes, UnsavedData.timeBiomes), "ST_time_biomes");
             AppendDic(sb, MergeDics(Main.config.itemsCrafted, UnsavedData.itemsCrafted), "ST_items_crafted");
             AppendDic(sb, MergeDics(Main.config.plantsGrown, UnsavedData.plantsGrown), "ST_plants_grown");
-            AppendDic(sb, MergeDics(Main.config.eggsHatched, UnsavedData.eggsHatched), "ST_hatched_eggs");
+            //AppendDic(sb, MergeDics(Main.config.eggsHatched, UnsavedData.eggsHatched), "ST_hatched_eggs");
+            AppendDic(sb, MergeDics(Main.config.creaturesBred, UnsavedData.creaturesBred), "ST_creatures_bred");
             GetDiscoverStats(sb);
             GetKilledStats(sb);
             return sb.ToString();
@@ -877,6 +879,7 @@ namespace Stats_Tracker
             AppendDic(sb, GetDicGlobal(Main.config.itemsCrafted), "ST_items_crafted");
             AppendDic(sb, GetDicGlobal(Main.config.plantsGrown), "ST_plants_grown");
             AppendDic(sb, GetDicGlobal(Main.config.eggsHatched), "ST_hatched_eggs");
+            AppendDic(sb, GetDicGlobal(Main.config.creaturesBred), "ST_creatures_bred");
             GetGlobalDiscoverStats(sb);
             GetKilledGlobalStats(sb);
             return sb.ToString();
@@ -910,6 +913,7 @@ namespace Stats_Tracker
             [HarmonyPatch("Open")]
             public static void OpenPostfix(uGUI_EncyclopediaTab __instance)
             {
+                //AddDebug("uGUI_EncyclopediaTab Open");
                 if (lastEncNode != null && myStrings.ContainsKey(lastEncNode.id))
                 { // update stats 
                   //AddDebug("update tab");
@@ -923,9 +927,7 @@ namespace Stats_Tracker
             {
                 lastEncNode = node;
                 //if (strings.ContainsKey(node.id))
-                //{
-                //    AddDebug("Activate " + __instance.activeEntry.key);
-                //}
+                //AddDebug("Activate " + __instance.activeEntry.key);
             }
         }
 

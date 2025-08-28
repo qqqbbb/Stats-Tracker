@@ -81,6 +81,7 @@
   "ST_items_crafted": "Items crafted: ",
   "ST_plants_grown": "Plants growm by you: ",
   "ST_hatched_eggs": "Eggs hatched in AC: ",
+  "ST_creatures_bred": "Animals bred in AC: ",
   "ST_picked_up_items": "Picked up items: ",
   "ST_time_biomes": "Time spent in biomes: ",
   "ST_fauna_discovered": "Fauna species discovered: ",

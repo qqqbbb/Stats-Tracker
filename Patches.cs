@@ -420,22 +420,6 @@ namespace Stats_Tracker
             }
         }
 
-        [HarmonyPatch(typeof(CreatureEgg), "Hatch")]
-        internal class CreatureEgg_Hatch_Patch
-        {
-            public static void Postfix(CreatureEgg __instance)
-            {
-                if (!Main.config.modEnabled)
-                    return;
-                //AddDebug("Hatch  " + __instance.hatchingCreature);
-                TechType tt = __instance.creatureType;
-                if (tt == TechType.None)
-                    return;
-                //string name = __instance.creatureType.AsString();
-                UnsavedData.eggsHatched.AddValue(tt, 1);
-            }
-        }
-
         [HarmonyPatch(typeof(GrowingPlant), "SpawnGrownModel")]
         internal class GrowingPlant_SpawnGrownModel_Patch
         {
@@ -822,6 +806,39 @@ namespace Stats_Tracker
                             UnsavedData.minTemp = Mathf.RoundToInt(temp);
                     }
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(CreatureEgg), "Hatch")]
+        internal class CreatureEgg_Hatch_Patch
+        {
+            public static void Postfix(CreatureEgg __instance)
+            {
+                if (!Main.config.modEnabled)
+                    return;
+                TechType tt = __instance.creatureType;
+                if (tt == TechType.None)
+                    return;
+                //string name = __instance.creatureType.AsString();
+                //AddDebug("CreatureEgg Hatch  " + tt);
+                UnsavedData.eggsHatched.AddValue(tt, 1);
+            }
+        }
+
+        [HarmonyPatch(typeof(WaterParkCreature), "InitializeCreatureBornInWaterPark")]
+        class GWaterParkCreature_InitializeCreatureBornInWaterPark_patch
+        {
+            public static void Postfix(WaterParkCreature __instance)
+            {
+                if (!Main.config.modEnabled)
+                    return;
+
+                TechType tt = CraftData.GetTechType(__instance.gameObject);
+                if (tt == TechType.None)
+                    return;
+
+                UnsavedData.creaturesBred.AddValue(tt, 1);
+                //AddDebug("InitializeCreatureBornInWaterPark  " + tt);
             }
         }
 

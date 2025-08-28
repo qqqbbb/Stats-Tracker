@@ -43,6 +43,9 @@ namespace Stats_Tracker
         static public Dictionary<TechType, int> leviathansKilled = new Dictionary<TechType, int>();
         static public Dictionary<TechType, int> plantsGrown = new Dictionary<TechType, int>();
         static public Dictionary<TechType, int> eggsHatched = new Dictionary<TechType, int>();
+        static public Dictionary<TechType, int> creaturesBred = new Dictionary<TechType, int>();
+
+
         static public Dictionary<string, TimeSpan> timeBiomes = new Dictionary<string, TimeSpan>();
         static public Dictionary<TechType, int> pickedUpItems
             = new Dictionary<TechType, int>();
@@ -220,6 +223,7 @@ namespace Stats_Tracker
             SaveDic(Main.config.leviathansKilled, slot, leviathansKilled);
             SaveDic(Main.config.plantsGrown, slot, plantsGrown);
             SaveDic(Main.config.eggsHatched, slot, eggsHatched);
+            SaveDic(Main.config.creaturesBred, slot, creaturesBred);
             SaveDic(Main.config.timeBiomes, slot, timeBiomes);
             SaveDic(Main.config.timeVehicles, slot, timeVehicles);
             SaveDic(Main.config.pickedUpItems, slot, pickedUpItems);
@@ -309,6 +313,7 @@ namespace Stats_Tracker
             leviathansKilled.Clear();
             plantsGrown.Clear();
             eggsHatched.Clear();
+            creaturesBred.Clear();
             timeBiomes.Clear();
             timeVehicles.Clear();
             pickedUpItems.Clear();
