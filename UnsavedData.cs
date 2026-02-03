@@ -207,6 +207,7 @@ namespace Stats_Tracker
             Main.config.timeWalked.AddValue(slot, timeWalked);
             Main.config.timeSat.AddValue(slot, timeSat);
             Main.config.timeBase.AddValue(slot, timeBase);
+            Main.config.timeEscapePod.AddValue(slot, timeEscapePod);
             Main.config.timePrecursor.AddValue(slot, timePrecursor);
             Main.config.timeSlept.AddValue(slot, timeSlept);
             Main.config.playerDeaths.AddValue(slot, playerDeaths);
@@ -341,7 +342,6 @@ namespace Stats_Tracker
             minVehicleTemp = int.MaxValue;
             maxVehicleTemp = int.MinValue;
             vehiclesLost.Clear();
-
         }
 
     }

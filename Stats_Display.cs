@@ -19,7 +19,6 @@ namespace Stats_Tracker
         { "ST_Stats_global_time", "ST_stats/global" },
         { "ST_Stats_this_game_time", "ST_stats/this_game" },
         { "ST_Stats_this_game_dist", "ST_stats/this_game" },
-        //{ "ST_Stats_global_health", "ST_stats/global" },
         { "ST_Stats_global_food", "ST_stats/global" },
         { "ST_Stats_global_base", "ST_stats/global" },
         { "ST_Stats_this_game_base", "ST_stats/this_game" },
