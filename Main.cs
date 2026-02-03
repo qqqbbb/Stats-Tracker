@@ -17,7 +17,7 @@ namespace Stats_Tracker
         public const string
             MODNAME = "Stats Tracker",
             GUID = "qqqbbb.subnautica.statsTracker",
-            VERSION = "5.2.0";
+            VERSION = "5.3.0";
 
         public static ManualLogSource logger;
         public static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
@@ -34,15 +34,15 @@ namespace Stats_Tracker
             //Logger.LogInfo("StartLoadingSetup " + SaveLoadManager.main.currentSlot);
             Stats_Display.saveSlot = SaveLoadManager.main.currentSlot;
             Patches.saveSlot = SaveLoadManager.main.currentSlot;
+            FixBornCreatures();
+            Stats_Display.CreateMyEntries();
         }
 
         public static void FinishLoadingSetup()
         {
             //AddDebug(" FinishLoadingSetup");
-            Patches.timeLastUpdate = Patches.GetTimePlayed();
-            foreach (var s in Stats_Display.myStrings)
-                PDAEncyclopedia.Add(s.Key, false);
-
+            Patches.timeLastUpdate = Patches.GetTimeSpanPlayed();
+            Stats_Display.AddMyEntries();
             setupDone = true;
             logger.LogInfo($"{MODNAME} {VERSION} FinishLoadingSetup done");
         }
@@ -51,6 +51,9 @@ namespace Stats_Tracker
         {
             //AddDebug("DeleteSaveSlotData  " + saveSlot);
             //logger.LogInfo("DeleteSaveSlotData " + saveSlot);
+            if (config.timePlayed.ContainsKey(saveSlot) == false)
+                return;
+
             config.playerDeaths.Remove(saveSlot);
             config.timePlayed.Remove(saveSlot);
             config.healthLost.Remove(saveSlot);
@@ -68,8 +71,10 @@ namespace Stats_Tracker
             config.timeSlept.Remove(saveSlot);
             config.timeSwam.Remove(saveSlot);
             config.timeWalked.Remove(saveSlot);
+            config.timeSat.Remove(saveSlot);
             config.timeVehicles.Remove(saveSlot);
             config.timeBase.Remove(saveSlot);
+            config.timePrecursor.Remove(saveSlot);
             config.timeEscapePod.Remove(saveSlot);
             config.baseRoomsBuilt.Remove(saveSlot);
             config.baseCorridorsBuilt.Remove(saveSlot);
@@ -111,10 +116,9 @@ namespace Stats_Tracker
         {
             public static void Postfix(SaveLoadManager __instance, string slotName)
             { // runs when starting new game
-                //AddDebug("ClearSlotAsync " + slotName + " WaitScreen.IsWaiting " + WaitScreen.IsWaiting);
-                //logger.LogInfo("ClearSlotAsync" + slotName + " WaitScreen.IsWaiting " + WaitScreen.IsWaiting);
-                if (config.timePlayed.ContainsKey(slotName))
-                    DeleteSaveSlotData(slotName);
+              //AddDebug("ClearSlotAsync " + slotName + " WaitScreen.IsWaiting " + WaitScreen.IsWaiting);
+              //logger.LogInfo("ClearSlotAsync" + slotName + " WaitScreen.IsWaiting " + WaitScreen.IsWaiting);
+                DeleteSaveSlotData(slotName);
             }
         }
 
@@ -124,6 +128,7 @@ namespace Stats_Tracker
             //logger.LogInfo("CleanUp " + SaveLoadManager.main.currentSlot);
             setupDone = false;
             Patches.timeLastUpdate = TimeSpan.Zero;
+            Patches.teleporting = false;
             UnsavedData.ResetData();
             UnsavedData.basePowerSources.Clear();
             UnsavedData.bases.Clear();
@@ -131,14 +136,11 @@ namespace Stats_Tracker
 
         private void Start()
         {
-            //SaveUtils.RegisterOnStartLoadingEvent(StartLoadingSetup);
             WaitScreenHandler.RegisterEarlyLoadTask(MODNAME, task => StartLoadingSetup());
             SaveUtils.RegisterOnQuitEvent(CleanUp);
             LanguageHandler.RegisterLocalizationFolder();
-            //SaveUtils.RegisterOnFinishLoadingEvent(FinishLoadingSetup);
             WaitScreenHandler.RegisterLateLoadTask(MODNAME, task => FinishLoadingSetup());
-            Stats_Display.AddEntries();
-            AddTechTypesToClassTechtable();
+            AddTechTypesToClassTechTable();
             Harmony harmony = new Harmony(GUID);
             harmony.PatchAll();
             logger.LogInfo($"{MODNAME} {VERSION} Start done");
@@ -154,14 +156,39 @@ namespace Stats_Tracker
             }
         }
 
-        private static void AddTechTypesToClassTechtable()
+        private static void AddTechTypesToClassTechTable()
         {
-            if (CraftData.entClassTechTable == null)
-                CraftData.entClassTechTable = new Dictionary<string, TechType>();
-
+            CraftData.PreparePrefabIDCache();
             CraftData.entClassTechTable["769f9f44-30f6-46ed-aaf6-fbba358e1676"] = TechType.BaseBioReactor;
             CraftData.entClassTechTable["864f7780-a4c3-4bf2-b9c7-f4296388b70f"] = TechType.BaseNuclearReactor;
         }
+
+        private static void FixBornCreatures()
+        {
+            if (config.bornCreaturesFixed)
+                return;
+
+            HashSet<string> creatures = new HashSet<string>();
+            foreach (var kv1 in config.eggsHatched)
+            {
+                foreach (var kv2 in kv1.Value)
+                    creatures.Add(kv2.Key);
+            }
+            foreach (string tt in creatures)
+            {
+                foreach (var kv_ in config.creaturesBred)
+                {
+                    if (kv_.Value.ContainsKey(tt))
+                    {
+                        //AddDebug("FixBornCreatures Remove " + tt);
+                        kv_.Value.Remove(tt);
+                    }
+                }
+            }
+            config.bornCreaturesFixed = true;
+            config.Save();
+        }
+
 
     }
 }

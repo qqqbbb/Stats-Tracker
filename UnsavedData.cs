@@ -11,8 +11,10 @@ namespace Stats_Tracker
         static public TimeSpan timeEscapePod;
         static public TimeSpan timeSwam;
         static public TimeSpan timeWalked;
+        static public TimeSpan timeSat;
         static public Dictionary<TechType, TimeSpan> timeVehicles = new Dictionary<TechType, TimeSpan>();
         static public TimeSpan timeBase;
+        static public TimeSpan timePrecursor;
         static public TimeSpan timeSlept;
         static public int playerDeaths;
         static public int healthLost;
@@ -24,7 +26,6 @@ namespace Stats_Tracker
         static public int distanceTraveledSwim;
         static public int distanceTraveledWalk;
         static public int distanceTraveledSeaglide;
-
         static public Dictionary<TechType, int> distanceTraveledVehicle = new Dictionary<TechType, int>();
         static public Dictionary<TechType, int> vehiclesLost = new Dictionary<TechType, int>();
         static public Dictionary<TechType, int> itemsCrafted = new Dictionary<TechType, int>();
@@ -44,8 +45,6 @@ namespace Stats_Tracker
         static public Dictionary<TechType, int> plantsGrown = new Dictionary<TechType, int>();
         static public Dictionary<TechType, int> eggsHatched = new Dictionary<TechType, int>();
         static public Dictionary<TechType, int> creaturesBred = new Dictionary<TechType, int>();
-
-
         static public Dictionary<string, TimeSpan> timeBiomes = new Dictionary<string, TimeSpan>();
         static public Dictionary<TechType, int> pickedUpItems
             = new Dictionary<TechType, int>();
@@ -148,6 +147,20 @@ namespace Stats_Tracker
                 dic[slot] = TechTypeSetToStringSet(set);
         }
 
+        static public void SaveSet(Dictionary<string, HashSet<string>> dic, string slot, HashSet<string> set)
+        {
+            if (set.Count == 0)
+                return;
+
+            if (dic.ContainsKey(slot))
+            {
+                foreach (var s in set)
+                    dic[slot].Add(s);
+            }
+            else
+                dic[slot] = new HashSet<string>(set);
+        }
+
         static public HashSet<string> TechTypeSetToStringSet(HashSet<TechType> sourceSet)
         {
             HashSet<string> newSet = new HashSet<string>();
@@ -189,10 +202,12 @@ namespace Stats_Tracker
         {
             //AddDebug("UnsavedData SaveData " + slot);
             //Main.logger.LogDebug("UnsavedData SaveData " + slot);
-            Main.config.timePlayed.AddValue(slot, Patches.GetTimePlayed());
+            Main.config.timePlayed.AddValue(slot, Patches.GetTimeSpanPlayed());
             Main.config.timeSwam.AddValue(slot, timeSwam);
             Main.config.timeWalked.AddValue(slot, timeWalked);
+            Main.config.timeSat.AddValue(slot, timeSat);
             Main.config.timeBase.AddValue(slot, timeBase);
+            Main.config.timePrecursor.AddValue(slot, timePrecursor);
             Main.config.timeSlept.AddValue(slot, timeSlept);
             Main.config.playerDeaths.AddValue(slot, playerDeaths);
             Main.config.healthLost.AddValue(slot, healthLost);
@@ -286,7 +301,9 @@ namespace Stats_Tracker
             timeEscapePod = TimeSpan.Zero;
             timeSwam = TimeSpan.Zero;
             timeWalked = TimeSpan.Zero;
+            timeSat = TimeSpan.Zero;
             timeBase = TimeSpan.Zero;
+            timePrecursor = TimeSpan.Zero;
             timeSlept = TimeSpan.Zero;
             playerDeaths = 0;
             healthLost = 0;

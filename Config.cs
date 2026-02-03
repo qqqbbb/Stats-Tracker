@@ -26,12 +26,17 @@ namespace Stats_Tracker
         [Toggle("Show weight in pounds")]
         public bool pounds = false;
 
+        [Toggle("Show biome's name when entering a biome")]
+        public bool biomeName = false;
+
         public Dictionary<string, TimeSpan> timePlayed = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeEscapePod = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeSwam = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeWalked = new Dictionary<string, TimeSpan>();
+        public Dictionary<string, TimeSpan> timeSat = new Dictionary<string, TimeSpan>();
         public Dictionary<string, Dictionary<string, TimeSpan>> timeVehicles = new Dictionary<string, Dictionary<string, TimeSpan>>();
         public Dictionary<string, TimeSpan> timeBase = new Dictionary<string, TimeSpan>();
+        public Dictionary<string, TimeSpan> timePrecursor = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeSlept = new Dictionary<string, TimeSpan>();
         public Dictionary<string, int> playerDeaths = new Dictionary<string, int>();
         public int gamesWon = 0;
@@ -74,5 +79,10 @@ namespace Stats_Tracker
         public Dictionary<string, int> minVehicleTemp = new Dictionary<string, int>();
         public Dictionary<string, int> maxVehicleTemp = new Dictionary<string, int>();
         public int permaDeaths = 0;
+        public bool bornCreaturesFixed = false;
+
+
+
+
     }
 }

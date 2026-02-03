@@ -8,23 +8,32 @@ using System.Text;
 using UnityEngine;
 using static ErrorMessage;
 
+
 namespace Stats_Tracker
 {
     class Testing
     {
         //static HashSet<TechType> creatures = new HashSet<TechType>();
 
-        //[HarmonyPatch(typeof(Creature), "Start")]
-        class Creature_Start_Patch
+        [HarmonyPatch(typeof(PDAEncyclopedia), "GetEntryData")]
+        class PDAEncyclopedia_GetEntryData_Patch
         {
-            static void Postfix(Creature __instance)
+            static void Postfix(string key, ref PDAEncyclopedia.EntryData entryData)
             {
-                //TechType techType = CraftData.GetTechType(__instance.gameObject);
-                //TechTypeExtensions.FromString(techType.ToString(), out TechType tt, false);
-                //if (tt != TechType.None)
-                //{
-                //    creatures.Add(tt);
-                //}
+                if (Main.setupDone == false)
+                    return;
+                AddDebug($"GetEntryData  key {entryData.key} path {entryData.path} kind {entryData.kind}");
+                Main.logger.LogMessage($"GetEntryData  key {entryData.key} path {entryData.path} kind {entryData.kind}");
+            }
+        }
+
+        //[HarmonyPatch(typeof(IngameMenu), "OnEnable")]
+        class IngameMenu_OnEnable_Patch
+        {
+            static void Postfix(IngameMenu __instance)
+            {
+                __instance.developerMode = true;
+                __instance.developerButton.gameObject.SetActive(true);
             }
         }
 
@@ -35,8 +44,6 @@ namespace Stats_Tracker
             {
                 if (WaitScreen.IsWaiting)
                     return;
-
-
                 //AddDebug("RawBiomeName " + Util.GetRawBiomeName());
                 //AddDebug("LargeWorld GetBiome " + LargeWorld.main.GetBiome(__instance.transform.position));
                 //AddDebug("GetRichPresence " + PlatformUtils.main.GetServices().GetRichPresence());
@@ -45,6 +52,11 @@ namespace Stats_Tracker
                 //AddDebug(biome);
                 //AddDebug(Language.main.Get(biome));
                 //AddDebug(Util.GetLocalizedBiomeName());
+                //if (__instance.precursorOutOfWater)
+                //    AddDebug("precursorOutOfWater ");
+                //if (PrecursorMoonPoolTrigger.inMoonpool)
+                //    AddDebug("inMoonpool ");
+
                 if (Input.GetKeyDown(KeyCode.B))
                 {
                     //AddDebug("currentSlot " + Main.config.escapePodSmokeOut[SaveLoadManager.main.currentSlot]);
@@ -67,11 +79,7 @@ namespace Stats_Tracker
 
                 else if (Input.GetKeyDown(KeyCode.C))
                 {
-                    //Survival survival = Player.main.GetComponent<Survival>();
-                    //if (Input.GetKey(KeyCode.LeftShift))
-                    //    survival.water++;
-                    //else
-                    //    survival.food++;
+                    DumpEncy();
                 }
 
                 else if (Input.GetKeyDown(KeyCode.X))
@@ -121,6 +129,18 @@ namespace Stats_Tracker
                     //Inventory.main.quickSlots.Select(1);
 
                 }
+            }
+        }
+
+        private static void DumpEncy()
+        {
+            Main.logger.LogMessage("Dump ency");
+            AddDebug("Dump ency");
+            foreach (var kv in PDAEncyclopedia.mapping)
+            {
+                PDAEncyclopedia.EntryData data = kv.Value;
+                bool unlocked = PDAEncyclopedia.entries.ContainsKey(kv.Key);
+                Main.logger.LogMessage($" key: {data.key} path: {data.path} unlocked: {unlocked}");
             }
         }
 
