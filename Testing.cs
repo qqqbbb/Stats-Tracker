@@ -13,9 +13,7 @@ namespace Stats_Tracker
 {
     class Testing
     {
-        //static HashSet<TechType> creatures = new HashSet<TechType>();
-
-        [HarmonyPatch(typeof(PDAEncyclopedia), "GetEntryData")]
+        //[HarmonyPatch(typeof(PDAEncyclopedia), "GetEntryData")]
         class PDAEncyclopedia_GetEntryData_Patch
         {
             static void Postfix(string key, ref PDAEncyclopedia.EntryData entryData)

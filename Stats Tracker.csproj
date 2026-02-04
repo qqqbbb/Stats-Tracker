@@ -121,6 +121,9 @@
     <None Include="Localization\English.json" />
     <None Include="Localization\Russian.json" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Localization\Chinese %28Simplified%29.json" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "C:\GAMES\Subnautica\BepInEx\plugins\$(TargetName)"

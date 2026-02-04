@@ -306,6 +306,7 @@ namespace Stats_Tracker
             timeBase = TimeSpan.Zero;
             timePrecursor = TimeSpan.Zero;
             timeSlept = TimeSpan.Zero;
+            timeVehicles.Clear();
             playerDeaths = 0;
             healthLost = 0;
             medkitsUsed = 0;
@@ -333,7 +334,6 @@ namespace Stats_Tracker
             eggsHatched.Clear();
             creaturesBred.Clear();
             timeBiomes.Clear();
-            timeVehicles.Clear();
             pickedUpItems.Clear();
             builderToolBuilt.Clear();
             constructorBuilt.Clear();
