@@ -129,7 +129,7 @@ namespace Stats_Tracker
             static void OnConstructPostfix(CraftingAnalytics __instance, TechType techType)
             {
                 //AddDebug("CraftingAnalytics OnConstruct " + techType);
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (corridorTypes.Contains(techType) || roomTypes.Contains(techType))
@@ -142,7 +142,7 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("OnCraft")]
             static void OnCraftPostfix(CraftingAnalytics __instance, TechType techType)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 //AddDebug("CraftingAnalytics OnCraft " + techType);
@@ -314,7 +314,7 @@ namespace Stats_Tracker
             [HarmonyPrefix, HarmonyPatch("TrackTravelStats")]
             public static bool TrackTravelStatsPrefix(Player __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return true;
 
                 if (Main.setupDone == false || teleporting)
@@ -335,13 +335,13 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("OnKill")]
             public static void OnKillPostfix(Player __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (GameModeUtils.IsPermadeath())
                 {
-                    Main.config.permaDeaths++;
-                    Main.config.Save();
+                    Main.configMain.permaDeaths++;
+                    Main.configMenu.Save();
                 }
                 else
                     UnsavedData.playerDeaths++;
@@ -355,7 +355,7 @@ namespace Stats_Tracker
 
             private static void ShowBiomeName()
             {
-                if (Main.config.biomeName == false || Main.setupDone == false)
+                if (ConfigMenu.biomeName.Value == false || Main.setupDone == false)
                     return;
 
                 string biomeName = Language.main.Get(Util.GetBiomeName());
@@ -392,7 +392,7 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("Use")]
             public static void UsePostfix(Survival __instance, GameObject useObj, bool __result)
             {
-                if (!Main.config.modEnabled || !__result)
+                if (ConfigMenu.modEnabled.Value == false || __result == false)
                     return;
 
                 TechType tt = CraftData.GetTechType(useObj);
@@ -405,7 +405,7 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("Eat")]
             public static void EatPostfix(Survival __instance, GameObject useObj, bool __result)
             {
-                if (!Main.config.modEnabled || __result == false)
+                if (ConfigMenu.modEnabled.Value == false || __result == false)
                     return;
 
                 TechType tt = CraftData.GetTechType(useObj);
@@ -445,11 +445,11 @@ namespace Stats_Tracker
         {
             public static void Postfix(LaunchRocket __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
-                Main.config.gamesWon++;
-                Main.config.Save();
+                Main.configMain.gamesWon++;
+                Main.configMenu.Save();
             }
         }
 
@@ -458,7 +458,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(GrowingPlant __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 TechType tt = __instance.seed.plantTechType;
@@ -476,7 +476,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(DamageSystem __instance, float damage, DamageType type, GameObject target, GameObject dealer, ref float __result)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (playerTakesDamage && __result > 0)
@@ -527,7 +527,7 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("TakeDamage")]
             public static void TakeDamagePostfix(LiveMixin __instance, float originalDamage, Vector3 position, DamageType type, GameObject dealer)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (WasKilledByPlayer(__instance, dealer))
@@ -583,7 +583,7 @@ namespace Stats_Tracker
         {
             public static void Prefix(BlueprintHandTarget __instance)
             {
-                if (!Main.config.modEnabled || string.IsNullOrEmpty(saveSlot) || __instance.used)
+                if (ConfigMenu.modEnabled.Value == false || string.IsNullOrEmpty(saveSlot) || __instance.used)
                     return;
 
                 if (!KnownTech.Contains(__instance.unlockTechType))
@@ -599,7 +599,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(ScannerTool __instance, PDAScanner.Result __result)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (__result == PDAScanner.Result.None || __result == PDAScanner.Result.Scan || __result == PDAScanner.Result.Known) { }
@@ -646,7 +646,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(PDAScanner.EntryData entryData, bool unlockBlueprint, bool unlockEncyclopedia, bool verbose)
             {
-                if (!Main.config.modEnabled || entryData == null || !verbose || !unlockBlueprint)
+                if (ConfigMenu.modEnabled.Value == false || entryData == null || !verbose || !unlockBlueprint)
                     return;
 
                 //AddDebug(" scanned " + entryData.key);
@@ -673,7 +673,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(Base __instance)
             {
-                if (!Main.config.modEnabled || __instance.isGhost)
+                if (ConfigMenu.modEnabled.Value == false || __instance.isGhost)
                     return;
 
                 UnsavedData.bases.Add(__instance);
@@ -715,7 +715,7 @@ namespace Stats_Tracker
             public static void DeconstructAsyncPostfix(Constructable __instance)
             {
 
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (__instance.constructedAmount <= 0f)
@@ -731,13 +731,13 @@ namespace Stats_Tracker
                 {
                     UnsavedData.builderToolBuilt[techType]--;
                 }
-                else if (Main.config.builderToolBuilt.ContainsKey(saveSlot))
+                else if (Main.configMain.builderToolBuilt.ContainsKey(saveSlot))
                 {
                     string name = techType.AsString();
-                    if (Main.config.builderToolBuilt[saveSlot].ContainsKey(name) && Main.config.builderToolBuilt[saveSlot][name] > 0)
+                    if (Main.configMain.builderToolBuilt[saveSlot].ContainsKey(name) && Main.configMain.builderToolBuilt[saveSlot][name] > 0)
                     {
-                        Main.config.builderToolBuilt[saveSlot][name]--;
-                        Main.config.Save();
+                        Main.configMain.builderToolBuilt[saveSlot][name]--;
+                        Main.configMenu.Save();
                     }
                 }
 
@@ -756,7 +756,7 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("OnKill")]
             public static void OnKillPostfix(SubRoot __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
                 //AddDebug("Sub lost");
                 if (__instance.isCyclops)
@@ -770,7 +770,7 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("OnKill")]
             public static void OnKillPostfix(Vehicle __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (__instance is SeaMoth)
@@ -803,7 +803,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(ConstructorInput __instance, TechType techType)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 constructorBuilt.Add(techType);
@@ -819,7 +819,7 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("EnterInUseMode")]
             public static void EnterInUseModePostfix(Bed __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 bedTimeStart = GetTimeSpanPlayed();
@@ -828,7 +828,7 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("ExitInUseMode")]
             public static void ExitInUseModePostfix(Bed __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 TimeSpan timeSlept = GetTimeSpanPlayed() - bedTimeStart;
@@ -842,7 +842,7 @@ namespace Stats_Tracker
         {
             static void Postfix(LiveMixin __instance, DamageType type)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (__instance.gameObject.tag == "Player" && __instance.damageInfo.damage > 0)
@@ -870,7 +870,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(CreatureEgg __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 TechType tt = __instance.creatureType;
@@ -888,7 +888,7 @@ namespace Stats_Tracker
         {
             public static void Postfix(WaterParkCreature __instance)
             {
-                if (!Main.config.modEnabled)
+                if (ConfigMenu.modEnabled.Value == false)
                     return;
 
                 if (hatchedTT != TechType.None)

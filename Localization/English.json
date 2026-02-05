@@ -22,18 +22,17 @@
   "ST_mountain_island": "Mountain Island",
   "ST_unknown_biome": "Unknown Biome",
 
+  "ST_mod_enabled": "Mod enabled",
+  "ST_biome_name": "Show biome's name when entering a biome",
+  "ST_no_species_discovered": "No indigenous lifeforms discovered",
+  "ST_no_data_saved": "No data saved",
+
   "ST_kilograms": "kg",
-  "ST_pounds": "lbs",
   "ST_liters": "liters",
-  "ST_gallons": "gallons",
   "ST_kilometer": "km",
   "ST_kilometers": "km",
-  "ST_mile": "mile",
-  "ST_miles": "miles",
   "ST_meter": "meter",
   "ST_meters": "meters",
-  "ST_yard": "yard",
-  "ST_yards": "yards",
 
   "EncyPath_ST_stats": "Statistics",
   "EncyPath_ST_stats/this_game": "Current game",

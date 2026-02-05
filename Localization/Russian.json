@@ -22,18 +22,17 @@
   "ST_mountain_island": "Горный остров",
   "ST_unknown_biome": "Неизвестный биом",
 
+  "ST_mod_enabled": "Мод включен",
+  "ST_biome_name": "Показывать название биома при смене биома",
+  "ST_no_species_discovered": "Местные формы жизни не обнаруженны",
+  "ST_no_data_saved": "Нет сохраненных данных",
+
   "ST_kilograms": "кг",
-  "ST_pounds": "фунтов",
   "ST_liters": "литров",
-  "ST_gallons": "галлонов",
   "ST_kilometer": "км",
   "ST_kilometers": "км",
-  "ST_mile": "миля",
-  "ST_miles": "миль",
   "ST_meter": "метр",
   "ST_meters": "метров",
-  "ST_yard": "ярд",
-  "ST_yards": "ярдов",
 
   "EncyPath_ST_stats": "Статистика",
     "EncyPath_ST_stats/this_game": "Текущая игра",

@@ -105,6 +105,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigMain.cs" />
+    <Compile Include="OptionsMenu.cs" />
     <Compile Include="UnsavedData.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="Util.cs" />
@@ -115,7 +117,7 @@
     <Compile Include="Stats_Display.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config.cs" />
+    <Compile Include="ConfigMenu.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Localization\English.json" />

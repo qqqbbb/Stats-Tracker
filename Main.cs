@@ -1,12 +1,22 @@
 ﻿
 using BepInEx;
+using BepInEx.Bootstrap;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Assets.PrefabTemplates;
 using Nautilus.Handlers;
+using Nautilus.Options;
 using Nautilus.Utility;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
+using UWE;
 using static ErrorMessage;
 
 namespace Stats_Tracker
@@ -17,15 +27,21 @@ namespace Stats_Tracker
         public const string
             MODNAME = "Stats Tracker",
             GUID = "qqqbbb.subnautica.statsTracker",
-            VERSION = "5.4.0";
+            VERSION = "5.5.0";
 
         public static ManualLogSource logger;
-        public static Config config { get; } = OptionsPanelHandler.RegisterModOptions<Config>();
+        public static OptionsMenu options;
+        public static ConfigFile configMenu;
+        public static ConfigMain configMain;
+        static string configMenuPath = Paths.ConfigPath + Path.DirectorySeparatorChar + MODNAME + Path.DirectorySeparatorChar + "configMenu.cfg";
         public static bool setupDone = false;
 
         private void Awake()
         {
             logger = Logger;
+            logger.LogInfo("Language " + Language.main.currentLanguage);
+            //config = OptionsPanelHandler.RegisterModOptions<Config>();
+
         }
 
         private void StartLoadingSetup()
@@ -51,57 +67,57 @@ namespace Stats_Tracker
         {
             //AddDebug("DeleteSaveSlotData  " + saveSlot);
             //logger.LogInfo("DeleteSaveSlotData " + saveSlot);
-            if (config.timePlayed.ContainsKey(saveSlot) == false)
+            if (configMain.timePlayed.ContainsKey(saveSlot) == false)
                 return;
 
-            config.playerDeaths.Remove(saveSlot);
-            config.timePlayed.Remove(saveSlot);
-            config.healthLost.Remove(saveSlot);
-            config.foodEaten.Remove(saveSlot);
-            config.waterDrunk.Remove(saveSlot);
-            config.distanceTraveled.Remove(saveSlot);
-            config.maxDepth.Remove(saveSlot);
-            config.distanceTraveledSwim.Remove(saveSlot);
-            config.distanceTraveledWalk.Remove(saveSlot);
-            config.distanceTraveledSeaglide.Remove(saveSlot);
-            config.distanceTraveledVehicle.Remove(saveSlot);
-            config.builderToolBuilt.Remove(saveSlot);
-            config.constructorBuilt.Remove(saveSlot);
-            config.vehiclesLost.Remove(saveSlot);
-            config.timeSlept.Remove(saveSlot);
-            config.timeSwam.Remove(saveSlot);
-            config.timeWalked.Remove(saveSlot);
-            config.timeSat.Remove(saveSlot);
-            config.timeVehicles.Remove(saveSlot);
-            config.timeBase.Remove(saveSlot);
-            config.timePrecursor.Remove(saveSlot);
-            config.timeEscapePod.Remove(saveSlot);
-            config.baseRoomsBuilt.Remove(saveSlot);
-            config.baseCorridorsBuilt.Remove(saveSlot);
-            config.basePower.Remove(saveSlot);
-            config.objectsScanned.Remove(saveSlot);
-            config.blueprintsUnlocked.Remove(saveSlot);
-            config.blueprintsFromDatabox.Remove(saveSlot);
-            config.floraFound.Remove(saveSlot);
-            config.faunaFound.Remove(saveSlot);
-            config.leviathanFound.Remove(saveSlot);
-            config.coralFound.Remove(saveSlot);
-            config.animalsKilled.Remove(saveSlot);
-            config.plantsKilled.Remove(saveSlot);
-            config.coralKilled.Remove(saveSlot);
-            config.leviathansKilled.Remove(saveSlot);
-            config.plantsGrown.Remove(saveSlot);
-            config.eggsHatched.Remove(saveSlot);
-            config.creaturesBred.Remove(saveSlot);
-            config.itemsCrafted.Remove(saveSlot);
-            config.timeBiomes.Remove(saveSlot);
-            config.medkitsUsed.Remove(saveSlot);
-            config.pickedUpItems.Remove(saveSlot);
-            config.minTemp.Remove(saveSlot);
-            config.minVehicleTemp.Remove(saveSlot);
-            config.maxTemp.Remove(saveSlot);
-            config.maxVehicleTemp.Remove(saveSlot);
-            config.Save();
+            configMain.playerDeaths.Remove(saveSlot);
+            configMain.timePlayed.Remove(saveSlot);
+            configMain.healthLost.Remove(saveSlot);
+            configMain.foodEaten.Remove(saveSlot);
+            configMain.waterDrunk.Remove(saveSlot);
+            configMain.distanceTraveled.Remove(saveSlot);
+            configMain.maxDepth.Remove(saveSlot);
+            configMain.distanceTraveledSwim.Remove(saveSlot);
+            configMain.distanceTraveledWalk.Remove(saveSlot);
+            configMain.distanceTraveledSeaglide.Remove(saveSlot);
+            configMain.distanceTraveledVehicle.Remove(saveSlot);
+            configMain.builderToolBuilt.Remove(saveSlot);
+            configMain.constructorBuilt.Remove(saveSlot);
+            configMain.vehiclesLost.Remove(saveSlot);
+            configMain.timeSlept.Remove(saveSlot);
+            configMain.timeSwam.Remove(saveSlot);
+            configMain.timeWalked.Remove(saveSlot);
+            configMain.timeSat.Remove(saveSlot);
+            configMain.timeVehicles.Remove(saveSlot);
+            configMain.timeBase.Remove(saveSlot);
+            configMain.timePrecursor.Remove(saveSlot);
+            configMain.timeEscapePod.Remove(saveSlot);
+            configMain.baseRoomsBuilt.Remove(saveSlot);
+            configMain.baseCorridorsBuilt.Remove(saveSlot);
+            configMain.basePower.Remove(saveSlot);
+            configMain.objectsScanned.Remove(saveSlot);
+            configMain.blueprintsUnlocked.Remove(saveSlot);
+            configMain.blueprintsFromDatabox.Remove(saveSlot);
+            configMain.floraFound.Remove(saveSlot);
+            configMain.faunaFound.Remove(saveSlot);
+            configMain.leviathanFound.Remove(saveSlot);
+            configMain.coralFound.Remove(saveSlot);
+            configMain.animalsKilled.Remove(saveSlot);
+            configMain.plantsKilled.Remove(saveSlot);
+            configMain.coralKilled.Remove(saveSlot);
+            configMain.leviathansKilled.Remove(saveSlot);
+            configMain.plantsGrown.Remove(saveSlot);
+            configMain.eggsHatched.Remove(saveSlot);
+            configMain.creaturesBred.Remove(saveSlot);
+            configMain.itemsCrafted.Remove(saveSlot);
+            configMain.timeBiomes.Remove(saveSlot);
+            configMain.medkitsUsed.Remove(saveSlot);
+            configMain.pickedUpItems.Remove(saveSlot);
+            configMain.minTemp.Remove(saveSlot);
+            configMain.minVehicleTemp.Remove(saveSlot);
+            configMain.maxTemp.Remove(saveSlot);
+            configMain.maxVehicleTemp.Remove(saveSlot);
+            configMain.Save();
         }
 
         static void SaveData()
@@ -136,6 +152,8 @@ namespace Stats_Tracker
 
         private void Start()
         {
+            configMenu = new ConfigFile(configMenuPath, false);
+            ConfigMenu.Bind();
             WaitScreenHandler.RegisterEarlyLoadTask(MODNAME, task => StartLoadingSetup());
             SaveUtils.RegisterOnQuitEvent(CleanUp);
             LanguageHandler.RegisterLocalizationFolder();
@@ -143,6 +161,10 @@ namespace Stats_Tracker
             AddTechTypesToClassTechTable();
             Harmony harmony = new Harmony(GUID);
             harmony.PatchAll();
+            options = new OptionsMenu();
+            OptionsPanelHandler.RegisterModOptions(options);
+            configMain = new ConfigMain();
+            configMain.Load();
             logger.LogInfo($"{MODNAME} {VERSION} Start done");
         }
 
@@ -165,18 +187,18 @@ namespace Stats_Tracker
 
         private static void FixBornCreatures()
         {
-            if (config.bornCreaturesFixed)
+            if (configMain.bornCreaturesFixed)
                 return;
 
             HashSet<string> creatures = new HashSet<string>();
-            foreach (var kv1 in config.eggsHatched)
+            foreach (var kv1 in configMain.eggsHatched)
             {
                 foreach (var kv2 in kv1.Value)
                     creatures.Add(kv2.Key);
             }
             foreach (string tt in creatures)
             {
-                foreach (var kv_ in config.creaturesBred)
+                foreach (var kv_ in configMain.creaturesBred)
                 {
                     if (kv_.Value.ContainsKey(tt))
                     {
@@ -185,8 +207,8 @@ namespace Stats_Tracker
                     }
                 }
             }
-            config.bornCreaturesFixed = true;
-            config.Save();
+            configMain.bornCreaturesFixed = true;
+            configMenu.Save();
         }
 
 

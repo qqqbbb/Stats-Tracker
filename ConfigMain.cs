@@ -1,33 +1,18 @@
 ﻿using BepInEx;
-using Nautilus.Commands;
-using Nautilus.Handlers;
 using Nautilus.Json;
-using Nautilus.Options;
-using Nautilus.Options.Attributes;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
-using static ErrorMessage;
 
 namespace Stats_Tracker
 {
-    public class Config : ConfigFile
+    public class ConfigMain : JsonFile
     {
-        [Toggle("Mod enabled", Tooltip = "Only saved stats will be shown and no new data will be saved when the mod is disabled")]
-        public bool modEnabled = true;
+        public ConfigMain()
+        {
+        }
 
-        [Toggle("Show temperature in Fahrenhiet")]
-        public bool fahrenhiet = false;
-
-        [Toggle("Show distance in miles and yards")]
-        public bool miles = false;
-
-        [Toggle("Show weight in pounds")]
-        public bool pounds = false;
-
-        [Toggle("Show biome's name when entering a biome")]
-        public bool biomeName = false;
+        public override string JsonFilePath => Paths.ConfigPath + Path.DirectorySeparatorChar + Main.MODNAME + Path.DirectorySeparatorChar + "config.json";
 
         public Dictionary<string, TimeSpan> timePlayed = new Dictionary<string, TimeSpan>();
         public Dictionary<string, TimeSpan> timeEscapePod = new Dictionary<string, TimeSpan>();
@@ -80,9 +65,6 @@ namespace Stats_Tracker
         public Dictionary<string, int> maxVehicleTemp = new Dictionary<string, int>();
         public int permaDeaths = 0;
         public bool bornCreaturesFixed = false;
-
-
-
 
     }
 }

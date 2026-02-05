@@ -22,18 +22,17 @@
   "ST_mountain_island": "五指山",
   "ST_unknown_biome": "未知区域",
 
+  "ST_mod_enabled": "Mod enabled",
+  "ST_biome_name": "Show biome's name when entering a biome",
+  "ST_no_species_discovered": "No indigenous Lifeforms discovered",
+  "ST_no_data_saved": "No data saved",
+
   "ST_kilograms": "kg",
-  "ST_pounds": "磅",
   "ST_liters": "L",
-  "ST_gallons": "加仑",
   "ST_kilometer": "km",
   "ST_kilometers": "km",
-  "ST_mile": "英里",
-  "ST_miles": "英里",
   "ST_meter": "m",
   "ST_meters": "m",
-  "ST_yard": "码",
-  "ST_yards": "码",
 
   "EncyPath_ST_stats": "统计数据",
   "EncyPath_ST_stats/this_game": "当前游戏",

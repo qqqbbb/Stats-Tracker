@@ -134,10 +134,10 @@ namespace Stats_Tracker
                         GetFarmingStats(sb, false);
                         break;
                     case "ST_Stats_global_kills":
-                        GetKilledStats(sb, true);
+                        GetKillsStats(sb, true);
                         break;
                     case "ST_Stats_this_game_kills":
-                        GetKilledStats(sb, false);
+                        GetKillsStats(sb, false);
                         break;
                     case "ST_Stats_global_misc":
                         GetMiscStats(sb, true);
@@ -172,47 +172,47 @@ namespace Stats_Tracker
         {
             if (global)
             {
-                AppendDic(sb, GetDicGlobal(Main.config.plantsGrown), "ST_plants_grown");
-                AppendDic(sb, GetDicGlobal(Main.config.eggsHatched), "ST_hatched_eggs");
-                AppendDic(sb, GetDicGlobal(Main.config.creaturesBred), "ST_creatures_bred");
+                AppendDic(sb, GetDicGlobal(Main.configMain.plantsGrown), "ST_plants_grown");
+                AppendDic(sb, GetDicGlobal(Main.configMain.eggsHatched), "ST_hatched_eggs");
+                AppendDic(sb, GetDicGlobal(Main.configMain.creaturesBred), "ST_creatures_bred");
                 return;
             }
             GetModDisabledString(sb);
-            AppendDic(sb, MergeDics(Main.config.plantsGrown, UnsavedData.plantsGrown), "ST_plants_grown");
-            AppendDic(sb, MergeDics(Main.config.eggsHatched, UnsavedData.eggsHatched), "ST_hatched_eggs");
-            AppendDic(sb, MergeDics(Main.config.creaturesBred, UnsavedData.creaturesBred), "ST_creatures_bred");
+            AppendDic(sb, MergeDics(Main.configMain.plantsGrown, UnsavedData.plantsGrown), "ST_plants_grown");
+            AppendDic(sb, MergeDics(Main.configMain.eggsHatched, UnsavedData.eggsHatched), "ST_hatched_eggs");
+            AppendDic(sb, MergeDics(Main.configMain.creaturesBred, UnsavedData.creaturesBred), "ST_creatures_bred");
         }
 
         private static void GetCraftingStats(StringBuilder sb, bool global)
         {
             if (global)
             {
-                AppendDic(sb, GetDicGlobal(Main.config.constructorBuilt), "ST_constructor_built");
-                AppendDic(sb, GetDicGlobal(Main.config.builderToolBuilt), "ST_builder_tool_built");
-                AppendDic(sb, GetDicGlobal(Main.config.itemsCrafted), "ST_items_crafted");
+                AppendDic(sb, GetDicGlobal(Main.configMain.constructorBuilt), "ST_constructor_built");
+                AppendDic(sb, GetDicGlobal(Main.configMain.builderToolBuilt), "ST_builder_tool_built");
+                AppendDic(sb, GetDicGlobal(Main.configMain.itemsCrafted), "ST_items_crafted");
                 return;
             }
             GetModDisabledString(sb);
-            AppendDic(sb, MergeDics(Main.config.constructorBuilt, UnsavedData.constructorBuilt), "ST_constructor_built");
-            AppendDic(sb, MergeDics(Main.config.builderToolBuilt, UnsavedData.builderToolBuilt), "ST_builder_tool_built");
-            AppendDic(sb, MergeDics(Main.config.itemsCrafted, UnsavedData.itemsCrafted), "ST_items_crafted");
+            AppendDic(sb, MergeDics(Main.configMain.constructorBuilt, UnsavedData.constructorBuilt), "ST_constructor_built");
+            AppendDic(sb, MergeDics(Main.configMain.builderToolBuilt, UnsavedData.builderToolBuilt), "ST_builder_tool_built");
+            AppendDic(sb, MergeDics(Main.configMain.itemsCrafted, UnsavedData.itemsCrafted), "ST_items_crafted");
         }
 
-        private static void GetKilledStats(StringBuilder sb, bool global)
+        private static void GetKillsStats(StringBuilder sb, bool global)
         {
             if (global)
             {
-                AppendDic(sb, GetDicGlobal(Main.config.plantsKilled), "ST_plants_killed");
-                AppendDic(sb, GetDicGlobal(Main.config.animalsKilled), "ST_animals_killed");
-                AppendDic(sb, GetDicGlobal(Main.config.coralKilled), "ST_corals_killed");
-                AppendDic(sb, GetDicGlobal(Main.config.leviathansKilled), "ST_leviathans_killed");
+                AppendDic(sb, GetDicGlobal(Main.configMain.plantsKilled), "ST_plants_killed");
+                AppendDic(sb, GetDicGlobal(Main.configMain.animalsKilled), "ST_animals_killed");
+                AppendDic(sb, GetDicGlobal(Main.configMain.coralKilled), "ST_corals_killed");
+                AppendDic(sb, GetDicGlobal(Main.configMain.leviathansKilled), "ST_leviathans_killed");
                 return;
             }
             GetModDisabledString(sb);
-            AppendDic(sb, MergeDics(Main.config.plantsKilled, UnsavedData.plantsKilled), "ST_plants_killed");
-            AppendDic(sb, MergeDics(Main.config.animalsKilled, UnsavedData.animalsKilled), "ST_animals_killed");
-            AppendDic(sb, MergeDics(Main.config.coralKilled, UnsavedData.coralKilled), "ST_corals_killed");
-            AppendDic(sb, MergeDics(Main.config.leviathansKilled, UnsavedData.leviathansKilled), "ST_leviathans_killed");
+            AppendDic(sb, MergeDics(Main.configMain.plantsKilled, UnsavedData.plantsKilled), "ST_plants_killed");
+            AppendDic(sb, MergeDics(Main.configMain.animalsKilled, UnsavedData.animalsKilled), "ST_animals_killed");
+            AppendDic(sb, MergeDics(Main.configMain.coralKilled, UnsavedData.coralKilled), "ST_corals_killed");
+            AppendDic(sb, MergeDics(Main.configMain.leviathansKilled, UnsavedData.leviathansKilled), "ST_leviathans_killed");
         }
 
         private static void GetTravelStats(StringBuilder sb, bool global)
@@ -220,19 +220,25 @@ namespace Stats_Tracker
             string tempSuffix = GetTempSuffix();
             if (global)
             {
-                AppendTravelLine(sb, "ST_distance_traveled", Main.config.distanceTraveled.Values.Sum());
-                AppendTravelLine(sb, "ST_distance_swam", Main.config.distanceTraveledSwim.Values.Sum());
-                AppendTravelLine(sb, "ST_distance_walked", Main.config.distanceTraveledWalk.Values.Sum());
-                AppendTravelLine(sb, "ST_distance_seaglide", Main.config.distanceTraveledSeaglide.Values.Sum());
-                AppendTravelLine(sb, "ST_max_depth", Main.config.maxDepth.Values.Max());
-                Dictionary<string, int> traveledVehicles_ = GetDicGlobal(Main.config.distanceTraveledVehicle);
+                int totalDist = Main.configMain.distanceTraveled.Values.Sum();
+                if (totalDist == 0)
+                {
+                    sb.AppendLine(Language.main.Get("ST_no_data_saved"));
+                    return;
+                }
+                AppendTravelLine(sb, "ST_distance_traveled", totalDist);
+                AppendTravelLine(sb, "ST_distance_swam", Main.configMain.distanceTraveledSwim.Values.Sum());
+                AppendTravelLine(sb, "ST_distance_walked", Main.configMain.distanceTraveledWalk.Values.Sum());
+                AppendTravelLine(sb, "ST_distance_seaglide", Main.configMain.distanceTraveledSeaglide.Values.Sum());
+                AppendTravelLine(sb, "ST_max_depth", Main.configMain.maxDepth.Values.Max());
+                Dictionary<string, int> traveledVehicles_ = GetDicGlobal(Main.configMain.distanceTraveledVehicle);
                 sb.AppendLine();
-                int minTemp_ = Main.config.minTemp.Values.Min();
-                int maxTemp_ = Main.config.maxTemp.Values.Max();
-                int minVehicleTemp_ = Main.config.minVehicleTemp.Values.Min();
-                int maxVehicleTemp_ = Main.config.maxVehicleTemp.Values.Max();
+                int minTemp_ = Main.configMain.minTemp.Values.Min();
+                int maxTemp_ = Main.configMain.maxTemp.Values.Max();
+                int minVehicleTemp_ = Main.configMain.minVehicleTemp.Values.Min();
+                int maxVehicleTemp_ = Main.configMain.maxVehicleTemp.Values.Max();
 
-                if (Main.config.fahrenhiet)
+                if (ConfigMenu.fahrenhiet.Value)
                 {
                     maxTemp_ = Mathf.RoundToInt(Util.CelciusToFahrenhiet(maxTemp_));
                     minTemp_ = Mathf.RoundToInt(Util.CelciusToFahrenhiet(minTemp_));
@@ -257,15 +263,15 @@ namespace Stats_Tracker
             }
             GetModDisabledString(sb);
             GetCurrentBiomeString(sb);
-            int distanceTraveled = Main.config.distanceTraveled.ContainsKey(saveSlot) ? Main.config.distanceTraveled[saveSlot] + UnsavedData.distanceTraveled : UnsavedData.distanceTraveled;
+            int distanceTraveled = Main.configMain.distanceTraveled.ContainsKey(saveSlot) ? Main.configMain.distanceTraveled[saveSlot] + UnsavedData.distanceTraveled : UnsavedData.distanceTraveled;
             AppendTravelLine(sb, "ST_distance_traveled", distanceTraveled);
-            int distanceTraveledSwim = Main.config.distanceTraveledSwim.ContainsKey(saveSlot) ? Main.config.distanceTraveledSwim[saveSlot] + UnsavedData.distanceTraveledSwim : UnsavedData.distanceTraveledSwim;
+            int distanceTraveledSwim = Main.configMain.distanceTraveledSwim.ContainsKey(saveSlot) ? Main.configMain.distanceTraveledSwim[saveSlot] + UnsavedData.distanceTraveledSwim : UnsavedData.distanceTraveledSwim;
             AppendTravelLine(sb, "ST_distance_swam", distanceTraveledSwim);
-            int distanceTraveledWalk = Main.config.distanceTraveledWalk.ContainsKey(saveSlot) ? Main.config.distanceTraveledWalk[saveSlot] + UnsavedData.distanceTraveledWalk : UnsavedData.distanceTraveledWalk;
+            int distanceTraveledWalk = Main.configMain.distanceTraveledWalk.ContainsKey(saveSlot) ? Main.configMain.distanceTraveledWalk[saveSlot] + UnsavedData.distanceTraveledWalk : UnsavedData.distanceTraveledWalk;
             AppendTravelLine(sb, "ST_distance_walked", distanceTraveledWalk);
-            int distanceTraveledSeaglide = Main.config.distanceTraveledSeaglide.ContainsKey(saveSlot) ? Main.config.distanceTraveledSeaglide[saveSlot] + UnsavedData.distanceTraveledSeaglide : UnsavedData.distanceTraveledSeaglide;
+            int distanceTraveledSeaglide = Main.configMain.distanceTraveledSeaglide.ContainsKey(saveSlot) ? Main.configMain.distanceTraveledSeaglide[saveSlot] + UnsavedData.distanceTraveledSeaglide : UnsavedData.distanceTraveledSeaglide;
             AppendTravelLine(sb, "ST_distance_seaglide", distanceTraveledSeaglide);
-            int maxDepth = Main.config.maxDepth.ContainsKey(saveSlot) && Main.config.maxDepth[saveSlot] > UnsavedData.maxDepth ? Main.config.maxDepth[saveSlot] : UnsavedData.maxDepth;
+            int maxDepth = Main.configMain.maxDepth.ContainsKey(saveSlot) && Main.configMain.maxDepth[saveSlot] > UnsavedData.maxDepth ? Main.configMain.maxDepth[saveSlot] : UnsavedData.maxDepth;
             AppendTravelLine(sb, "ST_max_depth", maxDepth);
 
             sb.AppendLine();
@@ -287,7 +293,7 @@ namespace Stats_Tracker
                 sb.AppendLine(Language.main.Get("ST_max_vehicle_temp") + maxVehicleTemp + tempSuffix);
 
             sb.AppendLine();
-            Dictionary<string, int> traveledVehicles = MergeDics(Main.config.distanceTraveledVehicle, UnsavedData.distanceTraveledVehicle);
+            Dictionary<string, int> traveledVehicles = MergeDics(Main.configMain.distanceTraveledVehicle, UnsavedData.distanceTraveledVehicle);
             AppendVehicleTravel(sb, traveledVehicles);
         }
 
@@ -295,45 +301,50 @@ namespace Stats_Tracker
         {
             if (global)
             {
-                AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timePlayed), "ST_time_since_landing");
-                AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeWalked), "ST_time_on_feet");
-                AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeSwam), "ST_time_swimming");
-                AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeSat), "ST_time_sat");
-                AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeSlept), "ST_time_sleeping");
-                AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeEscapePod), "ST_time_escape_pod");
-                AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timeBase), "ST_time_base");
-                AppendTimeSpan(sb, GetSumOfDicValues(Main.config.timePrecursor), "ST_time_precursor");
+                if (Main.configMain.timePlayed.Count == 0)
+                {
+                    sb.AppendLine(Language.main.Get("ST_no_data_saved"));
+                    return;
+                }
+                AppendTimeSpan(sb, GetSumOfDicValues(Main.configMain.timePlayed), "ST_time_since_landing");
+                AppendTimeSpan(sb, GetSumOfDicValues(Main.configMain.timeWalked), "ST_time_on_feet");
+                AppendTimeSpan(sb, GetSumOfDicValues(Main.configMain.timeSwam), "ST_time_swimming");
+                AppendTimeSpan(sb, GetSumOfDicValues(Main.configMain.timeSat), "ST_time_sat");
+                AppendTimeSpan(sb, GetSumOfDicValues(Main.configMain.timeSlept), "ST_time_sleeping");
+                AppendTimeSpan(sb, GetSumOfDicValues(Main.configMain.timeEscapePod), "ST_time_escape_pod");
+                AppendTimeSpan(sb, GetSumOfDicValues(Main.configMain.timeBase), "ST_time_base");
+                AppendTimeSpan(sb, GetSumOfDicValues(Main.configMain.timePrecursor), "ST_time_precursor");
                 TimeSpan vehiclesTotalTime = TimeSpan.Zero;
-                foreach (var d in Main.config.timeVehicles)
+                foreach (var d in Main.configMain.timeVehicles)
                     vehiclesTotalTime += GetSumOfDicValues(d.Value);
 
                 string title = AppendTimeSpan(vehiclesTotalTime, Language.main.Get("ST_time_vehicles"));
                 sb.AppendLine();
-                AppendTimeDic(sb, GetDicGlobal(Main.config.timeBiomes), "ST_time_biomes");
-                AppendTimeDic(sb, GetDicGlobal(Main.config.timeVehicles), title);
+                AppendTimeDic(sb, GetDicGlobal(Main.configMain.timeBiomes), "ST_time_biomes");
+                AppendTimeDic(sb, GetDicGlobal(Main.configMain.timeVehicles), title);
                 return;
             }
             GetModDisabledString(sb);
             AppendTimeSpan(sb, GetTimeSpanPlayed(), "ST_time_since_landing");
-            TimeSpan timeOnFeet = Main.config.timeWalked.ContainsKey(saveSlot) ? Main.config.timeWalked[saveSlot] + UnsavedData.timeWalked : UnsavedData.timeWalked;
+            TimeSpan timeOnFeet = Main.configMain.timeWalked.ContainsKey(saveSlot) ? Main.configMain.timeWalked[saveSlot] + UnsavedData.timeWalked : UnsavedData.timeWalked;
             AppendTimeSpan(sb, timeOnFeet, "ST_time_on_feet");
-            TimeSpan timeSwam = Main.config.timeSwam.ContainsKey(saveSlot) ? Main.config.timeSwam[saveSlot] + UnsavedData.timeSwam : UnsavedData.timeSwam;
+            TimeSpan timeSwam = Main.configMain.timeSwam.ContainsKey(saveSlot) ? Main.configMain.timeSwam[saveSlot] + UnsavedData.timeSwam : UnsavedData.timeSwam;
             AppendTimeSpan(sb, timeSwam, "ST_time_swimming");
-            TimeSpan timeSat = Main.config.timeSat.ContainsKey(saveSlot) ? Main.config.timeSat[saveSlot] + UnsavedData.timeSat : UnsavedData.timeSat;
+            TimeSpan timeSat = Main.configMain.timeSat.ContainsKey(saveSlot) ? Main.configMain.timeSat[saveSlot] + UnsavedData.timeSat : UnsavedData.timeSat;
             AppendTimeSpan(sb, timeSat, "ST_time_sat");
-            TimeSpan timeSlept = Main.config.timeSlept.ContainsKey(saveSlot) ? Main.config.timeSlept[saveSlot] + UnsavedData.timeSlept : UnsavedData.timeSlept;
+            TimeSpan timeSlept = Main.configMain.timeSlept.ContainsKey(saveSlot) ? Main.configMain.timeSlept[saveSlot] + UnsavedData.timeSlept : UnsavedData.timeSlept;
             AppendTimeSpan(sb, timeSlept, "ST_time_sleeping");
-            TimeSpan timeEscapePod = Main.config.timeEscapePod.ContainsKey(saveSlot) ? Main.config.timeEscapePod[saveSlot] + UnsavedData.timeEscapePod : UnsavedData.timeEscapePod;
+            TimeSpan timeEscapePod = Main.configMain.timeEscapePod.ContainsKey(saveSlot) ? Main.configMain.timeEscapePod[saveSlot] + UnsavedData.timeEscapePod : UnsavedData.timeEscapePod;
             AppendTimeSpan(sb, timeEscapePod, "ST_time_escape_pod");
 
-            TimeSpan timeBase = Main.config.timeBase.ContainsKey(saveSlot) ? Main.config.timeBase[saveSlot] + UnsavedData.timeBase : UnsavedData.timeBase;
+            TimeSpan timeBase = Main.configMain.timeBase.ContainsKey(saveSlot) ? Main.configMain.timeBase[saveSlot] + UnsavedData.timeBase : UnsavedData.timeBase;
             AppendTimeSpan(sb, timeBase, "ST_time_base");
-            TimeSpan timePrecursor = Main.config.timePrecursor.ContainsKey(saveSlot) ? Main.config.timePrecursor[saveSlot] + UnsavedData.timePrecursor : UnsavedData.timePrecursor;
+            TimeSpan timePrecursor = Main.configMain.timePrecursor.ContainsKey(saveSlot) ? Main.configMain.timePrecursor[saveSlot] + UnsavedData.timePrecursor : UnsavedData.timePrecursor;
             AppendTimeSpan(sb, timePrecursor, "ST_time_precursor");
             sb.AppendLine();
-            AppendTimeDic(sb, MergeDics(Main.config.timeBiomes, UnsavedData.timeBiomes), "ST_time_biomes");
+            AppendTimeDic(sb, MergeDics(Main.configMain.timeBiomes, UnsavedData.timeBiomes), "ST_time_biomes");
 
-            Dictionary<string, TimeSpan> vehiclesTime = MergeDics(Main.config.timeVehicles, UnsavedData.timeVehicles);
+            Dictionary<string, TimeSpan> vehiclesTime = MergeDics(Main.configMain.timeVehicles, UnsavedData.timeVehicles);
             if (vehiclesTime.Count > 0)
             {
                 sb.AppendLine();
@@ -350,9 +361,9 @@ namespace Stats_Tracker
         {
             if (global)
             {
-                int healthLost = Main.config.healthLost.Values.Sum();
-                int medkitsUsed = Main.config.medkitsUsed.Values.Sum();
-                int deaths = Main.config.playerDeaths.Values.Sum() + Main.config.permaDeaths;
+                int healthLost = Main.configMain.healthLost.Values.Sum();
+                int medkitsUsed = Main.configMain.medkitsUsed.Values.Sum();
+                int deaths = Main.configMain.playerDeaths.Values.Sum() + Main.configMain.permaDeaths;
 
                 if (deaths > 0)
                     sb.AppendLine(Language.main.Get("ST_deaths") + deaths);
@@ -366,12 +377,12 @@ namespace Stats_Tracker
                 return;
             }
             GetModDisabledString(sb);
-            int deaths_ = GetInt(Main.config.playerDeaths, UnsavedData.playerDeaths);
+            int deaths_ = GetInt(Main.configMain.playerDeaths, UnsavedData.playerDeaths);
             if (deaths_ > 0 && !GameModeUtils.IsPermadeath() && GameModeUtils.RequiresOxygen())
                 sb.AppendLine(Language.main.Get("ST_deaths") + deaths_);
 
-            int healthLost_ = GetInt(Main.config.healthLost, UnsavedData.healthLost);
-            int medkitsUsed_ = GetInt(Main.config.medkitsUsed, UnsavedData.medkitsUsed);
+            int healthLost_ = GetInt(Main.configMain.healthLost, UnsavedData.healthLost);
+            int medkitsUsed_ = GetInt(Main.configMain.medkitsUsed, UnsavedData.medkitsUsed);
             if (healthLost_ > 0)
                 sb.AppendLine(Language.main.Get("ST_health_lost") + healthLost_);
 
@@ -383,18 +394,18 @@ namespace Stats_Tracker
         {
             if (global)
             {
-                float waterTotal_ = Main.config.waterDrunk.Values.Sum();
+                float waterTotal_ = Main.configMain.waterDrunk.Values.Sum();
                 AppendWater(sb, waterTotal_);
                 sb.AppendLine();
-                float foodTotal_ = GetFloatGlobal(Main.config.foodEaten);
-                AppendFood(sb, foodTotal_, GetDicGlobal(Main.config.foodEaten));
+                float foodTotal_ = GetFloatGlobal(Main.configMain.foodEaten);
+                AppendFood(sb, foodTotal_, GetDicGlobal(Main.configMain.foodEaten));
                 return;
             }
             GetModDisabledString(sb);
-            float waterTotal = GetFloat(Main.config.waterDrunk, UnsavedData.waterDrunk);
+            float waterTotal = GetFloat(Main.configMain.waterDrunk, UnsavedData.waterDrunk);
             AppendWater(sb, waterTotal);
             sb.AppendLine();
-            Dictionary<string, float> dic = GetDic(Main.config.foodEaten, UnsavedData.foodEaten);
+            Dictionary<string, float> dic = GetDic(Main.configMain.foodEaten, UnsavedData.foodEaten);
             float foodTotal = dic.Values.Sum();
             AppendFood(sb, foodTotal, dic);
         }
@@ -403,23 +414,22 @@ namespace Stats_Tracker
         {
             if (global)
             {
-                Dictionary<string, int> roomsBuilt_ = GetDicGlobal(Main.config.baseRoomsBuilt);
-                int corridorsBuilt_ = Main.config.baseCorridorsBuilt.Values.Sum();
+                Dictionary<string, int> roomsBuilt_ = GetDicGlobal(Main.configMain.baseRoomsBuilt);
+                int corridorsBuilt_ = Main.configMain.baseCorridorsBuilt.Values.Sum();
                 if (corridorsBuilt_ > 0)
                     sb.AppendLine(Language.main.Get("ST_base_corridors_built") + corridorsBuilt_);
 
                 sb.AppendLine();
                 AppendDic(sb, roomsBuilt_, "ST_base_rooms_built");
-                AppendDic(sb, GetDicGlobal(Main.config.basePower), "ST_base_power_generated");
+                AppendDic(sb, GetDicGlobal(Main.configMain.basePower), "ST_base_power_generated");
                 return;
             }
             GetModDisabledString(sb);
             int corridorsBuilt = UnsavedData.GetCorridorsBuilt();
             //AddDebug("corridorsBuilt " + corridorsBuilt);
-            if (corridorsBuilt > 0)
-                sb.AppendLine(Language.main.Get("ST_base_corridors_built") + corridorsBuilt);
-
-            //sb.AppendLine();
+            //if (corridorsBuilt > 0)
+            sb.AppendLine(Language.main.Get("ST_base_corridors_built") + corridorsBuilt);
+            sb.AppendLine();
             //AddDebug("Rooms " + UnsavedData.GetRoomsDic().Count);
             AppendDic(sb, UnsavedData.GetRoomsDic(), "ST_base_rooms_built");
             AppendDic(sb, GetBasePowerDic(), "ST_base_power_generated");
@@ -429,78 +439,99 @@ namespace Stats_Tracker
         {
             if (global)
             {
-                if (Main.config.gamesWon > 0)
-                    sb.AppendLine(Language.main.Get("ST_games_won") + " " + Main.config.gamesWon);
+                if (Main.configMain.gamesWon > 0)
+                {
+                    sb.AppendLine(Language.main.Get("ST_games_won") + " " + Main.configMain.gamesWon);
+                    sb.AppendLine();
+                }
+                int healthLost = Main.configMain.healthLost.Values.Sum();
+                int medkitsUsed = Main.configMain.medkitsUsed.Values.Sum();
+                int deaths = Main.configMain.playerDeaths.Values.Sum() + Main.configMain.permaDeaths;
 
-                int healthLost = Main.config.healthLost.Values.Sum();
-                int medkitsUsed = Main.config.medkitsUsed.Values.Sum();
-                int deaths = Main.config.playerDeaths.Values.Sum() + Main.config.permaDeaths;
+                //if (deaths > 0)
+                sb.AppendLine(Language.main.Get("ST_deaths") + deaths);
 
-                if (deaths > 0)
-                    sb.AppendLine(Language.main.Get("ST_deaths") + deaths);
+                //if (healthLost > 0)
+                sb.AppendLine(Language.main.Get("ST_health_lost") + healthLost);
 
-                if (healthLost > 0)
-                    sb.AppendLine(Language.main.Get("ST_health_lost") + healthLost);
-
-                if (medkitsUsed > 0)
-                    sb.AppendLine(Language.main.Get("ST_med_kits_used") + medkitsUsed);
+                //if (medkitsUsed > 0)
+                sb.AppendLine(Language.main.Get("ST_med_kits_used") + medkitsUsed);
 
                 sb.AppendLine();
-                AppendDic(sb, GetDicGlobal(Main.config.vehiclesLost), "ST_vehicles_lost");
-                //int numObjectsScanned_ = Main.config.objectsScanned.Values.Sum();
+                AppendDic(sb, GetDicGlobal(Main.configMain.vehiclesLost), "ST_vehicles_lost");
+                //int numObjectsScanned_ = Config_.objectsScanned.Values.Sum();
                 //if (numObjectsScanned_ > 0)
                 //{
                 //    sb.AppendLine(Language.main.Get("ST_objects_scanned") + numObjectsScanned_);
                 //    sb.AppendLine();
                 //}
-                AppendSet(sb, GetSetGlobal(Main.config.blueprintsUnlocked), "ST_scanned_blueprints");
-                AppendSet(sb, GetSetGlobal(Main.config.blueprintsFromDatabox), "ST_databox_blueprints");
+                AppendSet(sb, GetSetGlobal(Main.configMain.blueprintsUnlocked), "ST_scanned_blueprints");
+                AppendSet(sb, GetSetGlobal(Main.configMain.blueprintsFromDatabox), "ST_databox_blueprints");
                 return;
             }
             GetModDisabledString(sb);
             if (GameModeUtils.currentGameMode != GameModeOption.Creative)
             {
-                int deaths_ = GetInt(Main.config.playerDeaths, UnsavedData.playerDeaths);
-                if (deaths_ > 0 && !GameModeUtils.IsPermadeath() && GameModeUtils.RequiresOxygen())
+                if (!GameModeUtils.IsPermadeath() && GameModeUtils.RequiresOxygen())
+                {
+                    int deaths_ = GetInt(Main.configMain.playerDeaths, UnsavedData.playerDeaths);
                     sb.AppendLine(Language.main.Get("ST_deaths") + deaths_);
+                }
+                int healthLost_ = GetInt(Main.configMain.healthLost, UnsavedData.healthLost);
+                int medkitsUsed_ = GetInt(Main.configMain.medkitsUsed, UnsavedData.medkitsUsed);
+                //if (healthLost_ > 0)
+                sb.AppendLine(Language.main.Get("ST_health_lost") + healthLost_);
 
-                int healthLost_ = GetInt(Main.config.healthLost, UnsavedData.healthLost);
-                int medkitsUsed_ = GetInt(Main.config.medkitsUsed, UnsavedData.medkitsUsed);
-                if (healthLost_ > 0)
-                    sb.AppendLine(Language.main.Get("ST_health_lost") + healthLost_);
+                //if (medkitsUsed_ > 0)
+                sb.AppendLine(Language.main.Get("ST_med_kits_used") + medkitsUsed_);
 
-                if (medkitsUsed_ > 0)
-                    sb.AppendLine(Language.main.Get("ST_med_kits_used") + medkitsUsed_);
-
-                if (deaths_ > 0 || healthLost_ > 0 || medkitsUsed_ > 0)
-                    sb.AppendLine();
+                //if (deaths_ > 0 || healthLost_ > 0 || medkitsUsed_ > 0)
+                sb.AppendLine();
             }
-            AppendDic(sb, MergeDics(Main.config.vehiclesLost, UnsavedData.vehiclesLost), "ST_vehicles_lost");
-            //int numObjectsScanned = GetInt(Main.config.objectsScanned, UnsavedData.objectsScanned);
+            AppendDic(sb, MergeDics(Main.configMain.vehiclesLost, UnsavedData.vehiclesLost), "ST_vehicles_lost");
+            //int numObjectsScanned = GetInt(Config_.objectsScanned, UnsavedData.objectsScanned);
             //if (numObjectsScanned > 0)
             //{
             //    sb.AppendLine(Language.main.Get("ST_objects_scanned") + numObjectsScanned);
             //    sb.AppendLine();
             //}
-            AppendSet(sb, MergeSets(Main.config.blueprintsUnlocked, UnsavedData.blueprintsUnlocked), "ST_scanned_blueprints");
-            AppendSet(sb, MergeSets(Main.config.blueprintsFromDatabox, UnsavedData.blueprintsFromDatabox), "ST_databox_blueprints");
+            AppendSet(sb, MergeSets(Main.configMain.blueprintsUnlocked, UnsavedData.blueprintsUnlocked), "ST_scanned_blueprints");
+            AppendSet(sb, MergeSets(Main.configMain.blueprintsFromDatabox, UnsavedData.blueprintsFromDatabox), "ST_databox_blueprints");
         }
 
         private static void GetDiscoverStats(StringBuilder sb, bool glpbal)
         {
             if (glpbal)
             {
-                AppendSet(sb, GetSetGlobal(Main.config.faunaFound), "ST_fauna_discovered");
-                AppendSet(sb, GetSetGlobal(Main.config.floraFound), "ST_flora_discovered");
-                AppendSet(sb, GetSetGlobal(Main.config.coralFound), "ST_corals_discovered");
-                AppendSet(sb, GetSetGlobal(Main.config.leviathanFound), "ST_leviathans_discovered");
+                HashSet<string> faunaFound_ = GetSetGlobal(Main.configMain.faunaFound);
+                HashSet<string> floraFound_ = GetSetGlobal(Main.configMain.floraFound);
+                HashSet<string> coralFound_ = GetSetGlobal(Main.configMain.coralFound);
+                HashSet<string> leviathanFound_ = GetSetGlobal(Main.configMain.leviathanFound);
+                if (faunaFound_.Count + floraFound_.Count + coralFound_.Count + leviathanFound_.Count == 0)
+                {
+                    sb.AppendLine(Language.main.Get("ST_no_species_discovered"));
+                    return;
+                }
+                AppendSet(sb, faunaFound_, "ST_fauna_discovered");
+                AppendSet(sb, floraFound_, "ST_flora_discovered");
+                AppendSet(sb, coralFound_, "ST_corals_discovered");
+                AppendSet(sb, leviathanFound_, "ST_leviathans_discovered");
                 return;
             }
             GetModDisabledString(sb);
-            AppendSet(sb, MergeSets(Main.config.faunaFound, UnsavedData.faunaFound), "ST_fauna_discovered");
-            AppendSet(sb, MergeSets(Main.config.floraFound, UnsavedData.floraFound), "ST_flora_discovered");
-            AppendSet(sb, MergeSets(Main.config.coralFound, UnsavedData.coralFound), "ST_corals_discovered");
-            AppendSet(sb, MergeSets(Main.config.leviathanFound, UnsavedData.leviathanFound), "ST_leviathans_discovered");
+            HashSet<string> faunaFound = MergeSets(Main.configMain.faunaFound, UnsavedData.faunaFound);
+            HashSet<string> floraFound = MergeSets(Main.configMain.floraFound, UnsavedData.floraFound);
+            HashSet<string> coralFound = MergeSets(Main.configMain.coralFound, UnsavedData.coralFound);
+            HashSet<string> leviathanFound = MergeSets(Main.configMain.leviathanFound, UnsavedData.leviathanFound);
+            if (faunaFound.Count + floraFound.Count + coralFound.Count + leviathanFound.Count == 0)
+            {
+                sb.AppendLine(Language.main.Get("ST_no_species_discovered"));
+                return;
+            }
+            AppendSet(sb, faunaFound, "ST_fauna_discovered");
+            AppendSet(sb, MergeSets(Main.configMain.floraFound, UnsavedData.floraFound), "ST_flora_discovered");
+            AppendSet(sb, MergeSets(Main.configMain.coralFound, UnsavedData.coralFound), "ST_corals_discovered");
+            AppendSet(sb, MergeSets(Main.configMain.leviathanFound, UnsavedData.leviathanFound), "ST_leviathans_discovered");
         }
 
         private static void GetEncyMiscStats(StringBuilder sb)
@@ -601,10 +632,10 @@ namespace Stats_Tracker
 
         static TimeSpan GetTimeSpanPlayed()
         {
-            if (Main.config.modEnabled)
+            if (ConfigMenu.modEnabled.Value)
                 return Patches.GetTimeSpanPlayed();
-            else if (Main.config.timePlayed.ContainsKey(saveSlot))
-                return Main.config.timePlayed[saveSlot];
+            else if (Main.configMain.timePlayed.ContainsKey(saveSlot))
+                return Main.configMain.timePlayed[saveSlot];
 
             return TimeSpan.Zero;
         }
@@ -745,24 +776,24 @@ namespace Stats_Tracker
 
         public static string GetTraveledString(int meters)
         {
-            if (Main.config.miles)
+            if (ConfigMenu.miles.Value)
             {
                 int yards = Mathf.RoundToInt(Util.MeterToYard(meters));
                 int miles = yards / 1760;
                 int y = yards % 1760;
                 StringBuilder sb = new StringBuilder();
                 if (miles == 1)
-                    sb.Append(miles + " " + Language.main.Get("ST_mile"));
+                    sb.Append(miles + " mile");
                 else if (miles > 1)
-                    sb.Append(miles + " " + Language.main.Get("ST_miles"));
+                    sb.Append(miles + " miles");
 
                 if (miles > 0 && y > 0)
                     sb.Append(" ");
 
                 if (y == 1)
-                    sb.Append(y + " " + Language.main.Get("ST_yard"));
+                    sb.Append(y + " yard");
                 else if (y > 1)
-                    sb.Append(y + " " + Language.main.Get("ST_yards"));
+                    sb.Append(y + " yards");
 
                 return sb.ToString();
             }
@@ -916,7 +947,7 @@ namespace Stats_Tracker
 
         private static string GetTempSuffix()
         {
-            if (Main.config.fahrenhiet)
+            if (ConfigMenu.fahrenhiet.Value)
                 return "°F";
             else
                 return "°C";
@@ -925,10 +956,10 @@ namespace Stats_Tracker
         private static int GetMinTemp()
         {
             int temp = UnsavedData.minTemp;
-            if (Main.config.minTemp.ContainsKey(saveSlot) && Main.config.minTemp[saveSlot] < temp)
-                temp = Main.config.minTemp[saveSlot];
+            if (Main.configMain.minTemp.ContainsKey(saveSlot) && Main.configMain.minTemp[saveSlot] < temp)
+                temp = Main.configMain.minTemp[saveSlot];
 
-            if (Main.config.fahrenhiet)
+            if (ConfigMenu.fahrenhiet.Value)
                 temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
 
             return temp;
@@ -937,10 +968,10 @@ namespace Stats_Tracker
         private static int GetMaxTemp()
         {
             int temp = UnsavedData.maxTemp;
-            if (Main.config.maxTemp.ContainsKey(saveSlot) && Main.config.maxTemp[saveSlot] > temp)
-                temp = Main.config.maxTemp[saveSlot];
+            if (Main.configMain.maxTemp.ContainsKey(saveSlot) && Main.configMain.maxTemp[saveSlot] > temp)
+                temp = Main.configMain.maxTemp[saveSlot];
 
-            if (Main.config.fahrenhiet)
+            if (ConfigMenu.fahrenhiet.Value)
                 temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
 
             return temp;
@@ -949,10 +980,10 @@ namespace Stats_Tracker
         private static int GetMinVehicleTemp()
         {
             int temp = UnsavedData.minVehicleTemp;
-            if (Main.config.minVehicleTemp.ContainsKey(saveSlot) && Main.config.minVehicleTemp[saveSlot] < temp)
-                temp = Main.config.minVehicleTemp[saveSlot];
+            if (Main.configMain.minVehicleTemp.ContainsKey(saveSlot) && Main.configMain.minVehicleTemp[saveSlot] < temp)
+                temp = Main.configMain.minVehicleTemp[saveSlot];
 
-            if (temp != int.MaxValue && Main.config.fahrenhiet)
+            if (temp != int.MaxValue && ConfigMenu.fahrenhiet.Value)
                 temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
 
             return temp;
@@ -961,10 +992,10 @@ namespace Stats_Tracker
         private static int GetMaxVehicleTemp()
         {
             int temp = UnsavedData.maxVehicleTemp;
-            if (Main.config.maxVehicleTemp.ContainsKey(saveSlot) && Main.config.maxVehicleTemp[saveSlot] > temp)
-                temp = Main.config.maxVehicleTemp[saveSlot];
+            if (Main.configMain.maxVehicleTemp.ContainsKey(saveSlot) && Main.configMain.maxVehicleTemp[saveSlot] > temp)
+                temp = Main.configMain.maxVehicleTemp[saveSlot];
 
-            if (temp != int.MinValue && Main.config.fahrenhiet)
+            if (temp != int.MinValue && ConfigMenu.fahrenhiet.Value)
                 temp = Mathf.RoundToInt(Util.CelciusToFahrenhiet(temp));
 
             return temp;
@@ -972,33 +1003,38 @@ namespace Stats_Tracker
 
         private static void AppendWater(StringBuilder sb, float water)
         {
-            if (water == 0)
-                return;
+            //if (water == 0)
+            //    return;
+            if (ConfigMenu.pounds.Value)
+                water = Util.literToGallon(water);
 
-            if (Main.config.pounds)
-                sb.AppendLine(Language.main.Get("ST_water_drunk") + Util.literToGallon(water).ToString("0.0") + " " + Language.main.Get("ST_gallons"));
+            string w = water.ToString("0.#");
+            if (ConfigMenu.pounds.Value)
+                w += " gallons";
             else
-                sb.AppendLine(Language.main.Get("ST_water_drunk") + water.ToString("0.0") + " " + Language.main.Get("ST_liters"));
+                w += " " + Language.main.Get("ST_liters");
+
+            sb.AppendLine(Language.main.Get("ST_water_drunk") + w);
         }
 
         private static void AppendFood(StringBuilder sb, float foodTotal, Dictionary<string, float> dic)
         {
-            if (foodTotal == 0)
-                return;
+            //if (foodTotal == 0)
+            //    return;
 
-            string kgLoc = Main.config.pounds ? " " + Language.main.Get("ST_pounds") : " " + Language.main.Get("ST_kilograms");
-            if (Main.config.pounds)
+            string kgLoc = ConfigMenu.pounds.Value ? " lbs" : " " + Language.main.Get("ST_kilograms");
+            if (ConfigMenu.pounds.Value)
                 foodTotal = Util.KiloToPound(foodTotal);
 
-            sb.AppendLine(Language.main.Get("ST_food_eaten") + foodTotal.ToString("0.0") + kgLoc);
+            sb.AppendLine(Language.main.Get("ST_food_eaten") + foodTotal.ToString("0.#") + kgLoc);
             SortedDictionary<string, float> sortedDic = GetTranslatedSortedDic(dic);
             foreach (var kv in sortedDic)
             {
                 float kg = kv.Value;
-                if (Main.config.pounds)
+                if (ConfigMenu.pounds.Value)
                     kg = Util.KiloToPound(kg);
 
-                sb.AppendLine("     " + kv.Key + ": " + kg.ToString("0.0") + kgLoc);
+                sb.AppendLine("     " + kv.Key + ": " + kg.ToString("0.#") + kgLoc);
             }
         }
 
@@ -1068,10 +1104,12 @@ namespace Stats_Tracker
         private static void AppendDic(StringBuilder sb, Dictionary<string, int> dic, string title)
         {
             int ValuesSum = dic.Values.Sum();
-            if (dic.Count == 0 || ValuesSum == 0)
-                return;
-
             sb.AppendLine(Language.main.Get(title) + ValuesSum);
+            if (dic.Count == 0 || ValuesSum == 0)
+            {
+                sb.AppendLine();
+                return;
+            }
             foreach (var kv in GetTranslatedSortedDic(dic))
                 sb.AppendLine("     " + kv.Key + ": " + kv.Value);
 
@@ -1081,10 +1119,12 @@ namespace Stats_Tracker
         private static void AppendDic(StringBuilder sb, Dictionary<TechType, int> dic, string title)
         {
             int ValuesSum = dic.Values.Sum();
-            if (dic.Count == 0 || ValuesSum == 0)
-                return;
-
             sb.AppendLine(Language.main.Get(title) + ValuesSum);
+            if (dic.Count == 0 || ValuesSum == 0)
+            {
+                sb.AppendLine();
+                return;
+            }
             SortedDictionary<string, int> sortedDic = GetTranslatedSortedDic(dic);
             foreach (var kv in sortedDic)
                 sb.AppendLine("     " + kv.Key + ": " + kv.Value);
@@ -1129,7 +1169,7 @@ namespace Stats_Tracker
 
         private static StringBuilder GetModDisabledString(StringBuilder sb)
         {
-            if (!Main.config.modEnabled)
+            if (ConfigMenu.modEnabled.Value == false)
                 sb.Append(Language.main.Get("ST_mod_disabled") + "\n" + "\n");
 
             return sb;
