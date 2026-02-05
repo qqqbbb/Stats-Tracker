@@ -8,7 +8,7 @@ namespace Stats_Tracker
 {
     public class OptionsMenu : ModOptions
     {
-        public OptionsMenu() : base("Stats")
+        public OptionsMenu() : base(Main.MODNAME)
         {
             AddItem(ConfigMenu.modEnabled.ToModToggleOption());
             AddItem(ConfigMenu.biomeName.ToModToggleOption());

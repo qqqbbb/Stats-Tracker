@@ -27,7 +27,7 @@ namespace Stats_Tracker
         public const string
             MODNAME = "Stats Tracker",
             GUID = "qqqbbb.subnautica.statsTracker",
-            VERSION = "5.5.0";
+            VERSION = "5.5.1";
 
         public static ManualLogSource logger;
         public static OptionsMenu options;
