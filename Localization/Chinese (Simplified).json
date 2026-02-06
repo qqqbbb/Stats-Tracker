@@ -22,10 +22,10 @@
   "ST_mountain_island": "五指山",
   "ST_unknown_biome": "未知区域",
 
-  "ST_mod_enabled": "Mod enabled",
-  "ST_biome_name": "Show biome's name when entering a biome",
-  "ST_no_species_discovered": "No indigenous Lifeforms discovered",
-  "ST_no_data_saved": "No data saved",
+  "ST_mod_enabled": "Mod已启用",
+  "ST_biome_name": "进入区域时显示区域名称",
+  "ST_no_species_discovered": "未发现外星本土生物",
+  "ST_no_data_saved": "未保存数据",
 
   "ST_kilograms": "kg",
   "ST_liters": "L",
