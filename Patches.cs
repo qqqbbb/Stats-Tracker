@@ -46,6 +46,13 @@ namespace Stats_Tracker
         public static bool teleporting = false;
         static TechType hatchedTT = TechType.None;
 
+        public static bool ShouldBeTracking()
+        {
+            if (Player.main.isNewBorn && GetTimeSpanPlayed() == TimeSpan.Zero)
+                return false;
+
+            return Main.setupDone;
+        }
 
         public static TimeSpan GetTimeSpanPlayed()
         {
@@ -90,7 +97,10 @@ namespace Stats_Tracker
                 if (__instance.liveMixin)
                 {
                     TechType tt = CraftData.GetTechType(__instance.gameObject);
-                    if (__instance.liveMixin && __instance.liveMixin.maxHealth >= leviathanMinHealth)
+                    if (creatures.Contains(tt) || leviathans.Contains(tt))
+                        return;
+
+                    if (__instance.liveMixin.maxHealth >= leviathanMinHealth)
                         leviathans.Add(tt);
                     else
                         creatures.Add(tt);
@@ -320,7 +330,7 @@ namespace Stats_Tracker
                 if (Main.setupDone == false || teleporting)
                     return false;
 
-                if (__instance.isNewBorn && GetTimeSpanPlayed() == TimeSpan.Zero)
+                if (ShouldBeTracking() == false)
                 {// intro
                     return false;
                 }
@@ -355,7 +365,7 @@ namespace Stats_Tracker
 
             private static void ShowBiomeName()
             {
-                if (ConfigMenu.biomeName.Value == false || Main.setupDone == false)
+                if (ConfigMenu.biomeName.Value == false || ShouldBeTracking() == false)
                     return;
 
                 string biomeName = Language.main.Get(Util.GetBiomeName());
@@ -828,11 +838,12 @@ namespace Stats_Tracker
             [HarmonyPostfix, HarmonyPatch("ExitInUseMode")]
             public static void ExitInUseModePostfix(Bed __instance)
             {
-                if (ConfigMenu.modEnabled.Value == false)
+                if (ConfigMenu.modEnabled.Value == false || bedTimeStart == default)
                     return;
 
                 TimeSpan timeSlept = GetTimeSpanPlayed() - bedTimeStart;
                 UnsavedData.timeSlept += timeSlept;
+                bedTimeStart = default;
                 //AddDebug("ExitInUseMode " );
             }
         }

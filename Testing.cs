@@ -42,6 +42,8 @@ namespace Stats_Tracker
             {
                 if (WaitScreen.IsWaiting)
                     return;
+                AddDebug($"IsFreeToInteract {__instance.IsFreeToInteract()} _cinematicModeActive {__instance._cinematicModeActive} allowSaving {Player.allowSaving} ");
+
                 //AddDebug("RawBiomeName " + Util.GetRawBiomeName());
                 //AddDebug("LargeWorld GetBiome " + LargeWorld.main.GetBiome(__instance.transform.position));
                 //AddDebug("GetRichPresence " + PlatformUtils.main.GetServices().GetRichPresence());
@@ -77,7 +79,15 @@ namespace Stats_Tracker
 
                 else if (Input.GetKeyDown(KeyCode.C))
                 {
-                    DumpEncy();
+                    float f = Mathf.Lerp(0, 100, .2f);
+                    float f_ = Mathf.Lerp(0, 100, .1f);
+                    float ff = Mathf.Lerp(-100, 100, .2f);
+                    float ff_ = Mathf.Lerp(-100, 100, .1f);
+                    AddDebug("Lerp(0, 100, .2) " + f);
+                    AddDebug("Lerp(0, 100, .1) " + f_);
+                    AddDebug("Lerp(-100, 100, .2) " + ff);
+                    AddDebug("Lerp(-100, 100, .1) " + ff_);
+                    //DumpEncy();
                 }
 
                 else if (Input.GetKeyDown(KeyCode.X))
