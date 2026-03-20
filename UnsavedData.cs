@@ -202,54 +202,74 @@ namespace Stats_Tracker
         {
             //AddDebug("UnsavedData SaveData " + slot);
             //Main.logger.LogDebug("UnsavedData SaveData " + slot);
-            Main.configMain.timePlayed.AddValue(slot, Patches.GetTimeSpanPlayed());
-            Main.configMain.timeSwam.AddValue(slot, timeSwam);
-            Main.configMain.timeWalked.AddValue(slot, timeWalked);
-            Main.configMain.timeSat.AddValue(slot, timeSat);
-            Main.configMain.timeBase.AddValue(slot, timeBase);
-            Main.configMain.timeEscapePod.AddValue(slot, timeEscapePod);
-            Main.configMain.timePrecursor.AddValue(slot, timePrecursor);
-            Main.configMain.timeSlept.AddValue(slot, timeSlept);
-            Main.configMain.playerDeaths.AddValue(slot, playerDeaths);
-            Main.configMain.healthLost.AddValue(slot, healthLost);
-            Main.configMain.medkitsUsed.AddValue(slot, medkitsUsed);
-            SaveDic(Main.configMain.foodEaten, slot, foodEaten);
-            Main.configMain.waterDrunk.AddValue(slot, waterDrunk);
-            Main.configMain.distanceTraveled.AddValue(slot, distanceTraveled);
-            UpdateDicEntryIfGreater(Main.configMain.maxDepth, slot, maxDepth);
-            Main.configMain.distanceTraveledSwim.AddValue(slot, distanceTraveledSwim);
-            Main.configMain.distanceTraveledWalk.AddValue(slot, distanceTraveledWalk);
-            Main.configMain.distanceTraveledSeaglide.AddValue(slot, distanceTraveledSeaglide);
-            SaveDic(Main.configMain.vehiclesLost, slot, vehiclesLost);
-            SaveDic(Main.configMain.distanceTraveledVehicle, slot, distanceTraveledVehicle);
-            SaveDic(Main.configMain.itemsCrafted, slot, itemsCrafted);
-            Main.configMain.baseRoomsBuilt[slot] = TechTypeDicToStringDic(GetRoomsDic());
-            Main.configMain.baseCorridorsBuilt[slot] = GetCorridorsBuilt();
-            Main.configMain.basePower[slot] = GetBasePowerDic();
-            Main.configMain.objectsScanned.AddValue(slot, objectsScanned);
-            SaveSet(Main.configMain.blueprintsFromDatabox, slot, blueprintsFromDatabox);
-            SaveSet(Main.configMain.blueprintsUnlocked, slot, blueprintsUnlocked);
-            SaveSet(Main.configMain.floraFound, slot, floraFound);
-            SaveSet(Main.configMain.faunaFound, slot, faunaFound);
-            SaveSet(Main.configMain.coralFound, slot, coralFound);
-            SaveSet(Main.configMain.leviathanFound, slot, leviathanFound);
-            SaveDic(Main.configMain.animalsKilled, slot, animalsKilled);
-            SaveDic(Main.configMain.plantsKilled, slot, plantsKilled);
-            SaveDic(Main.configMain.coralKilled, slot, coralKilled);
-            SaveDic(Main.configMain.leviathansKilled, slot, leviathansKilled);
-            SaveDic(Main.configMain.plantsGrown, slot, plantsGrown);
-            SaveDic(Main.configMain.eggsHatched, slot, eggsHatched);
-            SaveDic(Main.configMain.creaturesBred, slot, creaturesBred);
-            SaveDic(Main.configMain.timeBiomes, slot, timeBiomes);
-            SaveDic(Main.configMain.timeVehicles, slot, timeVehicles);
-            SaveDic(Main.configMain.pickedUpItems, slot, pickedUpItems);
-            SaveDic(Main.configMain.builderToolBuilt, slot, builderToolBuilt);
-            SaveDic(Main.configMain.constructorBuilt, slot, constructorBuilt);
-            UpdateDicEntryIfLess(Main.configMain.minTemp, slot, minTemp);
-            UpdateDicEntryIfGreater(Main.configMain.maxTemp, slot, maxTemp);
-            UpdateDicEntryIfLess(Main.configMain.minVehicleTemp, slot, minVehicleTemp);
-            UpdateDicEntryIfGreater(Main.configMain.maxVehicleTemp, slot, maxVehicleTemp);
-            Main.configMain.Save();
+            try
+            {
+                if (slot == null)
+                {
+                    Main.logger.LogError("UnsavedData SaveData slot == null");
+                    AddDebug("Stats were not saved");
+                    return;
+                }
+                if (Main.configMain == null)
+                {
+                    Main.logger.LogError("UnsavedData SaveData configMain == null");
+                    AddDebug("Stats were not saved");
+                    return;
+                }
+                Main.configMain.timePlayed.AddValue(slot, Patches.GetTimeSpanPlayed());
+                Main.configMain.timeSwam.AddValue(slot, timeSwam);
+                Main.configMain.timeWalked.AddValue(slot, timeWalked);
+                Main.configMain.timeSat.AddValue(slot, timeSat);
+                Main.configMain.timeBase.AddValue(slot, timeBase);
+                Main.configMain.timeEscapePod.AddValue(slot, timeEscapePod);
+                Main.configMain.timePrecursor.AddValue(slot, timePrecursor);
+                Main.configMain.timeSlept.AddValue(slot, timeSlept);
+                Main.configMain.playerDeaths.AddValue(slot, playerDeaths);
+                Main.configMain.healthLost.AddValue(slot, healthLost);
+                Main.configMain.medkitsUsed.AddValue(slot, medkitsUsed);
+                SaveDic(Main.configMain.foodEaten, slot, foodEaten);
+                Main.configMain.waterDrunk.AddValue(slot, waterDrunk);
+                Main.configMain.distanceTraveled.AddValue(slot, distanceTraveled);
+                UpdateDicEntryIfGreater(Main.configMain.maxDepth, slot, maxDepth);
+                Main.configMain.distanceTraveledSwim.AddValue(slot, distanceTraveledSwim);
+                Main.configMain.distanceTraveledWalk.AddValue(slot, distanceTraveledWalk);
+                Main.configMain.distanceTraveledSeaglide.AddValue(slot, distanceTraveledSeaglide);
+                SaveDic(Main.configMain.vehiclesLost, slot, vehiclesLost);
+                SaveDic(Main.configMain.distanceTraveledVehicle, slot, distanceTraveledVehicle);
+                SaveDic(Main.configMain.itemsCrafted, slot, itemsCrafted);
+                Main.configMain.baseRoomsBuilt[slot] = TechTypeDicToStringDic(GetRoomsDic());
+                Main.configMain.baseCorridorsBuilt[slot] = GetCorridorsBuilt();
+                Main.configMain.basePower[slot] = GetBasePowerDic();
+                Main.configMain.objectsScanned.AddValue(slot, objectsScanned);
+                SaveSet(Main.configMain.blueprintsFromDatabox, slot, blueprintsFromDatabox);
+                SaveSet(Main.configMain.blueprintsUnlocked, slot, blueprintsUnlocked);
+                SaveSet(Main.configMain.floraFound, slot, floraFound);
+                SaveSet(Main.configMain.faunaFound, slot, faunaFound);
+                SaveSet(Main.configMain.coralFound, slot, coralFound);
+                SaveSet(Main.configMain.leviathanFound, slot, leviathanFound);
+                SaveDic(Main.configMain.animalsKilled, slot, animalsKilled);
+                SaveDic(Main.configMain.plantsKilled, slot, plantsKilled);
+                SaveDic(Main.configMain.coralKilled, slot, coralKilled);
+                SaveDic(Main.configMain.leviathansKilled, slot, leviathansKilled);
+                SaveDic(Main.configMain.plantsGrown, slot, plantsGrown);
+                SaveDic(Main.configMain.eggsHatched, slot, eggsHatched);
+                SaveDic(Main.configMain.creaturesBred, slot, creaturesBred);
+                SaveDic(Main.configMain.timeBiomes, slot, timeBiomes);
+                SaveDic(Main.configMain.timeVehicles, slot, timeVehicles);
+                SaveDic(Main.configMain.pickedUpItems, slot, pickedUpItems);
+                SaveDic(Main.configMain.builderToolBuilt, slot, builderToolBuilt);
+                SaveDic(Main.configMain.constructorBuilt, slot, constructorBuilt);
+                UpdateDicEntryIfLess(Main.configMain.minTemp, slot, minTemp);
+                UpdateDicEntryIfGreater(Main.configMain.maxTemp, slot, maxTemp);
+                UpdateDicEntryIfLess(Main.configMain.minVehicleTemp, slot, minVehicleTemp);
+                UpdateDicEntryIfGreater(Main.configMain.maxVehicleTemp, slot, maxVehicleTemp);
+                Main.configMain.Save();
+            }
+            catch (Exception ex)
+            {
+                Main.logger.LogError($"Error while saving slot {slot}: {ex.Message}");
+                AddDebug("Stats were not saved");
+            }
         }
 
         private static Dictionary<string, int> GetBasePowerDic()

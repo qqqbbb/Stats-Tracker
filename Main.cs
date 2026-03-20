@@ -27,7 +27,7 @@ namespace Stats_Tracker
         public const string
             MODNAME = "Stats Tracker",
             GUID = "qqqbbb.subnautica.statsTracker",
-            VERSION = "5.5.3";
+            VERSION = "5.5.4";
 
         public static ManualLogSource logger;
         public static OptionsMenu options;
@@ -39,7 +39,7 @@ namespace Stats_Tracker
         private void Awake()
         {
             logger = Logger;
-            logger.LogInfo("Language " + Language.main.currentLanguage);
+            //logger.LogInfo("Language " + Language.main.currentLanguage);
             //config = OptionsPanelHandler.RegisterModOptions<Config>();
 
         }
@@ -60,7 +60,7 @@ namespace Stats_Tracker
             Patches.timeLastUpdate = Patches.GetTimeSpanPlayed();
             Stats_Display.AddMyEntries();
             setupDone = true;
-            logger.LogInfo($"{MODNAME} {VERSION} FinishLoadingSetup done");
+            //logger.LogInfo($"{MODNAME} {VERSION} FinishLoadingSetup done");
         }
 
         public static void DeleteSaveSlotData(string saveSlot)
@@ -120,11 +120,15 @@ namespace Stats_Tracker
             configMain.Save();
         }
 
-        static void SaveData()
+        static void SaveData(bool saving)
         {
             //logger.LogInfo("SaveData " + SaveLoadManager.main.currentSlot);
-            UnsavedData.SaveData(SaveLoadManager.main.currentSlot);
-            UnsavedData.ResetData();
+            //AddDebug("SaveData " + saving);
+            if (saving)
+            {
+                UnsavedData.SaveData(SaveLoadManager.main.currentSlot);
+                UnsavedData.ResetData();
+            }
         }
 
         [HarmonyPatch(typeof(SaveLoadManager), "ClearSlotAsync")]
@@ -165,16 +169,17 @@ namespace Stats_Tracker
             OptionsPanelHandler.RegisterModOptions(options);
             configMain = new ConfigMain();
             configMain.Load();
-            logger.LogInfo($"{MODNAME} {VERSION} Start done");
+            SaveLoadManager.notificationSaveInProgress += SaveData;
+            //logger.LogInfo($"{MODNAME} {VERSION} Start done");
         }
 
-        [HarmonyPatch(typeof(SaveLoadManager), "SaveToDeepStorageAsync", new Type[0])]
+        //[HarmonyPatch(typeof(SaveLoadManager), "SaveToDeepStorageAsync", new Type[0])]
         internal class SaveLoadManager_SaveToDeepStorageAsync_Patch
         {
             public static void Postfix(SaveLoadManager __instance)
             { // runs after nautilus SaveEvent
-                //AddDebug("SaveToDeepStorageAsync");
-                SaveData();
+                AddDebug("SaveToDeepStorageAsync");
+                //SaveData();
             }
         }
 

@@ -68,7 +68,10 @@ namespace Stats_Tracker
         public static void AddMyEntries()
         {
             foreach (var kv in myEntries)
+            {
+                //Main.logger.LogMessage("myEntries " + kv.Key);
                 PDAEncyclopedia.Add(kv.Key, false);
+            }
         }
 
         [HarmonyPatch(typeof(uGUI_EncyclopediaTab), "DisplayEntry")]
@@ -408,6 +411,25 @@ namespace Stats_Tracker
             Dictionary<string, float> dic = GetDic(Main.configMain.foodEaten, UnsavedData.foodEaten);
             float foodTotal = dic.Values.Sum();
             AppendFood(sb, foodTotal, dic);
+        }
+
+        private static void AddBaseEntries()
+        {
+            int globalRoomsBuilt = GetDicGlobal(Main.configMain.baseRoomsBuilt).Values.Sum();
+            int globalCorridorsBuilt = Main.configMain.baseCorridorsBuilt.Values.Sum();
+            //AddDebug("globalRoomsBuilt " + globalRoomsBuilt);
+            //AddDebug("globalCorridorsBuilt " + globalCorridorsBuilt);
+            if (globalRoomsBuilt > 0 || globalCorridorsBuilt > 0)
+                myEntries["ST_Stats_global_base"] = "ST_stats/global";
+
+            // = TechTypeDicToStringDic(GetRoomsDic());
+            //Main.configMain.baseCorridorsBuilt[slot] = GetCorridorsBuilt();
+            int corridorsBuilt = UnsavedData.GetCorridorsBuilt();
+            int roomsBuilt = UnsavedData.GetRoomsDic().Values.Sum();
+            //AddDebug("corridorsBuilt " + corridorsBuilt);
+            //AddDebug("roomsBuilt " + roomsBuilt);
+            if (roomsBuilt > 0 || corridorsBuilt > 0 || Main.configMain.baseRoomsBuilt[saveSlot].Values.Sum() > 0 || Main.configMain.baseCorridorsBuilt[saveSlot] > 0)
+                myEntries["ST_Stats_this_game_base"] = "ST_stats/this_game";
         }
 
         private static void GetBaseStats(StringBuilder sb, bool global)

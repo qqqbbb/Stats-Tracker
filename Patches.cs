@@ -540,7 +540,24 @@ namespace Stats_Tracker
                 if (ConfigMenu.modEnabled.Value == false)
                     return;
 
-                if (WasKilledByPlayer(__instance, dealer))
+                if (__instance.gameObject.tag == "Player" && __instance.damageInfo.damage > 0)
+                {
+                    if (type == DamageType.Fire || type == DamageType.Heat)
+                    {
+                        float temp = WaterTemperatureSimulation.main.GetTemperature(__instance.transform.position);
+                        //AddDebug("player fire damage " + (int)temp);
+                        if (UnsavedData.maxTemp < temp)
+                            UnsavedData.maxTemp = Mathf.RoundToInt(temp);
+                    }
+                    else if (type == DamageType.Cold)
+                    {
+                        float temp = WaterTemperatureSimulation.main.GetTemperature(__instance.transform.position);
+                        //AddDebug("player Cold damage " + (int)temp);
+                        if (UnsavedData.minTemp > temp)
+                            UnsavedData.minTemp = Mathf.RoundToInt(temp);
+                    }
+                }
+                else if (WasKilledByPlayer(__instance, dealer))
                 {
                     killedLM = null;
                     TechType tt = CraftData.GetTechType(__instance.gameObject);
@@ -687,6 +704,7 @@ namespace Stats_Tracker
                     return;
 
                 UnsavedData.bases.Add(__instance);
+
             }
         }
 
@@ -845,34 +863,6 @@ namespace Stats_Tracker
                 UnsavedData.timeSlept += timeSlept;
                 bedTimeStart = default;
                 //AddDebug("ExitInUseMode " );
-            }
-        }
-
-        [HarmonyPatch(typeof(LiveMixin), "TakeDamage")]
-        class LiveMixin_TakeDamage_Patch
-        {
-            static void Postfix(LiveMixin __instance, DamageType type)
-            {
-                if (ConfigMenu.modEnabled.Value == false)
-                    return;
-
-                if (__instance.gameObject.tag == "Player" && __instance.damageInfo.damage > 0)
-                {
-                    if (type == DamageType.Fire || type == DamageType.Heat)
-                    {
-                        float temp = WaterTemperatureSimulation.main.GetTemperature(__instance.transform.position);
-                        //AddDebug("player fire damage " + (int)temp);
-                        if (UnsavedData.maxTemp < temp)
-                            UnsavedData.maxTemp = Mathf.RoundToInt(temp);
-                    }
-                    else if (type == DamageType.Cold)
-                    {
-                        float temp = WaterTemperatureSimulation.main.GetTemperature(__instance.transform.position);
-                        //AddDebug("player Cold damage " + (int)temp);
-                        if (UnsavedData.minTemp > temp)
-                            UnsavedData.minTemp = Mathf.RoundToInt(temp);
-                    }
-                }
             }
         }
 
