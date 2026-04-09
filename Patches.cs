@@ -462,7 +462,7 @@ namespace Stats_Tracker
                     return;
 
                 Main.configMain.gamesWon++;
-                Main.configMenu.Save();
+                Main.configMain.Save();
             }
         }
 
@@ -768,7 +768,7 @@ namespace Stats_Tracker
                     if (Main.configMain.builderToolBuilt[saveSlot].ContainsKey(name) && Main.configMain.builderToolBuilt[saveSlot][name] > 0)
                     {
                         Main.configMain.builderToolBuilt[saveSlot][name]--;
-                        Main.configMenu.Save();
+                        Main.configMain.Save();
                     }
                 }
 
