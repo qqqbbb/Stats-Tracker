@@ -353,14 +353,14 @@ namespace Stats_Tracker
                 if (GameModeUtils.IsPermadeath())
                 {
                     Main.configMain.permaDeaths++;
-                    Main.configMenu.Save();
+                    Main.configMain.Save();
                 }
                 else
                     UnsavedData.playerDeaths++;
             }
 
             [HarmonyFinalizer, HarmonyPatch("Start")]
-            public static void UpdateFinalizer(Player __instance)
+            public static void StartFinalizer(Player __instance)
             {
                 CoroutineHost.StartCoroutine(ShowBiomeName());
             }
