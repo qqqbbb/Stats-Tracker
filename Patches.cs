@@ -50,7 +50,8 @@ namespace Stats_Tracker
 
         public static bool ShouldBeTracking()
         {
-            if (Player.main.isNewBorn && GetTimeSpanPlayed() == TimeSpan.Zero)
+            //if (Player.main.isNewBorn && GetTimeSpanPlayed() == TimeSpan.Zero)
+            if (Player.main.currentEscapePod)
                 return false;
 
             return Main.setupDone;
@@ -196,7 +197,6 @@ namespace Stats_Tracker
         [HarmonyPatch(typeof(Player))]
         internal class Player_Patch
         {
-            //static string currentBiome;
             static BasicText currentBiome = new BasicText(0, 250);
 
             private static void SaveTravelStats(Player player)
@@ -369,18 +369,14 @@ namespace Stats_Tracker
             {
                 while (true)
                 {
+                    if (ConfigMenu.biomeName.Value && ShouldBeTracking())
+                    {
+                        string biomeName = Language.main.Get(Util.GetBiomeName());
+                        //AddDebug("biomeName " + biomeName);
+                        if (currentBiome.GetText() != biomeName)
+                            currentBiome.ShowMessage(biomeName, 5);
+                    }
                     yield return new WaitForSeconds(1);
-
-                    if (ConfigMenu.biomeName.Value == false || ShouldBeTracking() == false)
-                        yield return null;
-
-                    string biomeName = Language.main.Get(Util.GetBiomeName());
-                    //AddDebug("biomeName " + biomeName);
-                    if (currentBiome.GetText() == biomeName)
-                        yield return null;
-
-                    currentBiome.ShowMessage(biomeName, 5);
-                    //currentBiome.SetColor(Color.green);
                 }
             }
         }
