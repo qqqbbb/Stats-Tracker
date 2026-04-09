@@ -38,7 +38,17 @@ namespace Stats_Tracker
 
         public static string GetBiomeName()
         {
-            string name = LargeWorld.main.GetBiome(Player.main.transform.position).ToLower();
+            //Vector3 playerPos = Player.main.transform.position;
+            //Vector3Int playerPos_ = new Vector3Int((int)playerPos.x, (int)playerPos.y, (int)playerPos.z);
+            //AddDebug("playerPos " + playerPos_);
+            string name = LargeWorld.main.GetBiome(Player.main.transform.position);
+            if (name == null)
+            {
+                //AddDebug("GetBiomeName name null");
+                return "ST_unknown_biome";
+            }
+            name = name.ToLower();
+            //AddDebug("GetBiomeName name " + name);
             if (name.StartsWith("bloodkelp"))
                 return "ST_blood_kelp";
             else if (name.StartsWith("ilz"))
@@ -52,8 +62,7 @@ namespace Stats_Tracker
 
                 return biomeNames[name];
             }
-            else
-                return "ST_unknown_biome";
+            return "ST_unknown_biome";
         }
 
         public static bool IsPlayerOnMountainIsland()

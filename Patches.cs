@@ -5,8 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
+using UWE;
 using static ErrorMessage;
 
 namespace Stats_Tracker
@@ -357,24 +359,29 @@ namespace Stats_Tracker
                     UnsavedData.playerDeaths++;
             }
 
-            [HarmonyPostfix, HarmonyPatch("Update")]
-            public static void UpdatePostfix(Player __instance)
+            [HarmonyFinalizer, HarmonyPatch("Start")]
+            public static void UpdateFinalizer(Player __instance)
             {
-                ShowBiomeName();
+                CoroutineHost.StartCoroutine(ShowBiomeName());
             }
 
-            private static void ShowBiomeName()
+            private static IEnumerator ShowBiomeName()
             {
-                if (ConfigMenu.biomeName.Value == false || ShouldBeTracking() == false)
-                    return;
+                while (true)
+                {
+                    yield return new WaitForSeconds(1);
 
-                string biomeName = Language.main.Get(Util.GetBiomeName());
-                //AddDebug("biomeName " + biomeName);
-                if (currentBiome.GetText() == biomeName)
-                    return;
+                    if (ConfigMenu.biomeName.Value == false || ShouldBeTracking() == false)
+                        yield return null;
 
-                currentBiome.ShowMessage(biomeName, 5);
-                //currentBiome.SetColor(Color.green);
+                    string biomeName = Language.main.Get(Util.GetBiomeName());
+                    //AddDebug("biomeName " + biomeName);
+                    if (currentBiome.GetText() == biomeName)
+                        yield return null;
+
+                    currentBiome.ShowMessage(biomeName, 5);
+                    //currentBiome.SetColor(Color.green);
+                }
             }
         }
 
