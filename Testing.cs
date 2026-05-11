@@ -42,7 +42,7 @@ namespace Stats_Tracker
             {
                 if (WaitScreen.IsWaiting)
                     return;
-                AddDebug($"IsFreeToInteract {__instance.IsFreeToInteract()} _cinematicModeActive {__instance._cinematicModeActive} allowSaving {Player.allowSaving} ");
+                //AddDebug($"IsFreeToInteract {__instance.IsFreeToInteract()} _cinematicModeActive {__instance._cinematicModeActive} precursorOutOfWater {Player.main.precursorOutOfWater} ");
 
                 //AddDebug("RawBiomeName " + Util.GetRawBiomeName());
                 //AddDebug("LargeWorld GetBiome " + LargeWorld.main.GetBiome(__instance.transform.position));

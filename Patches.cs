@@ -50,8 +50,7 @@ namespace Stats_Tracker
 
         public static bool ShouldBeTracking()
         {
-            //if (Player.main.isNewBorn && GetTimeSpanPlayed() == TimeSpan.Zero)
-            if (Player.main.currentEscapePod)
+            if (Player.main.isNewBorn && GetTimeSpanPlayed() == TimeSpan.Zero)
                 return false;
 
             return Main.setupDone;
@@ -365,11 +364,22 @@ namespace Stats_Tracker
                 CoroutineHost.StartCoroutine(ShowBiomeName());
             }
 
+            private static bool ShouldShowBiomeName()
+            {
+                if (ConfigMenu.biomeName.Value == false)
+                    return false;
+
+                if (Player.main.currentSub && Player.main.currentSub.isBase)
+                    return false;
+
+                return Player.main.currentEscapePod == null && Player.main.precursorOutOfWater == false && Main.setupDone;
+            }
+
             private static IEnumerator ShowBiomeName()
             {
                 while (true)
                 {
-                    if (ConfigMenu.biomeName.Value && ShouldBeTracking())
+                    if (ShouldShowBiomeName())
                     {
                         string biomeName = Language.main.Get(Util.GetBiomeName());
                         //AddDebug("biomeName " + biomeName);
